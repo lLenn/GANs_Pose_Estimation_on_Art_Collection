@@ -1,0 +1,204 @@
+%
+% Master thesis template for Ghent University (2021)
+%
+%
+%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%  !!  MAKE SURE TO SET lualatex OR xelatex AS LATEX ENGINE  !!
+%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%  !! For overleaf:                                          !!
+%  !!     1. click gear icon in top right                    !!
+%  !!     2. select `lualatex` in "latex engine"             !!
+%  !!     3. click "save project settings"                   !!
+%  !!                                                        !!
+%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%
+%  History
+%    2014         Doctoral Thesis of Bruno Volckaert
+%    2017         Adapted to master thesis by Jerico Moeyersons
+%    2018         Cleanup by Merlijn Sebrechts
+%    2021         Update by Marleen Denert and Merlijn Sebrechts with feedback from Leen Pollefliet
+%
+%  Latest version
+%    https://github.com/galgalesh/masterproef-template
+%
+\documentclass[11pt,a4paper,openany]{book}
+\usepackage[a4paper,includeheadfoot,margin=2.50cm]{geometry}
+
+\setlength{\parindent}{0cm}           % indent of the first sentence of a paragraph
+\setlength{\parskip}{1em}             % space between paragraphs
+
+\renewcommand{\baselinestretch}{1.2}  % stretch horizontal space between everything
+
+\usepackage[hyphens]{url} % Break line on hyphens in long urls
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{pdfpages}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[toc,page]{appendix}
+\usepackage{fontspec}
+\usepackage[T1]{fontenc}
+
+% Don't indent table of contents, list of figures, and list of tables
+\usepackage{tocloft}
+\setlength{\cftsecindent}{0pt}    % Remove indent for \section
+\setlength{\cftsubsecindent}{0pt} % Remove indent for \subsection
+\setlength{\cftfigindent}{0pt}    % remove indentation from figures in lof
+\setlength{\cfttabindent}{0pt}    % remove indentation from tables in lot
+
+% To generate fake lorem ipsum text
+\usepackage{lipsum}
+
+
+
+%
+% UGent style guide
+%
+\setmainfont[
+	Path=fonts/,
+	BoldFont      =UGentPannoText-SemiBold.ttf,
+	ItalicFont    =UGentPannoText-Normal.ttf,
+	ItalicFeatures={FakeSlant=0.3},
+	BoldItalicFont=UGentPannoText-SemiBold.ttf,
+    BoldItalicFeatures={FakeSlant=0.3},
+]{UGentPannoText-Normal.ttf}
+\urlstyle{same} % Also use the default font for URLs
+
+
+% If you want left justified text, uncomment the line below.
+%\usepackage[document]{ragged2e} % Left justify all text
+
+% Style Chapter titles so they have the chapter number in grey.
+\usepackage{color}
+\definecolor{chaptergrey}{rgb}{0.5,0.5,0.5}
+\usepackage[explicit, pagestyles]{titlesec}
+\titleformat{\chapter}[display]{\bfseries}{\color{chaptergrey}\fontfamily{pbk}\fontsize{80pt}{100pt}\selectfont\thechapter}{0pt}{\Huge #1}
+\titlespacing*{\chapter}{0pt}{-80pt}{30pt}
+
+
+% Header showing chapter number and title and footer showing page number
+\newpagestyle{fancy}{%
+  \sethead{} % left
+          {} % center
+          {\Large\thechapter~~\chaptertitle} %right
+  \setfoot{} % left
+          {\thepage} % center
+          {} %right
+  \setheadrule{0pt}
+}
+\pagestyle{fancy}
+
+% Header showing chapter title and footer showing page number
+\newpagestyle{numberless}{%
+  \sethead{} % left
+          {} % center
+          {\Large\chaptertitle} %right
+  \setfoot{} % left
+          {\thepage} % center
+          {} %right
+  \setheadrule{0pt}
+}
+
+\usepackage{minted}                                    % for modern code highlighting
+\newenvironment{code}{\captionsetup{type=listing}}{}   % To get multiline code fragments working: https://tex.stackexchange.com/a/53540/72273
+
+\PassOptionsToPackage{hyphens}{url}
+\usepackage{hyperref}
+\usepackage{url}
+
+\usepackage[numbers]{natbib}       % For bibliography; use numeric citations
+\bibliographystyle{IEEEtran}
+\usepackage[nottoc]{tocbibind}     % Put Bibliography in ToC
+
+%
+% Defines \checkmark to draw a checkmark
+%
+\usepackage{tikz}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;}
+
+%
+% For tables
+%
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{ragged2e}  % for '\RaggedRight' macro (allows hyphenation)
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+%
+% Support for splitting Dutch words correctly
+%
+\usepackage{polyglossia}
+\setdefaultlanguage[babelshorthands=true]{dutch}
+
+% Manually specify additional hypnations for words
+%
+% Translated strings. If these aren't set, the English words are used.
+%
+\addto\captionsenglish{%
+  \renewcommand{\contentsname}%
+    {Inhoudsopgave}%
+}
+
+
+\renewcommand\appendixtocname{Bijlagen}
+\renewcommand\appendixpagename{Bijlagen}
+\renewcommand{\listoflistingscaption}{Lijst van listings}
+
+%
+% Set the title and your name
+%
+\title{de titel}
+\author{de auteur}
+
+%
+%  END OF HEADER
+%  The actual latex document content starts here.
+%
+\begin{document}
+%download het voorblad van plato
+\frontmatter
+\includepdf{voorblad.pdf}
+
+% White page
+\newpage\thispagestyle{empty}\mbox{}
+\mainmatter
+% Word of thanks
+\include{chapters/Dankwoord}
+
+% White page
+\newpage\thispagestyle{empty}\mbox{}
+
+% Om het extended abstract te schrijven kan je de IEEE conference proceedings template gebruiken. Die staat ook op Overleaf: https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn. Voeg dit toe als .pdf
+\includepdf[pages={-}]{abstract.pdf}  % Extended Abstract
+
+\pagestyle{empty} % geen hoofding
+\tableofcontents                      % Table of Contents
+
+\newpage
+\listoffigures                        % List of figures
+\newpage
+\listoftables % List of tables
+\newpage
+\listoflistings                       % List of listings (code fragments)
+%
+% Include the main chapters of the thesis below
+%
+\include{chapters/Inleiding}
+\pagestyle{fancy} %stelt de hoofding in
+\include{chapters/Hoofdstuk1}
+\include{chapters/Hoofdstuk2}
+\include{chapters/Hoofdstuk3}
+
+\pagestyle{numberless} 
+\include{chapters/Conclusion}
+\include{chapters/Bibliografie}
+\pagestyle{empty}
+\include{chapters/Bijlagen}
+
+\end{document}
+

@@ -5,4 +5,4 @@
 *.lot
 *.out
 *.toc
-*/_minted-main/*
+_minted-main
