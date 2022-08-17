@@ -6,3 +6,4 @@
 *.out
 *.toc
 _minted-main
+.history
