@@ -1,0 +1,43 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Main",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "args": [
+                ".data/videos/MSK_08.mp4"
+            ],
+            "env": {
+                "DISPLAY": "${input:xlaunch_ip}:0",
+                "LIBGL_ALWAYS_INDIRECT": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "env": {
+                "DISPLAY": "${input:xlaunch_ip}:0",
+                "LIBGL_ALWAYS_INDIRECT": "1"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ],
+    "inputs": [{
+        "id": "xlaunch_ip",
+        "type": "command",
+        "command": "shellCommand.execute",
+        "args": {
+            "command": "ip route list default | awk '{print $3}'"
+        }
+    }]
+}
