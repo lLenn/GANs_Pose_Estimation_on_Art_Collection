@@ -1,8 +1,11 @@
 #!/bin/bash
 
 # Create tmp folder for install
-mkdir tmp
-cd tmp
+mkdir bin
+cd bin
+
+# Downgrade pip to avoid build error
+pip install pip==21.2
 
 # Install PyTorch
 pip3 install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu116
@@ -23,18 +26,25 @@ else
     exit 1
 fi
 
-# Check torch environment by:  python3 -m torch.utils.collect_env
-# Get AlphaPose
-git clone https://github.com/MVIG-SJTU/AlphaPose.git
-cd AlphaPose
-
 # install
 export PATH=/usr/local/cuda/bin/:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH
-pip install cython
+pip install cython pycocotools
 sudo apt-get install libyaml-dev
+
+git clone https://github.com/HaoyiZhu/HalpeCOCOAPI.git
+cd HalpeCOCOAPI/PythonAPI
+python3 setup.py build develop --user
+
+cd ../..
+git clone https://github.com/MVIG-SJTU/AlphaPose.git
+cd AlphaPose
 python3 setup.py build develop
 
-#remove tmp
+# update pip
+wget https://bootstrap.pypa.io/get-pip.py
+python3 get-pip.py
+
+#remove bin
 #cd ../..
-#rm -rf tmp
+#rm -rf bin
