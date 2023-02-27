@@ -25,9 +25,6 @@
 \documentclass[11pt,a4paper,openany]{book}
 \usepackage[a4paper,includeheadfoot,margin=2.50cm]{geometry}
 
-\setlength{\parindent}{0cm}           % indent of the first sentence of a paragraph
-\setlength{\parskip}{1em}             % space between paragraphs
-
 \renewcommand{\baselinestretch}{1.2}  % stretch horizontal space between everything
 
 \usepackage[hyphens]{url} % Break line on hyphens in long urls
@@ -102,8 +99,11 @@
   \setheadrule{0pt}
 }
 
-\usepackage{minted}                                    % for modern code highlighting
-\newenvironment{code}{\captionsetup{type=listing}}{}   % To get multiline code fragments working: https://tex.stackexchange.com/a/53540/72273
+% We use the package `minted` for modern code highlighting.
+\usepackage[newfloat,chapter]{minted}
+\SetupFloatingEnvironment{listing}{name=Codefragment, listname=Lijst van codefragmenten}
+%\SetupFloatingEnvironment{listing}{name=Code Fragment, listname=List of Code Fragments} % lang:english
+
 
 \PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
@@ -147,7 +147,9 @@
 
 \renewcommand\appendixtocname{Bijlagen}
 \renewcommand\appendixpagename{Bijlagen}
-\renewcommand{\listoflistingscaption}{Lijst van listings}
+
+\usepackage[toc,acronym]{glossaries}  % for list of acronyms
+\makeglossaries                       % start internal list of acronyms
 
 %
 % Set the title and your name
@@ -164,14 +166,7 @@
 \frontmatter
 \includepdf{voorblad.pdf}
 
-% White page
-\newpage\thispagestyle{empty}\mbox{}
-\mainmatter
-% Word of thanks
 \include{chapters/Dankwoord}
-
-% White page
-\newpage\thispagestyle{empty}\mbox{}
 
 % Om het extended abstract te schrijven kan je de IEEE conference proceedings template gebruiken. Die staat ook op Overleaf: https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn. Voeg dit toe als .pdf
 \includepdf[pages={-}]{abstract.pdf}  % Extended Abstract
@@ -185,20 +180,21 @@
 \listoftables % List of tables
 \newpage
 \listoflistings                       % List of listings (code fragments)
+
 %
 % Include the main chapters of the thesis below
 %
+\mainmatter
+\pagestyle{fancy}
 \include{chapters/Inleiding}
-\pagestyle{fancy} %stelt de hoofding in
 \include{chapters/Hoofdstuk1}
 \include{chapters/Hoofdstuk2}
 \include{chapters/Hoofdstuk3}
-
-\pagestyle{numberless} 
 \include{chapters/Conclusion}
 \include{chapters/Bibliografie}
+
+\pagestyle{numberless} 
 \pagestyle{empty}
 \include{chapters/Bijlagen}
 
 \end{document}
-
