@@ -21,14 +21,18 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{Alicherry2012}
-M.~Alicherry and T.~V. Lakshman, ``{Network aware resource allocation in
-  distributed clouds},'' \emph{Proceedings - IEEE INFOCOM}, pp. 963--971, 2012.
+\bibitem{GeorgeOnABike}
+M.-C. Marinescu, A.~Reshetnikov, and J.~M. López, ``Improving object detection
+  in paintings based on time contexts,'' in \emph{2020 International Conference
+  on Data Mining Workshops (ICDMW)}, 2020, pp. 926--932.
 
-\bibitem{Biran2012}
-O.~Biran, A.~Corradi, M.~Fanelli, L.~Foschini, A.~Nus, D.~Raz, and E.~Silvera,
-  ``{A stable network-aware VM placement for cloud systems},''
-  \emph{Proceedings - 12th IEEE/ACM International Symposium on Cluster, Cloud
-  and Grid Computing, CCGrid 2012}, pp. 498--506, 2012.
+\bibitem{Insight}
+M.~Sabatelli, N.~Banar, M.~Cocriamont, E.~Coudyzer, K.~Lasaracina,
+  W.~Daelemans, P.~Geurts, and M.~Kestemont,
+  ``\BIBforeignlanguage{English}{Advances in digital music iconography:
+  Benchmarking the detection of musical instruments in unrestricted,
+  non-photorealistic images from the artistic domain},''
+  \emph{\BIBforeignlanguage{English}{Digital Humanities Quarterly}}, vol.~15,
+  no.~1, February 2021.
 
 \end{thebibliography}

@@ -1,33 +1,27 @@
-\chapter{Titel van het eerste hoofdstuk}
+\chapter{Literature study}
 \label{chap:rel_work}
 
-\lipsum[2-4]
+We will first examine the effectiveness of existing models on a collection of paintings from 2 different movements.
+For this we will need to have a pose estimator, a style transformer and a collection of test data. 
 
-\section{Sectie titel}
-\label{sec:related_work}
+A first method: We will first convert the test data with the style transformer to a painting and then we will apply pose estimation.
+The test data will have coordinates of the joints, which we will compare with the results of the pose estimation.
+However, the joints are of the original image. How do we convert those coordinates to map to the styled image? 
+Problem: This method does not use any real paintings and will be susceptible to the accuracy of the style transformer.  
 
-\lipsum[3-4]
+A second method: We can apply pose estimation to real paintings and then convert them to a realistic image with style transfer.
+We can then use pose estimation to the realistic images and compare them with the style transformed results.
+This will also require a way to map the results of the real painting to that of the style transformed. 
+Problem: While we’re using real paintings now, the results will still depend on the accuracy of style transformer. 
 
-\begin{table}[tbp]
-	\centering
-	\captionsetup{justification=centering}
-	\caption[Overzicht resource-allocatieschema's]{Overzicht resource-allocatieschema's \\
-		A=Algoritme, P=Protocol, F=Framework S=Simulator, C=Cloud, ILP=Integer Linair Programming, GH = Greedy Heuristic, SBP=Stochastic Bin Packing, MINLP=Particle swarm, RR=Round-Robin, SA=Simulated Annealing, SMT=Satisfiabilty Module Theory, FFD=First Fit Decreasing, MI(N)=Mixed Integer (Non-), SPLE=Software Product Line Engineering, L=Lijst, G=Graaf, B=Boom, FN=Fysieke node, Mig=Migraties, (?)=Niet vermeld}
-	\label{tab:resallocschemes}
-	\resizebox{\textwidth}{!}{%
-	\begin{tabular}{L{4cm} l C{2cm} c c c c}
-		\toprule
-		Naam & Jaar & Type  & A | F | P  & Invoer & Uitvoer & Getest  \\ \midrule
-		Alicherry et al.~\cite{Alicherry2012} & 2012 & k-sneden & A & G & par\{G\} & S \\
-		MCRVMP~\cite{Biran2012} & 2012 & ILP \& GH & A & B\{netwerk\} & VM-plaatsing & C\\
-		\bottomrule
-	\end{tabular}}
-\end{table}
+A third method: We can annotate the paintings ourselves and use pose estimation to assess the pose estimation algorithms. 
+Problem: We must annotate the paintings ourselves. 
 
-\lipsum[3-4]
+\section{Pose estimation}
+\label{sec:pose_estimation}
 
-In Tabel~\ref{tab:resallocschemes} wordt een overzicht weergegeven ...
+Pose estimation can be achieved in a number of different ways.
+There's been 3 methods which we've been able to identify: top-down \cite{alphapose}, bottom-up \cite{blazepose} and instance-aware \cite{fcpose}.
+The algorithms are further categorized in single-person \cite{blazepose} and multi-person \cite{alphapose}\cite{fcpose}
 
-\section{Sectie titel}
-
-
+\subsection{Functie is\_isbn}

@@ -101,8 +101,7 @@
 
 % We use the package `minted` for modern code highlighting.
 \usepackage[newfloat,chapter]{minted}
-\SetupFloatingEnvironment{listing}{name=Codefragment, listname=Lijst van codefragmenten}
-%\SetupFloatingEnvironment{listing}{name=Code Fragment, listname=List of Code Fragments} % lang:english
+\SetupFloatingEnvironment{listing}{name=Code Fragment, listname=List of Code Fragments} % lang:english
 
 
 \PassOptionsToPackage{hyphens}{url}
@@ -130,20 +129,10 @@
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
 %
-% Support for splitting Dutch words correctly
+% Support for splitting English words correctly
 %
 \usepackage{polyglossia}
-\setdefaultlanguage[babelshorthands=true]{dutch}
-
-% Manually specify additional hypnations for words
-%
-% Translated strings. If these aren't set, the English words are used.
-%
-\addto\captionsenglish{%
-  \renewcommand{\contentsname}%
-    {Inhoudsopgave}%
-}
-
+\setdefaultlanguage[variant=us]{english}
 
 \renewcommand\appendixtocname{Bijlagen}
 \renewcommand\appendixpagename{Bijlagen}
@@ -154,16 +143,15 @@
 %
 % Set the title and your name
 %
-\title{Using GANs to optimize Pose Estimation on Art Collections}
-\author{Tristan Verheecke}
+\input{personal_data}
 
 %
 %  END OF HEADER
 %  The actual latex document content starts here.
 %
 \begin{document}
-%download het voorblad van plato
 \frontmatter
+\pagestyle{empty}
 \includepdf{voorblad.pdf}
 
 \include{chapters/Dankwoord}
@@ -171,21 +159,21 @@
 % Om het extended abstract te schrijven kan je de IEEE conference proceedings template gebruiken. Die staat ook op Overleaf: https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn. Voeg dit toe als .pdf
 \includepdf[pages={-}]{abstract.pdf}  % Extended Abstract
 
-\pagestyle{empty} % geen hoofding
 \tableofcontents                      % Table of Contents
-
 \newpage
 \listoffigures                        % List of figures
 \newpage
-\listoftables % List of tables
+\listoftables                         % List of tables
 \newpage
+\include{chapters/Acronyms}           % List of acronyms
 \listoflistings                       % List of listings (code fragments)
+\newpage
 
 %
 % Include the main chapters of the thesis below
 %
 \mainmatter
-\pagestyle{fancy}
+\pagestyle{empty}
 \include{chapters/Inleiding}
 \include{chapters/Hoofdstuk1}
 \include{chapters/Hoofdstuk2}
