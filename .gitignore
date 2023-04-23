@@ -8,5 +8,5 @@
 _minted-main
 .history
 .data
-myvenv
+.venv
 bin

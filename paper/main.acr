@@ -1,5 +1,9 @@
 \glossarysection[\glossarytoctitle]{\glossarytitle}\glossarypreamble
 \begin{theglossary}\glossaryheader
+\glsgroupheading{H}\relax \glsresetentrylist %
+\glossentry{HPE}{\glossaryentrynumbers{\relax 
+		\setentrycounter[]{page}\glsignore{ix}\delimN 
+		\setentrycounter[]{page}\glsnumberformat{2}}}\glsgroupskip
 \glsgroupheading{R}\relax \glsresetentrylist %
 \glossentry{RMFAB}{\glossaryentrynumbers{\relax 
 		\setentrycounter[]{page}\glsignore{ix}\delimN 

@@ -17,11 +17,33 @@ Problem: While we’re using real paintings now, the results will still depend o
 A third method: We can annotate the paintings ourselves and use pose estimation to assess the pose estimation algorithms. 
 Problem: We must annotate the paintings ourselves. 
 
-\section{Pose estimation}
-\label{sec:pose_estimation}
+\section{Human Pose estimation}
+\label{sec:hpe}
+
+\gls{HPE} strives to detect human features from input data such as images and videos.
+It's an elementary part of computer vision with many applications among which are human action recognition (sign language), human tracking (surveillance), and human-computer interaction (video games).
+This is an extensively researched area with a diverse range of different techniques.
+This chapter will try to give an overview of all the many challenges and proposed solutions.
+The focus will be on deep learning models, which have surpassed classical solutions significantly.
+Specifically, around 2D monocular \gls{HPE}.
+\cite{Munea2020}\cite{Zheng2012}\cite{Liu2104}\cite{chen2022}
+
+\subsection{Representation}
+
+There are several ways that the human body joints/keypoints are represented.
+A first distinction is 2D and 3D
+
+Top-Down
+Regression-based, Heatmap-baddes, video-based, model compression-based.
+
+Bottom-Up
+One stage, two-stage
 
 Pose estimation can be achieved in a number of different ways.
-There's been 3 methods which we've been able to identify: top-down \cite{alphapose}, bottom-up \cite{blazepose} and instance-aware \cite{fcpose}.
-The algorithms are further categorized in single-person \cite{blazepose} and multi-person \cite{alphapose}\cite{fcpose}
+There's been 3 methods which we've been able to identify: top-down \cite{alphapose}, bottom-up \cite{blazepose}\cite{openpose} and instance-aware \cite{fcpose}.
+The algorithms are further categorized in single-person \cite{blazepose} and multi-person \cite{alphapose}\cite{openpose}\cite{fcpose}
 
-\subsection{Functie is\_isbn}
+\subsection{Top-down}
+
+\section{Image Style Transfer}
+\label{sec:ist}

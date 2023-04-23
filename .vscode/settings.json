@@ -3,5 +3,6 @@
         "lua",
         "tex"
     ],
-    "cSpell.language": "en"
+    "cSpell.language": "en",
+    "git.ignoreLimitWarning": true
 }

@@ -35,4 +35,52 @@ M.~Sabatelli, N.~Banar, M.~Cocriamont, E.~Coudyzer, K.~Lasaracina,
   \emph{\BIBforeignlanguage{English}{Digital Humanities Quarterly}}, vol.~15,
   no.~1, February 2021.
 
+\bibitem{Liu2104}
+\BIBentryALTinterwordspacing
+W.~Liu, Q.~Bao, Y.~Sun, and T.~Mei, ``Recent advances in monocular 2d and 3d
+  human pose estimation: {A} deep learning perspective,'' \emph{CoRR}, vol.
+  abs/2104.11536, 2021. [Online]. Available:
+  \url{https://arxiv.org/abs/2104.11536}
+\BIBentrySTDinterwordspacing
+
+\bibitem{Zheng2012}
+\BIBentryALTinterwordspacing
+C.~Zheng, W.~Wu, T.~Yang, S.~Zhu, C.~Chen, R.~Liu, J.~Shen, N.~Kehtarnavaz, and
+  M.~Shah, ``Deep learning-based human pose estimation: {A} survey,''
+  \emph{CoRR}, vol. abs/2012.13392, 2020. [Online]. Available:
+  \url{https://arxiv.org/abs/2012.13392}
+\BIBentrySTDinterwordspacing
+
+\bibitem{chen2022}
+H.~Chen, R.~Feng, S.~Wu, H.~Xu, F.~Zhou, and Z.~Liu, ``2d human pose
+  estimation: a survey,'' \emph{Multimedia Systems}, pp. 1--24, 2022.
+
+\bibitem{alphapose}
+H.-S. Fang, J.~Li, H.~Tang, C.~Xu, H.~Zhu, Y.~Xiu, Y.-L. Li, and C.~Lu,
+  ``Alphapose: Whole-body regional multi-person pose estimation and tracking in
+  real-time,'' \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, 2022.
+
+\bibitem{blazepose}
+\BIBentryALTinterwordspacing
+V.~Bazarevsky, I.~Grishchenko, K.~Raveendran, T.~Zhu, F.~Zhang, and
+  M.~Grundmann, ``Blazepose: On-device real-time body pose tracking,''
+  \emph{CoRR}, vol. abs/2006.10204, 2020. [Online]. Available:
+  \url{https://arxiv.org/abs/2006.10204}
+\BIBentrySTDinterwordspacing
+
+\bibitem{openpose}
+Z.~{Cao}, G.~{Hidalgo Martinez}, T.~{Simon}, S.~{Wei}, and Y.~A. {Sheikh},
+  ``Openpose: Realtime multi-person 2d pose estimation using part affinity
+  fields,'' \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, 2019.
+
+\bibitem{fcpose}
+\BIBentryALTinterwordspacing
+W.~Mao, Z.~Tian, X.~Wang, and C.~Shen, ``Fcpose: Fully convolutional
+  multi-person pose estimation with dynamic instance-aware convolutions,''
+  \emph{CoRR}, vol. abs/2105.14185, 2021. [Online]. Available:
+  \url{https://arxiv.org/abs/2105.14185}
+\BIBentrySTDinterwordspacing
+
 \end{thebibliography}
