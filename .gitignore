@@ -8,5 +8,6 @@
 _minted-main
 .history
 .data
-.venv
+.venv*
 bin
+lib
