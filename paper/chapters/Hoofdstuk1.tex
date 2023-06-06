@@ -86,7 +86,7 @@ Toshev et al. uses a 7-layered model with 5 convolution layers and 2 fully-conne
 They then cascade the resulting found key-points of this model to itself where it refines it using the area around the key-points.
 While the network is the same, the different stages will have different learned parameters.
 With every stage the found key-points become more accurate.
-Carreira et al.\cite{CarreiraAFM15} introduce an Iterative Error Feedback which is a self-correction using top-down feedback.
+Carreira et al.\cite{CarreiraAFM15} introduce an Iterative Error Feedback which is a self-correcting model using top-down feedback.
 Using the image-data and a starting pose modeled as a heatmap, the model, based on GoogLeNet\cite{googlenet}, will predict an error for each key-point.
 The pose is then corrected based on the error and fed back into the model as a heatmap with the image.
 With each iteration it converges towards the solution instead of making the prediction in one go.
