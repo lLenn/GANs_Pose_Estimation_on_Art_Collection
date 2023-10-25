@@ -25,34 +25,34 @@ It's an elementary part of computer vision with many applications among which ar
 This is an extensively researched area with a diverse range of different techniques.
 This chapter will try to give an overview of all the many challenges and proposed solutions.
 The focus will be on deep learning models, which have surpassed classical solutions significantly.
-Specifically, around 2D monocular \gls{HPE}.\cite{Munea2020}\cite{Zheng2012}\cite{Liu2104}\cite{chen2022}
+Specifically, around 2D monocular \gls{HPE} eg., \cite{Munea2020}\cite{Zheng2012}\cite{Liu2104}\cite{chen2022}.
 
 The human body has a high degree-of-freedom due to all the limbs, self-similar parts and body types, which may cause self-occlusion or rare/complex poses.
 The variations in configuration are made even larger due to clothing, lighting, foreground occlusion, as well as viewing angles and truncation, among others, as shown in fig. \ref{fig:hpe_problem_complexity}.
-This makes \gls{HPE} one of the most difficult tasks in computer vision.\cite{jain2014}\cite{Chen2000}
+This makes \gls{HPE} one of the most difficult tasks in computer vision \cite{jain2014}\cite{Chen2000}.
 
 \subsection{Representation}
 \label{section:representation}
 
 An important factor in \gls{HPE} is how the pose will be represented.
-Depending on the needs of the problem you can have a skeleton-base, contour-base, or volume-base solution.\ref{fig:pose_representation}\cite{Chen2000}
+Depending on the needs of the problem you can have a skeleton-base, contour-base, or volume-base solution \cite{Chen2000}\ref{fig:pose_representation}.
 
 \subsubsection{Skeleton-based model}
-The skeleton is build of a tree-structured set of key-points that represent the joints of the human body.
-These can be explicitly described by their coordinates in 2D or 3D space.\cite{Toshev2014}
-More suitable for a \gls{CNN} however is a heatmap which constructs a 2D Gaussian kernel around a key-point.\cite{Liu2104}\cite{SWARH}
+The skeleton is build of a tree-structured set of keypoints that represent the joints of the human body.
+These can be explicitly described by their coordinates in 2D or 3D space \cite{Toshev2014}.
+More suitable for a \gls{CNN} however is a heatmap which constructs a 2D Gaussian kernel around a keypoint \cite{Liu2104}\cite{SWARH}.
 They are easily implemented and became the dominant representation.
-While the skeleton-based model is a compact and flexible representation it suffers in this aspect by not being able to hold texture or shape information.\cite{Zheng2012}
+While the skeleton-based model is a compact and flexible representation it suffers in this aspect by not being able to hold texture or shape information \cite{Zheng2012}.
 
 \subsubsection{Contour representation}
 To capture the shape of the body parts, contour representation uses rectangles to estimate the body contours.
-These methods include cardboard models\cite{Ju96} and \gls{ASMs}\cite{COOTES95} and were mainly in use in earlier \gls{HPE} methods.\cite{Chen2000}
+These methods include cardboard models \cite{Ju96} and \gls{ASMs} \cite{COOTES95} and were mainly in use in earlier \gls{HPE} methods \cite{Chen2000}.
 
 \subsubsection{Volume representation}
 Volumetric geometric shapes can also be used as a method of representation.
-Earlier methods used simple shapes like cylinders, conics, and other shapes.\cite{Sidenbladh2000}
+Earlier methods used simple shapes like cylinders, conics, and other shapes \cite{Sidenbladh2000}.
 Volume representation is a 3D mesh that represents the human body.
-The most used model is \gls{SMPL}, which includes natural pose-dependent deformations imitating soft-tissue dynamics.\cite{Loper2015}  
+The most used model is \gls{SMPL}, which includes natural pose-dependent deformations imitating soft-tissue dynamics \cite{Loper2015}.  
 \\
 \\
 For the purpose of our research, a simple model is the only thing we need.
@@ -66,9 +66,9 @@ An early distinction is between generative and discriminative methods.
 
 \subsubsection{Generative Model}
 A generative method will work with prior beliefs about the pose.
-More information about this can be found in the section about representation.\ref{section:representation}
+More information about this can be found in the section about representation \ref{section:representation}.
 It will project the pose on the image and verify it with the image data.
-If they don't comply, the pose is adjusted by minimizing an error function.\cite{Pons-Moll2011}
+If they don't comply, the pose is adjusted using the descent direction found by minimizing an error function \cite{Pons-Moll2011}.
 
 \subsubsection{Discriminative Model}
 Discriminative methods on the other hand, try to map the pose on the image data with learned models.
@@ -80,43 +80,139 @@ Single-person pose estimation will try to evaluate only one pose from an image.
 There are 2 major methods that are in use: regression methods and detection-based methods.
 
 \subsubsection{Regression-based Methods}
-The regression-based methods learn a network that maps all the body key-points to the image-data directly as show in \ref{fig:single_pose_estimation_regression_methods}.
-The first successful deep learning model came from Toshev and Svegedy\cite{Toshev2014} and is considered the switch in paradigm from classic approaches to deep learning \gls{HPE}.
-Toshev et al. uses a 7-layered model with 5 convolution layers and 2 fully-connected layers for the pose regressor, based on AlexNet for its simple but effective architecture. \cite{AlexNet}.
-They then cascade the resulting found key-points of this model to itself where it refines it using the area around the key-points.
+The regression-based methods learn a network that maps all the body keypoints to the image-data directly as show in \ref{fig:single_pose_estimation_regression_methods}.
+
+The first successful deep learning model came from Toshev and Svegedy \cite{Toshev2014} and is considered the switch in paradigm from classic approaches to deep learning \gls{HPE}.
+Toshev et al. uses a 7-layered model with 5 convolution layers and 2 fully-connected layers for the pose regressor, based on AlexNet for its simple but effective architecture \cite{AlexNet}.
+They then cascade the resulting found keypoints of this model to itself where it refines it using the area around the keypoints.
 While the network is the same, the different stages will have different learned parameters.
-With every stage the found key-points become more accurate.
-Carreira et al.\cite{CarreiraAFM15} introduce an Iterative Error Feedback which is a self-correcting model using top-down feedback.
-Using the image-data and a starting pose modeled as a heatmap, the model, based on GoogLeNet\cite{googlenet}, will predict an error for each key-point.
+With every stage the found keypoints become more accurate.
+
+Carreira et al. \cite{CarreiraAFM15} introduce an Iterative Error Feedback which is a self-correcting model using top-down feedback.
+Using the image-data and a starting pose modeled as a heatmap, the model, based on GoogLeNet \cite{googlenet}, will predict an error for each keypoint.
 The pose is then corrected based on the error and fed back into the model as a heatmap with the image.
 With each iteration it converges towards the solution instead of making the prediction in one go.
+Regression-based methods map the keypoints directly on the image, making it a non-linear problem.
+This will cause less robust generalization \cite{Liu2104}.
 
 \subsubsection{Heatmap/Detection-based Methods}
-The detection-based methods will first estimate the individual body parts and then assemble them to fit a human skeleton.
-This is a 2-step process and the earlier models use a combination of classic techniques with the advances of deep learning.
-Tompson et al.\cite{TompsonJLB14} proposed a hybrid architecture where the detection of body parts is handled by a \gls{CNN} and use a Spatial-Model bring those together.
-The last step involves removing false-positives by restricting joint inter-connectivity to enforce global pose consistency.
+The detection-based methods will first estimate the individual body parts using heatmaps, which leads to an easier optimization and a more robust generalization \cite{chen2022}.
+Most of the latest \gls{HPE} methods use heatmaps because of this.
+After the joints are found they are then assembled to fit a human skeleton.
+This process is shown in \ref{fig:single_pose_estimation_heatmap-based_methods}.
 
+Tompson et al. \cite{TompsonJLB14} proposed a hybrid architecture where the detection of body parts is handled by a \gls{CNN} and a Spatial-Model to bring those together.
+The first step produces many false-positives and these are removed in the second step by restricting joint inter-connectivity to enforce correct anatomy.
+They build on this in \cite{Tompson2015}, where they used a cascade to refine predictions.
+
+A fundamental work written by Wei et al. \cite{Wei2016} combines convolution networks with Pose Machines \cite{Ramakrishna2014}.
+Pose Machines is an iterative architecture which consists of 2 models: the first is used for stage 1 where it extracts potential heatmaps for the joints.
+The second model is used for subsequent stages where the result of the previous stage is fed in together with the results of its own convolution network on the input image. 
+This gradually refines the predictions for the joints and their positioning.
+\ref{fig:convolutional_pose_machines} shows this process.
+
+Another influential work was being written at the same time by Newell et al. \cite{Newell2016}.
+Similar to \gls{CPMs}, this is also an iterative architecture.
+They suggest what they call a "stacked hourglass" network, where "hourglass" modules are repeated \ref{fig:single_pose_estimation_stacked_hourglass}.
+In an "hourglass" module, first, the features are downsampled and afterwards upsampled again \ref{fig:single_pose_estimation_hourglass_module}.
+This network captures different spatial relationships between joints at different resolutions.
+Several other works \cite{Yang2017}\cite{Yu2017}\cite{Chou17} have since improved on the network design.
+
+Both these use intermediate supervision to tackle the problem of vanishing gradients.
+This still doesn't build a deep sub-network for feature extraction which limits the estimations.
+This has become less of a problem with the emergence of \gls{ResNet}\cite{He2015} which allows better back-propagation at deeper levels through shortcuts.
+
+A more recent work by Sun et al. \cite{Sun2019} maintains the high-resolution representations instead of working the high-resolution from the low-to-high sub-network.
+After a first high-resolution sub-network, it gradually adds high-to-low sub-networks in parallel to predict multi-resolution features.
+Before each branch, they apply multi-scale fusion, which joins the predicted features from each scale on each scale.
+Both are shown in \ref{fig:HRNet}.
+This network has proven very effective and inspired several variations \cite{Cheng2019}\cite{Yu2021}\cite{Yuan2021}.
+
+With the emergence of neural networks also came \glspl{GAN} \cite{Goodfellow2014}, which proved useful for \gls{HPE}.
+They are employed to improve constraints of joint inter-connectivity and infer occluded body parts.
+
+Chen et al. \cite{Chen2017} propose a structure-aware convolution network using a stacked hourglass as generator which generates heatmaps for each joint.
+They use 2 discriminators, one to discriminate between low- and high-confidence predictions, another for real and fake poses.
+The network is designed as a \gls{cGAN} \cite{Mirza2014}, which allows it to generate pose heatmaps as well as occlusion heatmaps.
+
+A more classic \gls{GAN} is used by Chou et al. \cite{Chou2017}, where they use a stacked hourglass network for both the generator as the discriminator.
+The generator predicts the heatmaps for each joint and the discriminator distinguished between the real and fake ones.
 
 \subsection{Multi-Person Methods}
-
-
-\subsubsection{Bottom-Up Methods}
+With multi-person methods comes an extra layer of difficulty: they need to be able to detect each person separately.
+To solve this problem multi-person methods propose several solutions. 
+The 2 most popular are top-down and bottom-up methods.
 
 \subsubsection{Top-Down Methods}
+This method will first try to detect all persons in the image with a human detector.
+Each person is cropped by the bounding box and a single-person estimator predicts a pose for each person.
 
+Occlusion and truncation are a regular occurrence in multi-person scenes and inevitable problem.
+One of the early multi-person models, by Iqbal et al. \cite{Iqbal2016}, works towards creating a robust model against occlusion.
+It uses Faster RCCN \cite{Ren2015} to detect the human boundaries.
+After which, it applies integer linear programming for each person's fully connected graph.
+This technique is similar to \cite{Pishchulin2015}, but instead of working on all globally found joints it only considers local joints.
+It can also handle any kind of occlusion or truncation.
 
+The use of a human detector comes with its own sort of problems.
+Fang et al. \cite{Fang2016}, with \gls{RPME}, try to remedy these with 2 components:
+They try to tackle inaccurate bounding boxes with Symmetric Spatial Transformer Network, redundant detections with Parametric Pose Non-Maximum-Suppresion.
+They also propose a 3rd component, Pose-Guided Proposals Generator, which can augment training samples.
 
+Papandreou et al. \cite{Papandreou2017} use a 2 stage pipeline.
+In the first stage, they employ the Faster RCNN detector \cite{Ren2015}.
+In the second stage, they estimate the pose in each found bounding box using their own network.
+It predicts heatmaps using a fully convolutional \gls{ResNet} and use their own novel aggregation procedure.
+Afterwards, they do post-processing using keypoint-based \gls{NMS} a method of their own making.
 
-There are several ways that the human body joints/keypoints are represented.
-A first distinction is 2D and 3D
+A continuous effort is taken by Chen et al. \cite{Chen2017} to deal with occlusion and truncation.
+They suggest a 2 stage architecture, a \gls{CPN} as seen in \ref{fig:cascade_pyramid_network},
+where first the "simple" keypoints are captured with GlobalNet, a feature pyramid network based on \cite{Lin2016},
+and the "hard" keypoints are handled by their RefineNet, based on the upsampling and concatenating of HyperNet \cite{Kong2016} and using an adapted stacked hourglass.
+They achieved great results and several others improved on their work \cite{Su2019}\cite{Li2019}.
 
-Top-Down
-Regression-based, Heatmap-based, video-based, model compression-based.
+In more recent research, a new method was become more powerful than \glspl{CNN}.
+The Transformer \cite{Vaswani2017}, based on attention mechanisms which are used to optimize recurrent networks \cite{Kim2017}, eliminates the use of recurrent layers, keeping only the attention mechanisms.
+Yang et al. \cite{Yang2020} use this architecture because allows for better understanding of the spatial dependencies and learns at a higher rate.
 
-Bottom-Up
-One stage, two-stage
+\subsubsection{Bottom-Up Methods}
+A different approach is taken with bottom-up methods.
+They first locate all joints in the image and then assemble them in potential humans.
 
+DeepCut by Pishchulin et al. \cite{Pishchulin2015}, one of the first multi-person models using \glspl{CNN}.
+Using Fast R-CNN \cite{Ren2015}, it detects the body parts and labels each.
+With the joints found, it then uses \gls{ILP} to assemble them.
+This method is very computationally expensive; NP-hard.
+Insafutdinov et al. \cite{Insafutdinov2016} therefor introduce a stronger part detector and better optimization strategy with DeeperCut.
+
+\gls{CPMs} make a return with OpenPose by Cao et al. \cite{Cao2018}, they're used to predict the joints with heatmaps and \glspl{PAFs}.
+A part affinity field also encodes the position and orientation of the limb which makes the assembly of joints into different poses possible.
+They can achieve real-time results with this method, and several others have improved on their design \cite{Zhu2017}\cite{Hidalgo2019}\cite{Li2019}.
+The high performance is only applicable to high-resolution images.
+Low-resolution images or images with occlusions perform poorly.
+
+Kreiss et al. \cite{Kreiss2019} continue on the idea of fields and introduce the \gls{PIF} and \gls{PAF}.
+First, they predict the location of the different joints with \gls{PIF}.
+Afterwards, they use \gls{PAF} to find the inter-joint relationships.
+They are able to outperform any previous OpenPose-based proposals on low-resolution and occlusions.
+
+Newell et al. \cite{Newell2016-2} introduce a new method called associative embedding for supervising \glspl{CNN} both detection and grouping.
+This is a single-stage architecture as opposed to the two-staged architectures previously discussed.
+They make use of the stacked hourglass network from \cite{Newell2016} with some small modifications.
+
+Continuing on the idea of associative embedding, Cheng et al. \cite{Cheng2019} use HRNet \cite{Sun2019} as backbone for their HigherHRNet.
+Their method focuses on the scale-variance problem; a problem which hasn't been studied much, so it can localize keypoints for small persons better.
+Lou et al. \cite{Lou2020} introduce \gls{SAHR} and \gls{WAHR} to the scale-variance problem.
+\gls{SAHR} adaptively adjusts the standard deviation of each heatmap corresponding with the scale of the person.
+\gls{WAHR} rebalances the foreground and background samples, so \gls{SAHR} can work to its fullest extent.
+
+\subsubsection{Summary}
+An important challenge for \gls{HPE} is making predictions in scenes with hight occlusions.
+Top-down models achieve state-of-the art performance in almost all benchmark datasets \cite{Chen2000}.
+Top-down models has difficulty with overlapping bodies and human detectors might fail finding humans there.
+To the same extent, bottom-up models will have greater inaccuracy with grouping in occluded scenes.
+Computationally, the top-down model's speed is limited by the number of people found.
+The higher efficiency of bottom-up models, make them more suitable for real-time applications.
 
 \begin{figure}
 	\centering
@@ -149,7 +245,7 @@ One stage, two-stage
 		\includegraphics[width=\textwidth]{single_pose_estimation_heatmap-based_methods}%
 	}
 	\caption{The different methods of single-person human pose estimation.\cite{Zheng2012}}
-	\label{fig:pose_representation}
+	\label{fig:single_pose_estimation}
 \end{figure}
 
 \begin{figure}
@@ -164,8 +260,83 @@ One stage, two-stage
 		Convolution layers in blue and fully connected layers in green.
 		The initial stage is applied to the whole images, while in stage s it will work on a sub-image based on the result of the previous stage.\cite{Toshev2014}
 	}
-	\label{fig:pose_representation}
+	\label{fig:deep_pose}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{single_pose_estimation_convolutional_pose_machines}%
+	\caption{
+		Architecture and receptive fields of \gls{CPMs}. (a) and (b) represent the pose machine architecture.\cite{Ramakrishna2014}
+		(c) and (d) show the corresponding convolutional networks used by \gls{CPMs}.\cite{Wei2016}
+	}
+	\label{fig:convolutional_pose_machines}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\subcaptionbox{Stacked Hourglass \label{fig:single_pose_estimation_stacked_hourglass}}{%
+		\includegraphics[width=\textwidth]{single_pose_estimation_stacked_hourglass}%
+	}
+	\subcaptionbox{Hourglass Module \label{fig:single_pose_estimation_hourglass_module}}{%
+		\includegraphics[width=\textwidth]{single_pose_estimation_hourglass_module}%
+	}
+	\caption{
+		The structure of a "stacked hourglass" network and a single "hourglass" module.\cite{Newell2016}
+	}
+	\label{fig:stacked_hourglass}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\subcaptionbox{HRNet \label{fig:single_pose_estimation_HRNet}}{%
+		\includegraphics[width=\textwidth]{single_pose_estimation_HRNet}%
+	}
+	\subcaptionbox{Multi-Scale Fusion \label{fig:single_pose_estimation_multi-scale_fusion}}{%
+		\includegraphics[width=\textwidth]{single_pose_estimation_multi-scale_fusion}%
+	}
+	\caption{
+		The architecture of the High-Resolution network and how it applies multi-scale fusion.\cite{Sun2019}
+	}
+	\label{fig:HRNet}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{multi_pose_estimation_cascade_pyramid_network}%
+	\caption{
+		Cascaded Pyramid Network. “L2 loss*” means L2 loss with online hard keypoints mining.\cite{Chen2017}
+	}
+	\label{fig:cascade_pyramid_network}
 \end{figure}
 
 \section{Image Style Transfer}
+Image Style Transfer is the technique of applying the style of one image to the content of another.
+Classically this was a problem reserved for only artists, but more recently this has also interested computer scientists.
+There are several different ideas on how this can be achieved,
+ranging from how to separate the style from the content, to how well an algorithm can generalize.
+An overview of all the different challenges and solutions will be given in this chapter.
+
+Gatys et al. \cite{Gatys2016} introduce deep neural networks to image style transfer.
+Using a modified VGG-network \cite{Simonyan2015}, they extract the features of an image by reconstructing the content from the feature maps in the higher layers on a white noise image.
+The same is done for the style of the other image.
+It extracts the style representation of the image by using the Gram matrix to represent style features of the image and then reconstructs it on the same white noise image.
+The Gram matrix is the vector product of two sets of vectorized feature maps.
+This method is shown in \ref{fig:style_transfer_algoritm}.
+They remark that the resolution of the images affects the performance of the algorithm and is thus restricted to low resolutions.
+At the same time, the synthesized images contain some low-level noise, but this can possibly be removed with a denoiser.
+
+In order to provide real-time processing, Huang et al. \cite{Huang2017} introduce an \gls{AdaIn} layer.
+Others before them had already attempted increase the speed \cite{Ulyanov2016}\cite{Li2016}, but they were only limited to the style(s) they had trained on.
+Huang et al. introduce a model which can transfer a style for any arbitrary style.
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{style_transfer_algorithm}%
+	\caption{
+		Style transfer algorithm. (Gatys et al. \cite{Gatys2015}).
+	}
+	\label{fig:style_transfer_algorithm}
+\end{figure}
 \label{sec:ist}
