@@ -1,21 +1,10 @@
 \chapter{Literature study}
 \label{chap:rel_work}
-
-We will first examine the effectiveness of existing models on a collection of paintings from 2 different movements.
-For this we will need to have a pose estimator, a style transformer and a collection of test data. 
-
-A first method: We will first convert the test data with the style transformer to a painting and then we will apply pose estimation.
-The test data will have coordinates of the joints, which we will compare with the results of the pose estimation.
-However, the joints are of the original image. How do we convert those coordinates to map to the styled image? 
-Problem: This method does not use any real paintings and will be susceptible to the accuracy of the style transformer.  
-
-A second method: We can apply pose estimation to real paintings and then convert them to a realistic image with style transfer.
-We can then use pose estimation to the realistic images and compare them with the style transformed results.
-This will also require a way to map the results of the real painting to that of the style transformed. 
-Problem: While we’re using real paintings now, the results will still depend on the accuracy of style transformer. 
-
-A third method: We can annotate the paintings ourselves and use pose estimation to assess the pose estimation algorithms. 
-Problem: We must annotate the paintings ourselves. 
+In order to correctly implement a solution, we need to understand the fundamentals.
+These consist of 2 research fields: \gls{HPE} and \gls{NST}.
+The former will be used to detect poses in the art collections, but not before the latter has tried to make an improvement.
+Following will be an overview of the available research in these domains.
+Discussing what the goals of them are, how they achieve it, what their challenges are and their limitations.
 
 \section{Human Pose estimation}
 \label{sec:hpe}
@@ -58,6 +47,39 @@ The most used model is \gls{SMPL}, which includes natural pose-dependent deforma
 For the purpose of our research, a simple model is the only thing we need.
 We only need to be aware of the most essential joints to label a pose.
 This makes the skeleton-based model the ideal representation to work with and will be the focus of further study.
+
+\subsection{Datasets}
+There are several publicly available datasets.
+There are some that are outdated and we will leave those out, focusing only on datasets used for deep learning.
+
+\textbf{\gls{LSP} Dataset \cite{Johnson2010}} contains 2,000 images found on Flickr using 8 different tags looking for sport activities (athletics, badminton, baseball, gymnastics, parkour, soccer, tennis, and volleyball).
+Each person has 14 keypoints.
+An extended version was later introduced \cite{Johnson2011}, now consisting of 10,000 images. 
+For this set they only focused on the more challenging tags (parkour, gymnastics, and athletics).
+
+\textbf{\gls{MPII} Human Pose Dataset \cite{Andriluka2014}} contains 24,290 images with 40,522 labeled people.
+They were extracted from YouTube videos found by querying for physical activities.
+Each person has 16 keypoints and also includes occlusion labels.
+
+\textbf{\gls{COCO} Dataset \cite{Lin2014}} is a large-scale dataset for a wide range of computer vision algorithms.
+For \gls{HPE}, the set contains more than 200,000 images in which 250,000 persons are annotated.
+Each person has 17 keypoints, a bounding-box and visibility labels.
+This dataset has become the most popular for benchmarking.
+
+\textbf{\gls{FLIC} Dataset \cite{Sap2013}} contains 5,003 images extracted from Hollywood movies.
+They ran a person detector which collected 20,000 images from 30 movies.
+Occluded and difficult poses were then removed leaving only 5,000 images to be annotated.
+Only the upper body received 10 keypoints.
+
+\textbf{\gls{AIC-HKD} Dataset \cite{Sap2013}} contains 300,000 images found using Internet search engines.
+In these, over 700,000 humans are annotated.
+Each person has 14 keypoints, a bounding-box, as well as visibility and left/right labels.
+
+\textbf{CrowdPose Dataset \cite{Li2018}} puts an emphasis on crowded images.
+30,000 images from \gls{MPII}, gls{COCO} and gls{AIC-HKD} were measured with a Crowd Index, which evaluates the crowdedness.
+Finally, 20,000 images are selected and 80,000 persons annotated.
+Each person has 14 keypoints and a full-body bounding box.
+
 
 \subsection{Discriminative Methods and Generative Methods}
 Before deep learning became prominent in \gls{HPE} there were already a number of different methods in use.
@@ -317,26 +339,232 @@ There are several different ideas on how this can be achieved,
 ranging from how to separate the style from the content, to how well an algorithm can generalize.
 An overview of all the different challenges and solutions will be given in this chapter.
 
+\subsection{Datasets}
+Due to a lack of benchmark datasets, multiple papers will mix and match from different datasets, like \gls{COCO} or ImageNet \cite{Deng2009}.
+
+\textbf{Cityscape Dataset \cite{Cordts2016}} consists of 2975 images of cityscapes with semantic annotations.
+
+\textbf{Facades Dataset \cite{Tylecek2013}} consists of 400 images of building facades with architectural annotations.
+
+\textbf{Maps Dataset \cite{Isola2016}} consists of 1096 images of maps and areal photos gathered from Google Maps around New York City.
+
+\textbf{Edges2shoes Dataset \cite{Yu2014}} consists of 50,000 paired images between edges and photos of shoes.
+
+\textbf{Edges2handbags Dataset \cite{Zhu2016}} consists of 137,000 paired images between edges and photos of handbags.
+
+\textbf{Season transfer Dataset \cite{Zhu2017}} consists of 2127 images of Yosemite during summer and winter downloaded from Flickr.
+
+\textbf{Night2Day Dataset \cite{Laffont2014}} consists of 20,000 images taken from time-lapse datasets and annotated through crowdsourcing.
+
+\textbf{WikiArt Dataset \cite{Tan2018}} consists of 80,000 fine-art paintings.
+All are annotated for 27 styles, 60,000 are annotated for 20 genres and 20,000 for 23 artists.
+
+
+\subsection{Optimization-based Networks}
 Gatys et al. \cite{Gatys2016} introduce deep neural networks to image style transfer.
 Using a modified VGG-network \cite{Simonyan2015}, they extract the features of an image by reconstructing the content from the feature maps in the higher layers on a white noise image.
 The same is done for the style of the other image.
 It extracts the style representation of the image by using the Gram matrix to represent style features of the image and then reconstructs it on the same white noise image.
 The Gram matrix is the vector product of two sets of vectorized feature maps.
-This method is shown in \ref{fig:style_transfer_algoritm}.
+This method is shown in \ref{fig:style_transfer_algorithm}.
 They remark that the resolution of the images affects the performance of the algorithm and is thus restricted to low resolutions.
 At the same time, the synthesized images contain some low-level noise, but this can possibly be removed with a denoiser.
 
-In order to provide real-time processing, Huang et al. \cite{Huang2017} introduce an \gls{AdaIn} layer.
-Others before them had already attempted increase the speed \cite{Ulyanov2016}\cite{Li2016}, but they were only limited to the style(s) they had trained on.
-Huang et al. introduce a model which can transfer a style for any arbitrary style.
+\subsection{Feed-forward Generation Networks}
+To improve the performance, Ulyanov et al. \cite{Ulyanov2016} suggest the use of a feed-forward generation network instead of backpropagation
+Backpropagation requires an iterative process to change the pixel values to match the desired statistics.
+A feed-forward network can do this in a single evaluation.
+To train such a network they use a pre-trained network for image classification, and calculate a texture and content loss like \cite{Gatys2016}, as shown in \ref{fig:style_transfer_generator_network_ulyanov}.
+Johnson et al. \cite{Johnson2016} propose a very similar method as can be seen in \ref{fig:style_transfer_generator_network_johnson}
+
+Since their contribution did increase the speed, but at the expense of quality, Ulyanov et al. \cite{Ulyanov2017} suggest further improvements to their network.
+First, they replace \gls{BN} \cite{Ioffe2015} with \gls{IN} which alone has a significant impact on quality as can be seen in \ref{fig:style_transfer_ulyanov_BN_IN_comparison}.
+Second, they learn the generator to sample from the Julesz ensemble \cite{Zhu2000} which improves variation in the outputs.
+
+Dumoulin et al. \cite{Dumoulin2016} note that previous feed-forward networks are limited to one style.
+In order to facilitate many different styles, there would need to be a network trained separately for each which limits the applications for mobile devices.
+In order to make the network more memory efficient, they propose a conditional style transfer network; given a content image and a style name, it transforms the image to the corresponding style.
+They argue that after normalization each style can be distinguished by specializing scaling and shifting parameters.
+They call this \gls{CIN}.
+Since it only changes the scale and shift parameters for different styles, the network requires fewer parameters.
+Of the 1.6M parameters, only 3K are needed for the different styles.
+
+Another network that puts a focus on multiple styles comes from Chen et al. \cite{Chen2017}.
+They propose a StyleBank, which can store multiple convolution filter banks each representing a different style.
+They use an auto-encoder network with in between a StyleBank layer.
+During training, for each $T+1$ iterations the entire network is first trained with a perception loss for the first $T$ iterations.
+Then only the auto-encoder network is trained with a \gls{MSE} loss.
+This way the auto-encoder only retains the content and the StyleBank layer only the different styles.
+This also allows to lock the encoder and decoder to learn a new style afterwards.
+
+While \gls{CIN} allows for multiple styles, it's still limited to the ones that were seen during training.
+Huang et al. \cite{Huang2017} try to remedy this by introducing an \gls{AdaIN} layer.
+Unlike the other normalization techniques, \gls{AdaIN} does not have affine parameters, and will adaptively compute these from the style image.
+\ref{fig:style_transfer_unseen_style} shows how well the different networks can handle unseen styles.
+
+\subsection{Generative Adversarial Networks}
+With the introduction of \glspl{GAN}, the quality of generative models have greatly increased.
+It is not surprising then that this got picked up in research for \gls{NST}.
+
+Among the first was Isola et al. \cite{Isola2016} who use a \gls{cGAN}.
+With \gls{cGAN}, the generator network has an extra input which here is the image to be translated.
+They use the network from \cite{radford2016} which uses modules of the form convolution-BatchNorm-ReLu\cite{Ioffe2015}.
+Additionally, in order to pass shared features in the generator they add skip connections like with "U-Net" \cite{Ronneberger2015}.
+For the discriminator, which they call PatchGAN, they validate $N\times N$ patches and take the average as output.
+They take this loss together with the $L1$ loss because $L2$ loss produces blurry results.
+
+This still requires paired training samples, while Taigman et al. \cite{Taigman2016} are doing research in unsupervised domain transfer.
+Domain transfer can be used for \gls{NST}, but this is not possible the other way around.
+Their network uses a encoder-decoder as the generator and they assume that $f(x)$ is constant between 2 domains.
+The discriminator has a ternary output and distinguishes between real, fake and reconstruction.
+They add several new loss functions which check the consistency between the 2 domains (consistency loss) and if $G$ performs perfect reconstruction (reconstruction loss).
+This can be seen in \ref{fig:style_transfer_algorithm_taigman}.
+For $f$, they use a pre-trained network that is trained on paired samples.
+
+In order to make the network completely unsupervised, Yi et al.\cite{Yi2017} propose DualGAN, Kim et al. \cite{Kim2017} DiscoGAN and Zhu et al. \cite{Zhu2017} CycleGAN, which are all 3 essentially the same proposal.
+The entire model consists of 2 cycle-consistent networks where each translates from one domain to the other.
+A cycle-consistent network will first translate the input to target domain and then back to the original domain.
+Each domain has a discriminator which compares the real input from one network with the fake from the other; the adversarial loss. As seen in \ref{fig:style_transfer_algorithm_discogan}.
+In addition to this there's a cycle-consistency loss, which is the \gls{MSE} between the input and the reconstructed image as you can see in \ref{fig:style_transfer_algorithm_cyclegan}.
+The goal is to minimize the adversarial and cycle-consistency losses, while maximizing the discriminators' accuracy.
+Zhu et al. \cite{Zhu2017} also introduce an identity loss.
+
+Liu et al. \cite{Liu2017} introduce the latent space assumption which assumes that paired images from different domains can be mapped to a shared latent space with the same latent representation.
+The network consists of 2 domain image encoders $E\textsubscript{$1$}$ and $E\textsubscript{$2$}$, 2 domain image generators $G\textsubscript{$1$}$ and $G\textsubscript{$2$}$, and 2 domain discriminators $D\textsubscript{$1$}$ and $D\textsubscript{$2$}$.
+As can be seen in \ref{fig:style_transfer_algorithm_unit}.
+The encoders and generators are paired and form a \gls{VAE} \cite{kingma2022}.
+The encoder maps the input to latent space, and the generator reconstructs the image.
+This is the reconstruction loss.
+They use weight-sharing, which shares the weight of the last 2 layers of the encoders and of the first 2 layers of the generators.
+The generators and discriminators are paired to form a \gls{GAN}.
+The generator can also construct an image from the latent code from the other encoder's input.
+This image is used to train the \gls{GAN}.
+They also show that the shared-latent space assumption implies cycle-consistency, which is the final loss function of the network.
+
 
 
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{style_transfer_algorithm}%
 	\caption{
-		Style transfer algorithm. (Gatys et al. \cite{Gatys2015}).
+		Style transfer algorithm. (Gatys et al. \cite{Gatys2016}).
 	}
 	\label{fig:style_transfer_algorithm}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{style_transfer_generator_network_ulyanov}%
+	\caption{
+		A texture network by Ulyanov et al. \cite{Ulyanov2016}.
+		The generator network (left) is the only one that changes.
+		The descriptor network (right) is used to calculate the loss.
+	}
+	\label{fig:style_transfer_generator_network_ulyanov}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{style_transfer_generator_network_johnson}%
+	\caption{
+		An image transformation network by Johnson et al. \cite{Johnson2016}.
+		The image transform network (left) is the only one that changes.
+		A loss network (right) is used to define perceptual loss functions.
+	}
+	\label{fig:style_transfer_generator_network_johnson}
+\end{figure}
+\begin{figure}
+	\centering
+	\subcaptionbox{Content Image \label{fig:style_transfer_ulyanov_content}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_content}%
+	}
+	\subcaptionbox{Style Image \label{fig:style_transfer_ulyanov_style}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_style}%
+	}
+	\subcaptionbox{StyleNet with \gls{BN} \label{fig:style_transfer_ulyanov_BN}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_BN}%
+	}
+	\subcaptionbox{StyleNet with \gls{IN} \label{fig:style_transfer_ulyanov_IN}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_IN}%
+	}
+	\caption{A comparison between (c) \gls{BN} and (d) \gls{IN}.\cite{Ulyanov2017}}
+	\label{fig:style_transfer_ulyanov_BN_IN_comparison}
+\end{figure}
+\begin{figure}
+	\centering
+	\subcaptionbox{Content Image}[0.19\textwidth]{
+		\includegraphics[width=0.19\textwidth]{style_transfer_content_a}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_content_b}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_content_c}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_content_d}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_content_e}\\
+	}
+	\subcaptionbox{Style Image}[0.19\textwidth]{
+		\includegraphics[width=0.19\textwidth]{style_transfer_style_a}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_style_b}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_style_c}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_style_d}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_style_e}\\
+	}
+	\subcaptionbox{Huang et al.}[0.19\textwidth]{
+		\includegraphics[width=0.19\textwidth]{style_transfer_huang_a}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_huang_b}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_huang_c}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_huang_d}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_huang_e}\\
+	}
+	\subcaptionbox{Ulyanov et al.}[0.19\textwidth]{
+		\includegraphics[width=0.19\textwidth]{style_transfer_ulyanov_a}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_ulyanov_b}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_ulyanov_c}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_ulyanov_d}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_ulyanov_e}\\
+	}
+	\subcaptionbox{Gatys et al.}[0.19\textwidth]{
+		\includegraphics[width=0.19\textwidth]{style_transfer_gatys_a}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_gatys_b}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_gatys_c}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_gatys_d}\\
+		\includegraphics[width=0.19\textwidth]{style_transfer_gatys_e}\\
+	}
+	\caption{A comparison between different style transfers where the style was not seen during training.}
+	\label{fig:style_transfer_unseen_style}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{style_transfer_algorithm_stylebank}%
+	\caption{
+		The stylebank network by Chen et al. \cite{Chen2017}.
+	}
+	\label{fig:style_transfer_algorithm_stylebank}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{style_transfer_algorithm_taigman}%
+	\caption{
+		The domain transfer network by Taigman et al. \cite{Taigman2016}.
+	}
+	\label{fig:style_transfer_algorithm_taigman}
+\end{figure}
+\begin{figure}
+	\centering
+	\subcaptionbox{As illustrated by Zhu et al. \cite{Zhu2017}. \label{fig:style_transfer_algorithm_cyclegan}}{%
+		\includegraphics[width=\textwidth]{style_transfer_algorithm_cyclegan}%
+	}
+	\subcaptionbox{As illustrated by Kim et al. \cite{Kim2017}. \label{fig:style_transfer_algorithm_discogan}}{%
+		\includegraphics[width=\textwidth]{style_transfer_algorithm_discogan}%
+	}
+	
+	\caption{
+		The cycle-consistent network.
+	}
+	\label{fig:style_transfer_cyclegan}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{style_transfer_algorithm_unit}%
+	\caption{
+		(a) The shared latent space assumption.
+		(b) The unsupervised image-to-image translation network by Liu et al. \cite{Liu2017}.
+	}
+	\label{fig:style_transfer_algorithm_unit}
 \end{figure}
 \label{sec:ist}

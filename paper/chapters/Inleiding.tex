@@ -6,7 +6,7 @@
 To make art collections more accessible, museums put a huge effort in digitalizing their catalogue.
 However, they don't contain much metadata about the content and it is time-consuming to enhance them manually.
 To make ths process easier, they want to utilize computer vision.
-Art collections (paintings, statues, drawings, etc.) turn out to be less interpretable by the algorithms that were developed for photography over the last few decades.
+Art collections (paintings, statues, drawings, etc.) turn out to be less interpretable by the algorithms that were developed for photography over the last few decades. 
 These scan the images in search of recognizable objects and add their labels to the metadata.
 Even the latest state-of-the-art technology, struggles to recognize objects when pointed at a painting in a museum.  
 A solution may be to start over and have paintings annotated by humans.  
@@ -19,3 +19,22 @@ How can we automate this process and ensure that state-of-the-art computer visio
   
 Specifically for this thesis, pose estimation will be investigated.
 
+\section{Proposed solution}
+We will first examine the effectiveness of existing models on a collection of paintings from 2 different movements.
+For this we will need to have a pose estimator, a style transformer and a collection of test data. 
+
+A first method: We will first convert the test data with the style transformer to a painting and then we will apply pose estimation.
+The test data will have coordinates of the joints, which we will compare with the results of the pose estimation.
+However, the joints are of the original image. How do we convert those coordinates to map to the styled image? 
+Problem: This method does not use any real paintings and will be susceptible to the accuracy of the style transformer.  
+
+A second method: We can apply pose estimation to real paintings and then convert them to a realistic image with style transfer.
+We can then use pose estimation to the realistic images and compare them with the style transformed results.
+This will also require a way to map the results of the real painting to that of the style transformed. 
+Problem: While we’re using real paintings now, the results will still depend on the accuracy of style transformer. 
+
+A third method: We can annotate the paintings ourselves and use pose estimation to assess the pose estimation algorithms. 
+Problem: We must annotate the paintings ourselves.
+\\
+There are several things that can be improved:
+The dataset, the algorithm, the input
