@@ -42,10 +42,10 @@ def worker(gpuIds, dataset, indices, config, logger, finalOutputDir, predictionQ
 def main():
     program = ValidateNetworkProgram()
     
-    config = Config.create("./study/pose_estimation/models/test.yaml", program.getArgument("opts"))
+    config = Config.create(program.getArgument("cfg"), program.getArgument("opts"))
     Config.configureEnvironment(config)
     
-    logger = Logger("./output/logs", "validate")
+    logger = Logger("./.output/logs", "validate")
     logger.info(config)
 
     datasetHumanArt = HumanArtDataset("../../datasets/human-art", "oil_painting", "test", False)

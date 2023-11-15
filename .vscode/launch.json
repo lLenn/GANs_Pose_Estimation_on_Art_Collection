@@ -11,7 +11,7 @@
             "program": "./study/benchmark_baseline.py",
             "args": [
                 "--cfg",
-                "./study/pose_estimation/models/test.yaml",
+                "${input:pickConfigFile}",
                 "--world_size",
                 "4"
             ],
@@ -72,5 +72,13 @@
         "args": {
             "command": "ip route list default | awk '{print $3}'"
         }
+    }, {
+        "id": "pickConfigFile",
+        "type": "command",
+        "command": "extension.commandvariable.file.pickFile",
+        "args": {
+            "include": "study/config/**/*",
+            "description": "Pick a config file"
+        } 
     }]
 }
