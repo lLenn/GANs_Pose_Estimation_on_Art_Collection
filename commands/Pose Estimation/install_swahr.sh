@@ -43,10 +43,9 @@ else
 fi
 
 # Setup package
+cd ../lib
+python3 ./setup.py develop
 cd ..
-cp ../commands/Pose\ Estimation/setup.py ./setup_swahr.py
-python3 ./setup_swahr.py develop
-cd SWAHR
 
 # Install dependencies
 pip3 install -r requirements.txt

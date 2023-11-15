@@ -38,10 +38,9 @@ if(-Not (Test-Path -Path SWAHR)) {
 }
 
 # Setup package
+Set-Location lib
+python setup.py develop
 Set-Location ..
-Copy-Item -Path "..\commands\Pose Estimation\setup.py" -Destination .\setup_swahr.py
-python .\setup_swahr.py develop
-Set-Location SWAHR
 
 # Install dependencies
 pip install -r requirements.txt

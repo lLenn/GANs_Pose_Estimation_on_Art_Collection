@@ -18,6 +18,7 @@ _minted-main
 .history
 .data
 .venv*
+.output
 bin
 lib
 __py_cache__

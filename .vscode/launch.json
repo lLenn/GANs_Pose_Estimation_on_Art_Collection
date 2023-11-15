@@ -5,6 +5,39 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Validate",
+            "type": "python",
+            "request": "launch",
+            "program": "./study/benchmark_baseline.py",
+            "args": [
+                "--cfg",
+                "./study/pose_estimation/models/test.yaml",
+                "--world_size",
+                "4"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Valid SWAHR",
+            "type": "python",
+            "request": "launch",
+            "program": "./lib/SWAHR/tools/dist_valid.py",
+            "args": [
+                "--cfg",
+                "./experiments/coco/higher_hrnet/w32_512_adam_lr1e-3.yaml"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "Main",
             "type": "python",
             "request": "launch",
@@ -20,7 +53,7 @@
             "justMyCode": false
         },
         {
-            "name": "Python: Current File",
+            "name": "Python: Current File w XLaunch",
             "type": "python",
             "request": "launch",
             "program": "${file}",
