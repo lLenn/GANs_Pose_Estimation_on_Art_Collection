@@ -1,0 +1,29 @@
+phase: train # train / test
+light: False # U-GAT-IT full version / U-GAT-IT light version
+dataset: 'TestTraining' # dataset_name
+
+iteration: 5000 # The number of training iterations
+batch_size: 1 # The size of batch size
+print_freq: 100 # The number of image print freq
+save_freq: 100  # The number of model save freq
+decay_flag: True # The decay_flag
+
+lr: 0.0001 # The learning rate
+weight_decay: 0.0001 # The weight decay
+adv_weight: 1 # Weight for GAN
+cycle_weight: 10 # Weight for Cycle
+identity_weight: 10 # Weight for Identity
+cam_weight: 1000 # Weight for CAM
+
+ch: 64 # base channel number per layer
+n_res: 4 # The number of resblock
+n_dis: 6 # The number of discriminator layer
+
+img_size: 256 # The size of image
+img_ch: 3 # The size of image channel
+
+data_dir: '../../Datasets/custom' # Directory name to save the results
+result_dir: '.output/results' # Directory name to save the results
+device: cuda # Set gpu mode; [cpu, cuda]
+benchmark_flag: False
+resume: True

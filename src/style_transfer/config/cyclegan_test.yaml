@@ -1,0 +1,41 @@
+# basic parameters
+dataroot: # path to images (should have subfolders trainA, trainB, valA, valB, etc)
+name: experiment_name # name of the experiment. It decides where to store samples and models
+gpu_ids: 0 # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
+checkpoints_dir: "checkpoints" # models are saved here
+# model parameters
+model: test # chooses which model to use. [cycle_gan | pix2pix | test | colorization]
+input_nc: 3 # no. of input image channels: 3 for RGB and 1 for grayscale
+output_nc: 3 # no. of output image channels: 3 for RGB and 1 for grayscale
+ngf: 64 # no. of gen filters in the last conv layer
+ndf: 64 # no. of discrim filters in the first conv layer
+netD: basic # specify discriminator architecture [basic | n_layers | pixel]. The basic model is a 70x70 PatchGAN. n_layers allows you to specify the layers in the discriminator
+netG: resnet_9blocks # specify generator architecture [resnet_9blocks | resnet_6blocks | unet_256 | unet_128]
+n_layers_D: 3 # only used if netD==n_layers
+norm: instance # instance normalization or batch normalization [instance | batch | none]
+init_type: normal # network initialization [normal | xavier | kaiming | orthogonal]
+init_gain: 0.02 # scaling factor for normal, xavier and orthogonal.
+no_dropout: True # no dropout for the generator
+# dataset parameters
+dataset_mode: unaligned # chooses how datasets are loaded. [unaligned | aligned | single | colorization]
+direction: AtoB # AtoB or BtoA
+serial_batches: True # if true, takes images in order to make batches, otherwise takes them randomly
+num_threads: 4 # no. threads for loading data
+batch_size: 1 # input batch size
+load_size: 256 # scale images to this size
+crop_size: 256 # then crop to this size
+max_dataset_size: .inf # Maximum number of samples allowed per dataset. If the dataset directory contains more than max_dataset_size, only a subset is loaded.
+preprocess: resize_and_crop # scaling and cropping of images at load time [resize_and_crop | crop | scale_width | scale_width_and_crop | none]
+no_flip: True # if specified, do not flip the images for data augmentation
+display_winsize: 256 # display window size for both visdom and HTML
+# additional parameters
+epoch: latest # which epoch to load? set to latest to use latest cached model
+load_iter: 0 # which iteration to load? if load_iter > 0, the code will load models by iter_[load_iter]; otherwise, the code will load models by [epoch]
+verbose: True # if specified, print more debugging information
+# Test
+results_dir: results # saves results here.
+aspect_ratio: 1.0 # aspect ratio of result images
+phase: test # train, val, test, etc
+# Dropout and Batchnorm has different behavioir during training and test.
+eval: True # use eval mode during test time.
+num_test: 50 # how many test images to run

@@ -15,8 +15,8 @@ if(-Not (Test-Path -Path CycleGAN)) {
 
 # Setup package
 Set-Location ..
-Copy-Item -Path "..\commands\Style Transfer\setup.py" -Destination .\setup_cyclegan.py
-python .\setup_cyclegan.py develop
+Copy-Item -Path "..\commands\Style Transfer\setup.py" -Destination .\setup.py
+python .\setup.py develop
 Set-Location CycleGAN
 
 # Install dependencies

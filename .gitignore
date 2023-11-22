@@ -21,4 +21,5 @@ _minted-main
 .output
 bin
 lib
-__py_cache__
+__pycache__
+*.pt

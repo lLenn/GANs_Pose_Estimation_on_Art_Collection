@@ -16,8 +16,8 @@ fi
 
 # Setup package
 cd ..
-cp ../commands/Style\ Transfer/setup.py ./setup_cyclegan.py
-python3 ./setup_cyclegan.py develop
+cp ../commands/Style\ Transfer/setup.py ./setup.py
+python3 ./setup.py develop
 cd CycleGAN
 
 # Install dependencies
