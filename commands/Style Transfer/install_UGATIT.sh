@@ -11,6 +11,7 @@ then
     cd UGATITLib
 else
     cd UGATITLib
+    git pull
 fi
 
 if [ ! -f "__init__.py" ]
