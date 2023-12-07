@@ -6,6 +6,26 @@ The former will be used to detect poses in the art collections, but not before t
 Following will be an overview of the available research in these domains.
 Discussing what the goals of them are, how they achieve it, what their challenges are and their limitations.
 
+\begin{figure}
+	\centering
+	\captionbox{The various challenges HPE solutions face. Images from \gls{MPII} dataset. \cite{Andriluka2014}\cite{Chen2000}}[0.49\textwidth]{
+		\includegraphics[width=0.49\textwidth]{hpe_problem_complexity}
+		\label{fig:hpe_problem_complexity}
+	}
+	\captionbox{Models for pose representation \cite{Zheng2012}}[0.49\textwidth]{
+		\subcaptionbox{Skeleton \label{fig:pose_representation_skeleton}}{%
+			\includegraphics[width=0.15\textwidth]{pose_representation_skeleton}%
+		}
+		\subcaptionbox{Contour \label{fig:pose_representation_contour}}{%
+			\includegraphics[width=0.15\textwidth]{pose_representation_contour}%
+		}
+		\subcaptionbox{Volume \label{fig:pose_representation_volume}}{%
+			\includegraphics[width=0.15\textwidth]{pose_representation_volume}%
+		}
+		\label{fig:pose_representation}
+	}
+\end{figure}
+
 \section{Human Pose estimation}
 \label{sec:hpe}
 
@@ -24,7 +44,7 @@ This makes \gls{HPE} one of the most difficult tasks in computer vision \cite{ja
 \label{section:representation}
 
 An important factor in \gls{HPE} is how the pose will be represented.
-Depending on the needs of the problem you can have a skeleton-base, contour-base, or volume-base solution \cite{Chen2000}\ref{fig:pose_representation}.
+Depending on the needs of the problem you can have a skeleton-base, contour-base, or volume-base solution \cite{Chen2000} as seen in Fig. \ref{fig:pose_representation}.
 
 \subsubsection{Skeleton-based model}
 The skeleton is build of a tree-structured set of keypoints that represent the joints of the human body.
@@ -80,6 +100,9 @@ Each person has 14 keypoints, a bounding-box, as well as visibility and left/rig
 Finally, 20,000 images are selected and 80,000 persons annotated.
 Each person has 14 keypoints and a full-body bounding box.
 
+\textbf{Human-Art Dataset \cite{Ju2023}} bridges the gap between natural and artificial images.
+The set contains 50,000 high-quality images with 123,000 annotated humans.
+Each person has 17 keypoints, bounding boxes, self-contact points, and text information.
 
 \subsection{Discriminative Methods and Generative Methods}
 Before deep learning became prominent in \gls{HPE} there were already a number of different methods in use.
@@ -101,14 +124,41 @@ The deep-learning methods are further categorized by the following sections.
 Single-person pose estimation will try to evaluate only one pose from an image.
 There are 2 major methods that are in use: regression methods and detection-based methods.
 
+\begin{figure}
+	\centering
+	\subcaptionbox{Regression Methods \label{fig:single_pose_estimation_regression_methods}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_regression_methods}%
+	}
+	\subcaptionbox{Heatmap-based Methods \label{fig:single_pose_estimation_heatmap-based_methods}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_heatmap-based_methods}%
+	}
+	\caption{The different methods of single-person human pose estimation.\cite{Zheng2012}}
+	\label{fig:single_pose_estimation}
+\end{figure}
 \subsubsection{Regression-based Methods}
 The regression-based methods learn a network that maps all the body keypoints to the image-data directly as show in \ref{fig:single_pose_estimation_regression_methods}.
+
+\begin{figure}
+	\centering
+	\subcaptionbox{Initial stage \label{fig:single_pose_estimation_deep_pose_initial_stage}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_deep_pose_initial_stage}%
+	}
+	\subcaptionbox{Stage s \label{fig:single_pose_estimation_deep_pose_stage_s}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_deep_pose_stage_s}%
+	}
+	\caption{
+		Convolution layers in blue and fully connected layers in green.
+		The initial stage is applied to the whole images, while in stage s it will work on a sub-image based on the result of the previous stage.\cite{Toshev2014}
+	}
+	\label{fig:deep_pose}
+\end{figure}
 
 The first successful deep learning model came from Toshev and Svegedy \cite{Toshev2014} and is considered the switch in paradigm from classic approaches to deep learning \gls{HPE}.
 Toshev et al. uses a 7-layered model with 5 convolution layers and 2 fully-connected layers for the pose regressor, based on AlexNet for its simple but effective architecture \cite{AlexNet}.
 They then cascade the resulting found keypoints of this model to itself where it refines it using the area around the keypoints.
 While the network is the same, the different stages will have different learned parameters.
 With every stage the found keypoints become more accurate.
+A illustration of this can be found in Fig. \ref{fig:deep_pose}.
 
 Carreira et al. \cite{CarreiraAFM15} introduce an Iterative Error Feedback which is a self-correcting model using top-down feedback.
 Using the image-data and a starting pose modeled as a heatmap, the model, based on GoogLeNet \cite{googlenet}, will predict an error for each keypoint.
@@ -127,11 +177,35 @@ Tompson et al. \cite{TompsonJLB14} proposed a hybrid architecture where the dete
 The first step produces many false-positives and these are removed in the second step by restricting joint inter-connectivity to enforce correct anatomy.
 They build on this in \cite{Tompson2015}, where they used a cascade to refine predictions.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{single_pose_estimation_convolutional_pose_machines}%
+	\caption{
+		Architecture and receptive fields of \gls{CPMs}. (a) and (b) represent the pose machine architecture.\cite{Ramakrishna2014}
+		(c) and (d) show the corresponding convolutional networks used by \gls{CPMs}.\cite{Wei2016}
+	}
+	\label{fig:convolutional_pose_machines}
+\end{figure}
+
 A fundamental work written by Wei et al. \cite{Wei2016} combines convolution networks with Pose Machines \cite{Ramakrishna2014}.
 Pose Machines is an iterative architecture which consists of 2 models: the first is used for stage 1 where it extracts potential heatmaps for the joints.
 The second model is used for subsequent stages where the result of the previous stage is fed in together with the results of its own convolution network on the input image. 
 This gradually refines the predictions for the joints and their positioning.
 \ref{fig:convolutional_pose_machines} shows this process.
+
+\begin{figure}
+	\centering
+	\subcaptionbox{Stacked Hourglass \label{fig:single_pose_estimation_stacked_hourglass}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_stacked_hourglass}%
+	}
+	\subcaptionbox{Hourglass Module \label{fig:single_pose_estimation_hourglass_module}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_hourglass_module}%
+	}
+	\caption{
+		The structure of a "stacked hourglass" network and a single "hourglass" module.\cite{Newell2016}
+	}
+	\label{fig:stacked_hourglass}
+\end{figure}
 
 Another influential work was being written at the same time by Newell et al. \cite{Newell2016}.
 Similar to \gls{CPMs}, this is also an iterative architecture.
@@ -143,6 +217,20 @@ Several other works \cite{Yang2017}\cite{Yu2017}\cite{Chou17} have since improve
 Both these use intermediate supervision to tackle the problem of vanishing gradients.
 This still doesn't build a deep sub-network for feature extraction which limits the estimations.
 This has become less of a problem with the emergence of \gls{ResNet}\cite{He2015} which allows better back-propagation at deeper levels through shortcuts.
+
+\begin{figure}
+	\centering
+	\subcaptionbox{HRNet \label{fig:single_pose_estimation_HRNet}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_HRNet}%
+	}
+	\subcaptionbox{Multi-Scale Fusion \label{fig:single_pose_estimation_multi-scale_fusion}}[0.49\textwidth]{%
+		\includegraphics[width=0.49\textwidth]{single_pose_estimation_multi-scale_fusion}%
+	}
+	\caption{
+		The architecture of the High-Resolution network and how it applies multi-scale fusion.\cite{Sun2019}
+	}
+	\label{fig:HRNet}
+\end{figure}
 
 A more recent work by Sun et al. \cite{Sun2019} maintains the high-resolution representations instead of working the high-resolution from the low-to-high sub-network.
 After a first high-resolution sub-network, it gradually adds high-to-low sub-networks in parallel to predict multi-resolution features.
@@ -187,6 +275,15 @@ In the second stage, they estimate the pose in each found bounding box using the
 It predicts heatmaps using a fully convolutional \gls{ResNet} and use their own novel aggregation procedure.
 Afterwards, they do post-processing using keypoint-based \gls{NMS} a method of their own making.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{multi_pose_estimation_cascade_pyramid_network}%
+	\caption{
+		Cascaded Pyramid Network. “L2 loss*” means L2 loss with online hard keypoints mining.\cite{Chen2017}
+	}
+	\label{fig:cascade_pyramid_network}
+\end{figure}
+
 A continuous effort is taken by Chen et al. \cite{Chen2017} to deal with occlusion and truncation.
 They suggest a 2 stage architecture, a \gls{CPN} as seen in \ref{fig:cascade_pyramid_network},
 where first the "simple" keypoints are captured with GlobalNet, a feature pyramid network based on \cite{Lin2016},
@@ -196,6 +293,31 @@ They achieved great results and several others improved on their work \cite{Su20
 In more recent research, a new method was become more powerful than \glspl{CNN}.
 The Transformer \cite{Vaswani2017}, based on attention mechanisms which are used to optimize recurrent networks \cite{Kim2017}, eliminates the use of recurrent layers, keeping only the attention mechanisms.
 Yang et al. \cite{Yang2020} use this architecture because allows for better understanding of the spatial dependencies and learns at a higher rate.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.49\textwidth]{style_transfer_algorithm}%	
+	\caption{Style transfer algorithm. (Gatys et al. \cite{Gatys2016}).}
+	\label{fig:style_transfer_algorithm}
+	\parbox{\textwidth}{
+		\captionbox{
+			A texture network by Ulyanov et al. \cite{Ulyanov2016}. \\
+			The generator network (left) is the only one that changes.
+			The descriptor network (right) is used to calculate the loss.
+		}[0.49\textwidth] {
+			\includegraphics[width=0.49\textwidth]{style_transfer_generator_network_ulyanov}%
+			\label{fig:style_transfer_generator_network_ulyanov}
+		}
+		\captionbox{
+			An image transformation network by Johnson et al. \cite{Johnson2016}.
+			The image transform network (left) is the only one that changes.
+			A loss network (right) is used to define perceptual loss functions.
+		}[0.49\textwidth] {
+			\includegraphics[width=0.49\textwidth]{style_transfer_generator_network_johnson}%
+			\label{fig:style_transfer_generator_network_johnson}
+		}	
+	}
+\end{figure}
 
 \subsubsection{Bottom-Up Methods}
 A different approach is taken with bottom-up methods.
@@ -238,98 +360,20 @@ The higher efficiency of bottom-up models, make them more suitable for real-time
 
 \begin{figure}
 	\centering
-	\includegraphics[width=1\textwidth]{hpe_problem_complexity}
-	\caption{The various challenges HPE solutions face. Images from \gls{MPII} dataset. \cite{Andriluka2014}\cite{Chen2000}}
-	\label{fig:hpe_problem_complexity}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\subcaptionbox{Skeleton \label{fig:pose_representation_skeleton}}{%
-		\includegraphics[width=0.3\textwidth]{pose_representation_skeleton}%
+	\subcaptionbox{Content Image \label{fig:style_transfer_ulyanov_content}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_content}%
 	}
-	\subcaptionbox{Contour \label{fig:pose_representation_contour}}{%
-		\includegraphics[width=0.3\textwidth]{pose_representation_contour}%
+	\subcaptionbox{Style Image \label{fig:style_transfer_ulyanov_style}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_style}%
 	}
-	\subcaptionbox{Volume \label{fig:pose_representation_volume}}{%
-		\includegraphics[width=0.3\textwidth]{pose_representation_volume}%
+	\subcaptionbox{StyleNet with \gls{BN} \label{fig:style_transfer_ulyanov_BN}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_BN}%
 	}
-	\caption{Models for pose representation \cite{Zheng2012}}
-	\label{fig:pose_representation}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\subcaptionbox{Regression Methods \label{fig:single_pose_estimation_regression_methods}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_regression_methods}%
+	\subcaptionbox{StyleNet with \gls{IN} \label{fig:style_transfer_ulyanov_IN}}{%
+		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_IN}%
 	}
-	\subcaptionbox{Heatmap-based Methods \label{fig:single_pose_estimation_heatmap-based_methods}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_heatmap-based_methods}%
-	}
-	\caption{The different methods of single-person human pose estimation.\cite{Zheng2012}}
-	\label{fig:single_pose_estimation}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\subcaptionbox{Initial stage \label{fig:single_pose_estimation_deep_pose_initial_stage}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_deep_pose_initial_stage}%
-	}
-	\subcaptionbox{Stage s \label{fig:single_pose_estimation_deep_pose_stage_s}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_deep_pose_stage_s}%
-	}
-	\caption{
-		Convolution layers in blue and fully connected layers in green.
-		The initial stage is applied to the whole images, while in stage s it will work on a sub-image based on the result of the previous stage.\cite{Toshev2014}
-	}
-	\label{fig:deep_pose}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{single_pose_estimation_convolutional_pose_machines}%
-	\caption{
-		Architecture and receptive fields of \gls{CPMs}. (a) and (b) represent the pose machine architecture.\cite{Ramakrishna2014}
-		(c) and (d) show the corresponding convolutional networks used by \gls{CPMs}.\cite{Wei2016}
-	}
-	\label{fig:convolutional_pose_machines}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\subcaptionbox{Stacked Hourglass \label{fig:single_pose_estimation_stacked_hourglass}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_stacked_hourglass}%
-	}
-	\subcaptionbox{Hourglass Module \label{fig:single_pose_estimation_hourglass_module}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_hourglass_module}%
-	}
-	\caption{
-		The structure of a "stacked hourglass" network and a single "hourglass" module.\cite{Newell2016}
-	}
-	\label{fig:stacked_hourglass}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\subcaptionbox{HRNet \label{fig:single_pose_estimation_HRNet}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_HRNet}%
-	}
-	\subcaptionbox{Multi-Scale Fusion \label{fig:single_pose_estimation_multi-scale_fusion}}{%
-		\includegraphics[width=\textwidth]{single_pose_estimation_multi-scale_fusion}%
-	}
-	\caption{
-		The architecture of the High-Resolution network and how it applies multi-scale fusion.\cite{Sun2019}
-	}
-	\label{fig:HRNet}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{multi_pose_estimation_cascade_pyramid_network}%
-	\caption{
-		Cascaded Pyramid Network. “L2 loss*” means L2 loss with online hard keypoints mining.\cite{Chen2017}
-	}
-	\label{fig:cascade_pyramid_network}
+	\caption{A comparison between (c) \gls{BN} and (d) \gls{IN}.\cite{Ulyanov2017}}
+	\label{fig:style_transfer_ulyanov_BN_IN_comparison}
 \end{figure}
 
 \section{Image Style Transfer}
@@ -359,7 +403,6 @@ Due to a lack of benchmark datasets, multiple papers will mix and match from dif
 \textbf{WikiArt Dataset \cite{Tan2018}} consists of 80,000 fine-art paintings.
 All are annotated for 27 styles, 60,000 are annotated for 20 genres and 20,000 for 23 artists.
 
-
 \subsection{Optimization-based Networks}
 Gatys et al. \cite{Gatys2016} introduce deep neural networks to image style transfer.
 Using a modified VGG-network \cite{Simonyan2015}, they extract the features of an image by reconstructing the content from the feature maps in the higher layers on a white noise image.
@@ -369,6 +412,22 @@ The Gram matrix is the vector product of two sets of vectorized feature maps.
 This method is shown in \ref{fig:style_transfer_algorithm}.
 They remark that the resolution of the images affects the performance of the algorithm and is thus restricted to low resolutions.
 At the same time, the synthesized images contain some low-level noise, but this can possibly be removed with a denoiser.
+
+\begin{figure}
+	\centering
+	\captionbox{
+		The stylebank network by Chen et al. \cite{Chen2017}.
+	} [0.49\textwidth] {
+		\label{fig:style_transfer_algorithm_stylebank}
+		\includegraphics[width=0.49\textwidth]{style_transfer_algorithm_stylebank}%
+	}
+	\captionbox{
+		The domain transfer network by Taigman et al. \cite{Taigman2016}.
+	} [0.49\textwidth] {
+		\includegraphics[width=0.49\textwidth]{style_transfer_algorithm_taigman}%
+		\label{fig:style_transfer_algorithm_taigman}
+	}
+\end{figure}
 
 \subsection{Feed-forward Generation Networks}
 To improve the performance, Ulyanov et al. \cite{Ulyanov2016} suggest the use of a feed-forward generation network instead of backpropagation
@@ -390,7 +449,7 @@ Since it only changes the scale and shift parameters for different styles, the n
 Of the 1.6M parameters, only 3K are needed for the different styles.
 
 Another network that puts a focus on multiple styles comes from Chen et al. \cite{Chen2017}.
-They propose a StyleBank, which can store multiple convolution filter banks each representing a different style.
+They propose a StyleBank, as seen in Fig. \ref{fig:style_transfer_algorithm_stylebank}, which can store multiple convolution filter banks each representing a different style.
 They use an auto-encoder network with in between a StyleBank layer.
 During training, for each $T+1$ iterations the entire network is first trained with a perception loss for the first $T$ iterations.
 Then only the auto-encoder network is trained with a \gls{MSE} loss.
@@ -402,92 +461,32 @@ Huang et al. \cite{Huang2017} try to remedy this by introducing an \gls{AdaIN} l
 Unlike the other normalization techniques, \gls{AdaIN} does not have affine parameters, and will adaptively compute these from the style image.
 \ref{fig:style_transfer_unseen_style} shows how well the different networks can handle unseen styles.
 
-\subsection{Generative Adversarial Networks}
-With the introduction of \glspl{GAN}, the quality of generative models have greatly increased.
-It is not surprising then that this got picked up in research for \gls{NST}.
-
-Among the first was Isola et al. \cite{Isola2016} who use a \gls{cGAN}.
-With \gls{cGAN}, the generator network has an extra input which here is the image to be translated.
-They use the network from \cite{radford2016} which uses modules of the form convolution-BatchNorm-ReLu\cite{Ioffe2015}.
-Additionally, in order to pass shared features in the generator they add skip connections like with "U-Net" \cite{Ronneberger2015}.
-For the discriminator, which they call PatchGAN, they validate $N\times N$ patches and take the average as output.
-They take this loss together with the $L1$ loss because $L2$ loss produces blurry results.
-
-This still requires paired training samples, while Taigman et al. \cite{Taigman2016} are doing research in unsupervised domain transfer.
-Domain transfer can be used for \gls{NST}, but this is not possible the other way around.
-Their network uses a encoder-decoder as the generator and they assume that $f(x)$ is constant between 2 domains.
-The discriminator has a ternary output and distinguishes between real, fake and reconstruction.
-They add several new loss functions which check the consistency between the 2 domains (consistency loss) and if $G$ performs perfect reconstruction (reconstruction loss).
-This can be seen in \ref{fig:style_transfer_algorithm_taigman}.
-For $f$, they use a pre-trained network that is trained on paired samples.
-
-In order to make the network completely unsupervised, Yi et al.\cite{Yi2017} propose DualGAN, Kim et al. \cite{Kim2017} DiscoGAN and Zhu et al. \cite{Zhu2017} CycleGAN, which are all 3 essentially the same proposal.
-The entire model consists of 2 cycle-consistent networks where each translates from one domain to the other.
-A cycle-consistent network will first translate the input to target domain and then back to the original domain.
-Each domain has a discriminator which compares the real input from one network with the fake from the other; the adversarial loss. As seen in \ref{fig:style_transfer_algorithm_discogan}.
-In addition to this there's a cycle-consistency loss, which is the \gls{MSE} between the input and the reconstructed image as you can see in \ref{fig:style_transfer_algorithm_cyclegan}.
-The goal is to minimize the adversarial and cycle-consistency losses, while maximizing the discriminators' accuracy.
-Zhu et al. \cite{Zhu2017} also introduce an identity loss.
-
-Liu et al. \cite{Liu2017} introduce the latent space assumption which assumes that paired images from different domains can be mapped to a shared latent space with the same latent representation.
-The network consists of 2 domain image encoders $E\textsubscript{$1$}$ and $E\textsubscript{$2$}$, 2 domain image generators $G\textsubscript{$1$}$ and $G\textsubscript{$2$}$, and 2 domain discriminators $D\textsubscript{$1$}$ and $D\textsubscript{$2$}$.
-As can be seen in \ref{fig:style_transfer_algorithm_unit}.
-The encoders and generators are paired and form a \gls{VAE} \cite{kingma2022}.
-The encoder maps the input to latent space, and the generator reconstructs the image.
-This is the reconstruction loss.
-They use weight-sharing, which shares the weight of the last 2 layers of the encoders and of the first 2 layers of the generators.
-The generators and discriminators are paired to form a \gls{GAN}.
-The generator can also construct an image from the latent code from the other encoder's input.
-This image is used to train the \gls{GAN}.
-They also show that the shared-latent space assumption implies cycle-consistency, which is the final loss function of the network.
-
-
-
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{style_transfer_algorithm}%
-	\caption{
-		Style transfer algorithm. (Gatys et al. \cite{Gatys2016}).
+	\captionbox{
+		The cycle-consistent network.
+	}[0.49\textwidth] {	
+		\subcaptionbox{As illustrated by Zhu et al. \cite{Zhu2017}. \label{fig:style_transfer_algorithm_cyclegan}}[0.49\textwidth]{%
+			\includegraphics[width=0.49\textwidth]{style_transfer_algorithm_cyclegan}%
+		}
+		\subcaptionbox{As illustrated by Kim et al. \cite{Kim2017}. \label{fig:style_transfer_algorithm_discogan}}[0.49\textwidth]{%
+			\includegraphics[height=1.2in]{style_transfer_algorithm_discogan}%
+		}
+		\label{fig:style_transfer_cyclegan}
 	}
-	\label{fig:style_transfer_algorithm}
+	\captionbox{
+		Liu et al. \cite{Liu2017}.
+	}[0.49\textwidth] {	
+		\subcaptionbox{The shared latent space assumption.}[0.49\textwidth]{%
+			\includegraphics[height=1.2in]{style_transfer_algorithm_unit_a}%
+		}
+		\subcaptionbox{The unsupervised image-to-image translation network.}[0.49\textwidth]{%
+			\includegraphics[width=0.49\textwidth]{style_transfer_algorithm_unit_b}%
+		}
+		\label{fig:style_transfer_algorithm_unit}
+	}
 \end{figure}
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{style_transfer_generator_network_ulyanov}%
-	\caption{
-		A texture network by Ulyanov et al. \cite{Ulyanov2016}.
-		The generator network (left) is the only one that changes.
-		The descriptor network (right) is used to calculate the loss.
-	}
-	\label{fig:style_transfer_generator_network_ulyanov}
-\end{figure}
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{style_transfer_generator_network_johnson}%
-	\caption{
-		An image transformation network by Johnson et al. \cite{Johnson2016}.
-		The image transform network (left) is the only one that changes.
-		A loss network (right) is used to define perceptual loss functions.
-	}
-	\label{fig:style_transfer_generator_network_johnson}
-\end{figure}
-\begin{figure}
-	\centering
-	\subcaptionbox{Content Image \label{fig:style_transfer_ulyanov_content}}{%
-		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_content}%
-	}
-	\subcaptionbox{Style Image \label{fig:style_transfer_ulyanov_style}}{%
-		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_style}%
-	}
-	\subcaptionbox{StyleNet with \gls{BN} \label{fig:style_transfer_ulyanov_BN}}{%
-		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_BN}%
-	}
-	\subcaptionbox{StyleNet with \gls{IN} \label{fig:style_transfer_ulyanov_IN}}{%
-		\includegraphics[width=0.2\textwidth]{style_transfer_ulyanov_IN}%
-	}
-	\caption{A comparison between (c) \gls{BN} and (d) \gls{IN}.\cite{Ulyanov2017}}
-	\label{fig:style_transfer_ulyanov_BN_IN_comparison}
-\end{figure}
+
 \begin{figure}
 	\centering
 	\subcaptionbox{Content Image}[0.19\textwidth]{
@@ -528,43 +527,101 @@ They also show that the shared-latent space assumption implies cycle-consistency
 	\caption{A comparison between different style transfers where the style was not seen during training.}
 	\label{fig:style_transfer_unseen_style}
 \end{figure}
+
+\subsection{Generative Adversarial Networks}
+With the introduction of \glspl{GAN}, the quality of generative models have greatly increased.
+It is not surprising then that this got picked up in research for \gls{NST}.
+
+Among the first was Isola et al. \cite{Isola2016} who use a \gls{cGAN}.
+With \gls{cGAN}, the generator network has an extra input which here is the image to be translated.
+They use the network from \cite{radford2016} which uses modules of the form convolution-BatchNorm-ReLu\cite{Ioffe2015}.
+Additionally, in order to pass shared features in the generator they add skip connections like with "U-Net" \cite{Ronneberger2015}.
+For the discriminator, which they call PatchGAN, they validate $N\times N$ patches and take the average as output.
+They take this loss together with the $L1$ loss because $L2$ loss produces blurry results.
+
+This still requires paired training samples, while Taigman et al. \cite{Taigman2016} are doing research in unsupervised domain transfer.
+Domain transfer can be used for \gls{NST}, but this is not possible the other way around.
+Their network uses a encoder-decoder as the generator and they assume that $f(x)$ is constant between 2 domains.
+The discriminator has a ternary output and distinguishes between real, fake and reconstruction.
+They add several new loss functions which check the consistency between the 2 domains (consistency loss) and if $G$ performs perfect reconstruction (reconstruction loss).
+This can be seen in \ref{fig:style_transfer_algorithm_taigman}.
+For $f$, they use a pre-trained network that is trained on paired samples.
+
+In order to make the network completely unsupervised, Yi et al.\cite{Yi2017} propose DualGAN, Kim et al. \cite{Kim2017} DiscoGAN and Zhu et al. \cite{Zhu2017} CycleGAN, which are all 3 essentially the same proposal.
+The entire model consists of 2 cycle-consistent networks where each translates from one domain to the other.
+A cycle-consistent network will first translate the input to target domain and then back to the original domain.
+Each domain has a discriminator which compares the real input from one network with the fake from the other; the adversarial loss. As seen in \ref{fig:style_transfer_algorithm_discogan}.
+In addition to this there's a cycle-consistency loss, which is the \gls{MSE} between the input and the reconstructed image as you can see in \ref{fig:style_transfer_algorithm_cyclegan}.
+The goal is to minimize the adversarial and cycle-consistency losses, while maximizing the discriminators' accuracy.
+Zhu et al. \cite{Zhu2017} also introduce an identity loss.
+
+Liu et al. \cite{Liu2017} introduce the latent space assumption which assumes that paired images from different domains can be mapped to a shared latent space with the same latent representation.
+The network consists of 2 domain image encoders $E\textsubscript{$1$}$ and $E\textsubscript{$2$}$, 2 domain image generators $G\textsubscript{$1$}$ and $G\textsubscript{$2$}$, and 2 domain discriminators $D\textsubscript{$1$}$ and $D\textsubscript{$2$}$.
+As can be seen in \ref{fig:style_transfer_algorithm_unit}.
+The encoders and generators are paired and form a \gls{VAE} \cite{kingma2022}.
+The encoder maps the input to latent space, and the generator reconstructs the image.
+This is the reconstruction loss.
+They use weight-sharing, which shares the weight of the last 2 layers of the encoders and of the first 2 layers of the generators.
+The generators and discriminators are paired to form a \gls{GAN}.
+The generator can also construct an image from the latent code from the other encoder's input.
+This image is used to train the \gls{GAN}.
+They also show that the shared-latent space assumption implies cycle-consistency, which is the final loss function of the network.
+
+\subsection{Evaluation Metric}
+(dirty version)
+Discuss how the application of style transfer can be objectively measure, if at all?
+
+\section{Content Based Image Retrieval}
+\gls{CBIR}, a long-established research area, is the task of finding semantically matched or similar content images for a specified query image.
+This has become increasingly relevant with the exponential growth of image and video data and the need to effectively search these image collections.
+specifically, \gls{CBIR} has been used for person re-identification, remote sensing, medical image search, and shopping recommendation in online marketplaces, among many others \cite{Chen2021}.
+Image retrieval can be categorized into 2 different groups: \gls{CIR} and \gls{IIR}.
+\gls{CIR}'s goal is to find images within the same category as the query, while \gls{IIR} tries to find images with a particular instance given in the query image.
+The general workflow of \gls{CBIR} is illustrated in \ref{fig:image_retrieval_flowchart}.
+This paper will only discuss query formation, image representation, image scoring, and search reranking.
+
+
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{style_transfer_algorithm_stylebank}%
+	\includegraphics[width=0.8\textwidth]{image_retrieval_flowchart}%
+	\label{fig:image_retrieval_flowchart}
 	\caption{
-		The stylebank network by Chen et al. \cite{Chen2017}.
+		The general workflow of \gls{CBIR}. \cite{Zhou2017}
 	}
-	\label{fig:style_transfer_algorithm_stylebank}
 \end{figure}
+
+\subsection{Query Formation}
+There are several ways that a query can be formatted.
+A user might want to find images based on keywords which is your standard classification task.
+Instead of just giving a series of keywords, these can also be arranged in a layout.
+A query by concept layout will then search for an image with the same arrangement \cite{Xu2010}.
+Similarly, a query by color layout will search for that arrangement of colors in the images \cite{Wang2011}.
+It's also possible that a user wants to find images similar to a sketch (query by sketch) \cite{Cao2010} or another image (query by example) \cite{Radenovic2017}.
+An overview can be found in fig. \ref{fig:image_retrieval_query_formation}.
+This paper will focus on query by example.
+
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{style_transfer_algorithm_taigman}%
+	\includegraphics[width=0.49\textwidth]{image_retrieval_query_formation}%
 	\caption{
-		The domain transfer network by Taigman et al. \cite{Taigman2016}.
+		An overview of the different kinds of queries with corresponding retrieval results. \cite{Zhou2017}
 	}
-	\label{fig:style_transfer_algorithm_taigman}
+	\label{fig:image_retrieval_query_formation}
 \end{figure}
-\begin{figure}
-	\centering
-	\subcaptionbox{As illustrated by Zhu et al. \cite{Zhu2017}. \label{fig:style_transfer_algorithm_cyclegan}}{%
-		\includegraphics[width=\textwidth]{style_transfer_algorithm_cyclegan}%
-	}
-	\subcaptionbox{As illustrated by Kim et al. \cite{Kim2017}. \label{fig:style_transfer_algorithm_discogan}}{%
-		\includegraphics[width=\textwidth]{style_transfer_algorithm_discogan}%
-	}
-	
-	\caption{
-		The cycle-consistent network.
-	}
-	\label{fig:style_transfer_cyclegan}
-\end{figure}
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{style_transfer_algorithm_unit}%
-	\caption{
-		(a) The shared latent space assumption.
-		(b) The unsupervised image-to-image translation network by Liu et al. \cite{Liu2017}.
-	}
-	\label{fig:style_transfer_algorithm_unit}
-\end{figure}
-\label{sec:ist}
+
+\subsection{Image Representation}
+A major challenge with image retrieval is how to proficiently measure similarity between images.
+Clearly, directly comparing pixels values is impracticable, so methods that extract visual features from images are used.
+They are transformed into a fixed-sized vector which form a representation of the image.
+Before deep learning, hand crafted feature algorithms were used.
+From these, \gls{SIFT} \cite{Lowe1999} was the most popular.
+This is still not enough for an efficient query response and visual features need to be further compressed for indexing.
+(Talk about codebooks some more)
+(See \ref{sec:baseline_style_transfer} for reason of inclusion)
+
+\section{Related Papers}
+(dirty version)
+Discuss following papers:
+Improving Object Detection in Art Images Using Only Style Transfer \cite{Kadish2021}\\
+Enhancing Human Pose Estimation in Ancient Vase Paintings via Perceptually-grounded Style Transfer Learning \cite{Madhu2020}\\
+Linking Art through Human Poses \cite{Jenicek2019}\\

@@ -11,7 +11,7 @@ from available_algorithms import createDatasetIterator, createPoseEstimatorItera
 
 # This code will establish the base line for pose estimation done on pose estimation datasets that have been transformed with a style transfer algorithm.
 
-NO_WORKERS = 4
+NO_WORKERS = 1
 
 def printNameValue(logger, name_value, fullArchName):
     names = name_value.keys()

@@ -1,6 +1,6 @@
 phase: train # train / test
 light: False # U-GAT-IT full version / U-GAT-IT light version
-dataset: 'TestTraining' # dataset_name
+dataset: 'BaroqueStyleTraining' # dataset_name
 
 iteration: 5000 # The number of training iterations
 batch_size: 1 # The size of batch size

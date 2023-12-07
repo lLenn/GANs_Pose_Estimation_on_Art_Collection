@@ -18,6 +18,7 @@ class UGATITConfig:
 
         default_config.iteration = 1000000
         default_config.batch_size = 1
+        default_config.log_freq = 1
         default_config.print_freq = 1000
         default_config.save_freq = 100000
         default_config.decay_flag = True

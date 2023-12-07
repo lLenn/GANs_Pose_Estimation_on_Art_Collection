@@ -1,3 +1,4 @@
+import math
 from yacs.config import CfgNode as CN
 
 class CycleGANConfig:
@@ -14,7 +15,7 @@ class CycleGANConfig:
         
         default_config.dataroot = "data"
         default_config.name = "experiment_name"
-        default_config.gpu_ids = 0
+        default_config.gpu_ids = [0]
         default_config.checkpoints_dir = "checkpoints"
 
         default_config.model = "cycle_gan"
@@ -28,27 +29,23 @@ class CycleGANConfig:
         default_config.norm = "instance"
         default_config.init_type = "normal"
         default_config.init_gain = 0.02
-        default_config.no_dropout = "store_true"
+        default_config.no_dropout = True
         
         default_config.dataset_mode = "unaligned"
         default_config.direction = "AtoB"
-        default_config.serial_batches = "store_true"
+        default_config.serial_batches = True
         default_config.num_threads = 4
         default_config.batch_size = 1
         default_config.load_size = 286
         default_config.crop_size = 256
         default_config.max_dataset_size = float("inf")
         default_config.preprocess = "resize_and_crop"
-        default_config.no_flip = "store_true"
+        default_config.no_flip = True
         default_config.display_winsize = 256
 
         default_config.epoch = "latest"
-        default_config.load_iter = 0
-        default_config.verbose = "store_true"
+        default_config.verbose = True
         default_config.suffix = ""
-
-        default_config.use_wandb = "store_true"
-        default_config.wandb_project_name = "CycleGAN-and-pix2pix"
         
         if phase == "train":
             default_config.display_freq = 400
@@ -57,14 +54,11 @@ class CycleGANConfig:
             default_config.display_server = "http://localhost"
             default_config.display_env = "main"
             default_config.display_port = 8087
-            default_config.update_html_freq = 1000
             default_config.print_freq = 100
-            default_config.no_html = "store_true"
             
-            default_config.save_latest_freq = 5000
+            default_config.save_no = -1
             default_config.save_epoch_freq = 5
-            default_config.save_by_iter = "store_true"
-            default_config.continue_train = "store_true"
+            default_config.continue_train = True
             default_config.epoch_count = 1
             default_config.phase = "train"
             
@@ -77,6 +71,8 @@ class CycleGANConfig:
             default_config.lr_policy = "linear"
             default_config.lr_decay_iters = 50
             
+            default_config.isTrain = True
+            
             if model == "cycle_gan":
                 default_config.lambda_A = 10.0
                 default_config.lambda_B = 10.0
@@ -84,14 +80,16 @@ class CycleGANConfig:
                 
                 
         elif phase == "test":
-            default_config.results_dir = "results"
+            default_config.results_dir = "./output/results"
             default_config.aspect_ratio = 1.0
             default_config.phase = "test"
             
-            default_config.eval = "store_true"
+            default_config.eval = True
             default_config.num_test = 50
         
             default_config.model = "test"
             default_config.load_size = default_config.crop_size
+            
+            default_config.isTrain = False
             
         return default_config

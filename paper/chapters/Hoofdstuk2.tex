@@ -1,42 +1,84 @@
-\chapter{Titel tweede hoofdstuk}
-\label{chap:evaluation}
+\chapter{Establishing a Baseline}
+\label{chap:baseline}
+This chapter will establish the baseline that will be used to compare our results with.
+For this, 2 to 3 algorithms from both pose estimation and style transfer will be explored.
+The motivation for the choices of the algorithms will be explained in full detail.
+First, style transfer will be applied to the COCO dataset to then estimate any poses from it.
+The results wil give an indication of how well pose estimation will work on art collections.
+More recently, a new dataset has emerged which will be of great help, the Human-Art dataset \cite{Ju2023}, with which we can directly check the pose estimation without an intermediary step.
 
-SWAHR & HumanArt Dataset (validation set w32_512)
-Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.469
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.688
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.499
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.066
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.512
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.529
- Average Recall     (AR) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.726
- Average Recall     (AR) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.562
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.111
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.573
-| Arch | AP | Ap .5 | AP .75 | AP (M) | AP (L) | AR | AR .5 | AR .75 | AR (M) | AR (L) |
-|---|---|---|---|---|---|---|---|---|---|---|
-| SWAHR | 0.469 | 0.688 | 0.499 | 0.066 | 0.512 | 0.529 | 0.726 | 0.562 | 0.111 | 0.573 |
+\section{Choice of Pose Estimation}
+\label{sec:baseline_pose_estimation}
+(dirty version)
+There are a few choice that are evident, does it have code available and is it compatible with the chosen dataset.
+Another is time of inference, how fast can it estimate the pose? This paper doesn't need real-time inference, but a algortihm can both be fast and accurate \cite{William2021}
+Want to explore a diverse set of estimators. (bottom-up, top-down, ...)
+(SWAHR explain why...) \cite{SWARH} Faster network according to surveys. Uses the popular network HRNet. (Bottom-Up)
+(KAPAO explain why...) \cite{William2021} Claims to be both fast and accurate. (Single-stage; explain single stage in literature study. It means that it does away with the top-down/bottom-up paradigm which are two-stage models.)
+(VitPose explain why...) \cite{vitpose} Uses transformers
 
-SWAHR & HumanArt Dataset (validation set w48_640)
-Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.494
-Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.705
-Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.526
-Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.083
-Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.538
-Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.556
-Average Recall     (AR) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.749
-Average Recall     (AR) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.592
-Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.149
-Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.600
-| Arch | AP | Ap .5 | AP .75 | AP (M) | AP (L) | AR | AR .5 | AR .75 | AR (M) | AR (L) |
-|---|---|---|---|---|---|---|---|---|---|---|
-| SWAHR | 0.494 | 0.705 | 0.526 | 0.083 | 0.538 | 0.556 | 0.749 | 0.592 | 0.149 | 0.600 |
+\section{Choice of Style Transfer}
+\label{sec:baseline_style_transfer}
+(dirty version)
+A similar criteria as or pose estimation applies: does it have code, time of transformation
+Uniquely: does it have pretrained models for the styles we want?
+Does it apply transformation? (U-GAT-IT) (We don't want transformation, but interesting for future research)
+(CycleGAN ...) \cite{Zhu2017} Has the most pre-trained art models available
+(UNIT or StarGANv2 ...) \cite{Liu2017} Latent-space but no pretrained artistic model, but can we initialize weights with other models to speed up training?
+Another possible way to speed up training is to focus the dataset on human poses.
+Which is why image retrieval has been discussed previously.
+This way we can extract have more specialized datasets from the existing datasets.
+Even with the genre categorization it's still too broad.
+This has become apparent when training U-GAT-IT (This was before I realized that this model also does content transformation)
 
-\lipsum[9-10]
+\section{Pose Estimation after Applying Style Transfer to the COCO Dataset}
+\label{sec:baseline_coco_style_transfer}
 
-\section{Sectie titel}
-\label{sec:scalable_faafo}
+\subsection{Architecture}
+\label{sec:baseline_coco_style_transfer_architecture}
 
-Vul aan.
+\subsection{Results}
+\label{sec:baseline_coco_style_transfer_results}
 
-\lipsum[10-12]
-Voorbeeld figuur.
+\section{Pose Estimation on the Human-Art Dataset}
+\label{sec:baseline_human_art}
+
+\subsection{Architecture}
+\label{sec:baseline_human_art_architecture}
+
+\subsection{Results}
+\label{sec:baseline_human_art_results}
+
+SWAHR and HumanArt Dataset (validation set w32\_512)\\
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.469\\
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.688\\
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.499\\
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.066\\
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.512\\
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.529\\
+ Average Recall     (AR) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.726\\
+ Average Recall     (AR) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.562\\
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.111\\
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.573\\
+| Arch | AP | Ap .5 | AP .75 | AP (M) | AP (L) | AR | AR .5 | AR .75 | AR (M) | AR (L) |\\
+|---|---|---|---|---|---|---|---|---|---|---|\\
+| SWAHR | 0.469 | 0.688 | 0.499 | 0.066 | 0.512 | 0.529 | 0.726 | 0.562 | 0.111 | 0.573 |\\
+
+SWAHR and HumanArt Dataset (validation set w48\_640)\\
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.494\\
+Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.705\\
+Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.526\\
+Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.083\\
+Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.538\\
+Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 20 ] = 0.556\\
+Average Recall     (AR) @[ IoU=0.50      | area=   all | maxDets= 20 ] = 0.749\\
+Average Recall     (AR) @[ IoU=0.75      | area=   all | maxDets= 20 ] = 0.592\\
+Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets= 20 ] = 0.149\\
+Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.600\\
+| Arch | AP | Ap .5 | AP .75 | AP (M) | AP (L) | AR | AR .5 | AR .75 | AR (M) | AR (L) |\\
+|---|---|---|---|---|---|---|---|---|---|---|\\
+| SWAHR | 0.494 | 0.705 | 0.526 | 0.083 | 0.538 | 0.556 | 0.749 | 0.592 | 0.149 | 0.600 |\\
+
+\section{Discussion}
+\label{sec:baseline_discussion}
+Already it is apparent that pose estimation on art collections is strongly dependent on the efficacy of the style transfer.

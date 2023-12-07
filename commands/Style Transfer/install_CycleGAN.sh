@@ -9,9 +9,14 @@ if [ ! -d CycleGAN ]
 then
     git clone https://github.com/lLenn/pytorch-CycleGAN-and-pix2pix.git CycleGAN
     cd CycleGAN
-    bash ./scripts/download_cyclegan_model.sh style_cezanne
 else
     cd CycleGAN
+    git pull
+fi
+
+if [ ! -f "__init__.py" ]
+then
+    touch "__init__.py"
 fi
 
 # Setup package

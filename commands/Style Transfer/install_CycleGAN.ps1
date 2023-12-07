@@ -6,11 +6,13 @@ Set-Location lib
 if(-Not (Test-Path -Path CycleGAN)) {
     git clone https://github.com/lLenn/pytorch-CycleGAN-and-pix2pix.git CycleGAN
     Set-Location CycleGAN
-    New-Item -Name ./checkpoints/style_cezanne_pretrained -ItemType directory
-    Invoke-WebRequest -Uri http://efrosgans.eecs.berkeley.edu/cyclegan/pretrained_models/style_cezanne.pth -OutFile ./checkpoints/style_cezanne_pretrained/latest_net_G.pth
 } else {
     Set-Location CycleGAN
     git pull
+}
+
+if(-Not (Test-Path -Path "__init__.py")) {
+    New-Item -ItemType File -Name "__init__.py"
 }
 
 # Setup package

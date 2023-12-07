@@ -36,6 +36,24 @@
             "justMyCode": false
         },
         {
+            "name": "Python: Test CycleGAN",
+            "type": "python",
+            "request": "launch",
+            "cwd": "lib/CycleGAN",
+            "program": "test.py",
+            "args": [
+                "--dataroot",
+                "../../../../Datasets/cezanne2photo",
+                "--name",
+                "style_cezanne_pretrained",
+                "--model",
+                "test",
+                "--no_dropout"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

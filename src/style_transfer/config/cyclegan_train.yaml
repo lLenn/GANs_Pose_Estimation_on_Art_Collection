@@ -1,0 +1,56 @@
+# basic parameters
+dataroot: "" # path to images (should have subfolders trainA, trainB, valA, valB, etc)
+name: experiment_name # name of the experiment. It decides where to store samples and models
+gpu_ids: 0, # gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU
+checkpoints_dir: "../../../Models/CycleGAN/checkpoints" # models are saved here
+# model parameters
+model: train # chooses which model to use. [cycle_gan | pix2pix | test | colorization]
+input_nc: 3 # no. of input image channels: 3 for RGB and 1 for grayscale
+output_nc: 3 # no. of output image channels: 3 for RGB and 1 for grayscale
+ngf: 64 # no. of gen filters in the last conv layer
+ndf: 64 # no. of discrim filters in the first conv layer
+netD: basic # specify discriminator architecture [basic | n_layers | pixel]. The basic model is a 70x70 PatchGAN. n_layers allows you to specify the layers in the discriminator
+netG: resnet_9blocks # specify generator architecture [resnet_9blocks | resnet_6blocks | unet_256 | unet_128]
+n_layers_D: 3 # only used if netD==n_layers
+norm: instance # instance normalization or batch normalization [instance | batch | none]
+init_type: normal # network initialization [normal | xavier | kaiming | orthogonal]
+init_gain: 0.02 # scaling factor for normal, xavier and orthogonal.
+no_dropout: False # no dropout for the generator
+# dataset parameters
+dataset_mode: unaligned # chooses how datasets are loaded. [unaligned | aligned | single | colorization]
+direction: AtoB # AtoB or BtoA
+serial_batches: True # if true, takes images in order to make batches, otherwise takes them randomly
+num_threads: 4 # no. threads for loading data
+batch_size: 1 # input batch size
+load_size: 286 # scale images to this size
+crop_size: 256 # then crop to this size
+max_dataset_size: .inf # Maximum number of samples allowed per dataset. If the dataset directory contains more than max_dataset_size, only a subset is loaded.
+preprocess: resize_and_crop # scaling and cropping of images at load time [resize_and_crop | crop | scale_width | scale_width_and_crop | none]
+no_flip: True # if specified, do not flip the images for data augmentation
+display_winsize: 256 # display window size for both visdom and HTML
+# additional parameters
+epoch: latest # which epoch to load? set to latest to use latest cached model
+verbose: True # if specified, print more debugging information
+# Train
+display_freq: 400 # frequency of showing training results on screen
+display_ncols: 4 # if positive, display all images in a single visdom web panel with certain number of images per row.
+display_id: 1 # window id of the web display
+display_server: "http://localhost" # visdom server of the web display
+display_env: 'main' # visdom display environment name (default is "main")
+display_port: 8097 # visdom port of the web display
+print_freq: 100 # frequency of showing training results on console
+# network saving and loading parameters
+save_no: -1 # the number of models are saved
+save_epoch_freq: 1 # frequency of saving checkpoints at the end of epochs
+continue_train: False # continue training: load the latest model
+epoch_count: 1 # the starting epoch count, we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>, ...
+phase: 'train' # train, val, test, etc
+# training parameters
+n_epochs: 100 # number of epochs with the initial learning rate
+n_epochs_decay: 100 # number of epochs to linearly decay learning rate to zero
+beta1: 0.5 # momentum term of adam
+lr: 0.0002 # initial learning rate for adam
+gan_mode: 'lsgan' # the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.
+pool_size: 50 # the size of image buffer that stores previously generated images
+lr_policy: 'linear' # learning rate policy. [linear | step | plateau | cosine]
+lr_decay_iters: 50 # multiply by a gamma every lr_decay_iters iterations
