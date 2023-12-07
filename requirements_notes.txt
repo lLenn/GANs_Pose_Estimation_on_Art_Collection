@@ -1,0 +1,2 @@
+Remove all the github links.
+Remove following libs: torch, torchvision, crowdposetools, pywin32
