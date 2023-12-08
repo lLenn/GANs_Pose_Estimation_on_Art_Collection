@@ -1,8 +1,10 @@
+from SWAHR.dataset.COCODataset import CocoDataset
 from pose_estimation.networks import SWAHR, SWAHRConfig
 from style_transfer.datasets import HumanArtDataset
-from style_transfer.networks import UGATIT, UGATITConfig
+from style_transfer.networks import UGATIT, UGATITConfig, CycleGAN, CycleGANConfig
 
 AVAILABLE_DATASETS = [
+    # [CocoDataset, "../../Datasets/coco", "val2017", "jpg"]
     [HumanArtDataset, "../../datasets/human-art", "oil_painting", "test", False]
 ]
 
@@ -12,7 +14,8 @@ AVAILABLE_POSE_ESTIMATORS = [
 ]
 
 AVAILABLE_STYLE_TRANSFORMERS = [
-    [UGATIT, UGATITConfig, "src/style_transfer/config/ugatit.yaml", list()]
+    [CycleGAN, CycleGANConfig, "src/style_transfer/config/cyclegan_test.yaml", list()]
+    # [UGATIT, UGATITConfig, "src/style_transfer/config/ugatit.yaml", list()]
 ]
 
 def createDatasetIterator():

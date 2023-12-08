@@ -31,6 +31,22 @@ This way we can extract have more specialized datasets from the existing dataset
 Even with the genre categorization it's still too broad.
 This has become apparent when training U-GAT-IT (This was before I realized that this model also does content transformation)
 
+\section{Choice of Dataset}
+(dirty version)
+CIBR works well when there's something very recognisable, like a tennis court.
+It has come to my attention that making a distinction between real life and art for style transfer is a mistake.
+Viewing only art as having styles is a mistake.
+Real life can have just as many different style.
+Whether it is style of clothing, lighting or camera filter, while at the same time being possibly content.
+The natural day and night cycle should be considered content, but artificial light should be considered style.
+\subsection{Finding a good query image}
+Several import aspects should be considered when searching for a good query image.
+Does it contain the right kind of content and no other content to distract, like a car in the background or even a small flower in the foreground.
+Should it be an image from the style we're trying to transform to?
+The only images that yielded similar persons with different poses were when we queried an image with sports, like tennis.
+Maybe an "instance image retrieval" algorithm is not the right algorithm? We could maybe get better results with a "category retrieval algorithm"?
+
+
 \section{Pose Estimation after Applying Style Transfer to the COCO Dataset}
 \label{sec:baseline_coco_style_transfer}
 

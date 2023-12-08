@@ -101,11 +101,11 @@ class CycleGAN:
     
         visualizer = CycleGANVisualizer(self.config)    # create a visualizer that display/save images and plots
         total_iters = 0     # the total number of training iterations
-        for epoch in range(start_epoch, self.config.n_epochs + self.config.n_epochs_decay + 1 - start_epoch):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
+        for epoch in range(start_epoch, self.config.n_epochs + self.config.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
             epoch_start_time = time.time()  # timer for entire epoch
             iter_data_time = time.time()    # timer for data loading per iteration
             epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
-            self.model.update_learning_rate()    # update learning rates in the beginning of every epoch.
+            self.model.update_learning_rate(epoch)    # update learning rates in the beginning of every epoch.
             for i, data in enumerate(dataloader):  # inner loop within one epoch
                 iter_start_time = time.time()  # timer for computation per iteration
                 if total_iters % self.config.print_freq == 0:
