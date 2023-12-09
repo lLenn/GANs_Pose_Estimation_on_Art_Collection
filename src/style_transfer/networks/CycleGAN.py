@@ -54,7 +54,7 @@ class CycleGAN:
         toAdd = dict()
         for name in self.model.model_names:
             if isinstance(name, str):
-                if suffix == "":
+                if suffix is None:
                     load_path = paths[name]
                 else:
                     load_path = os.path.join(paths, self.config.name, f"{suffix}_net_{name}.pth")
