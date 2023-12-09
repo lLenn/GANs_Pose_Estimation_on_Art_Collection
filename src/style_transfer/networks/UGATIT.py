@@ -87,7 +87,7 @@ class UGATIT():
             model_list = glob(os.path.join(self.model.result_dir, self.model.dataset, 'model', '*.pt'))
             if not len(model_list) == 0:
                 model_list.sort(key=sortByEpochAndIteration)
-                model_split = model_list[-1].split('_')[-1].split('.')
+                model_split = model_list[-1].split('.')[-1].split('_')
                 start_epoch = int(model_split[-1])
                 start_iter = int(model_split[-2])
                 self._load(start_epoch, start_iter)
