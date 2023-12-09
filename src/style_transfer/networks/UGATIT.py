@@ -89,9 +89,10 @@ class UGATIT():
                 model_list.sort(key=sortByEpochAndIteration)
                 model_split = model_list[-1].split('.')[-2].split('_')
                 start_epoch = int(model_split[-2])
-                start_iter = int(model_split[-1]) + 1
+                start_iter = int(model_split[-1])
                 self._load(start_epoch, start_iter)
                 print(f" [*] Load SUCCESS: epoch = {start_epoch}, iter = {start_iter}")
+                start_iter += 1
                 if self.model.decay_flag and start_epoch > (self.config.epoch // 2):
                     learning_rate = (self.model.lr / (self.config.epoch // 2)) * (start_epoch - self.config.epoch // 2)
                     self.model.G_optim.param_groups[0]['lr'] -= learning_rate
