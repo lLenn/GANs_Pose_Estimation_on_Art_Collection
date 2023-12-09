@@ -91,10 +91,12 @@ class UGATIT():
                 start_epoch = int(model_split[-2])
                 start_iter = int(model_split[-1])
                 self._load(start_epoch, start_iter)
-                print(" [*] Load SUCCESS")
+                print(f" [*] Load SUCCESS: epoch = {start_epoch}, iter = {start_iter}")
                 if self.model.decay_flag and start_epoch > (self.config.epoch // 2):
-                    self.model.G_optim.param_groups[0]['lr'] -= (self.model.lr / (self.config.epoch // 2)) * (start_epoch - self.config.epoch // 2)
-                    self.model.D_optim.param_groups[0]['lr'] -= (self.model.lr / (self.config.epoch // 2)) * (start_epoch - self.config.epoch // 2)
+                    learning_rate = (self.model.lr / (self.config.epoch // 2)) * (start_epoch - self.config.epoch // 2)
+                    self.model.G_optim.param_groups[0]['lr'] -= learning_rate
+                    self.model.D_optim.param_groups[0]['lr'] -= learning_rate
+                    print(f" Learning rate: G = {self.model.G_optim.param_groups[0]['lr']}, D = {self.model.D_optim.param_groups[0]['lr']}")
 
         # training loop
         print('training start !')
@@ -108,9 +110,14 @@ class UGATIT():
             if self.model.decay_flag and epoch > (self.config.epoch // 2):
                 self.model.G_optim.param_groups[0]['lr'] -= (self.model.lr / (self.config.epoch // 2))
                 self.model.D_optim.param_groups[0]['lr'] -= (self.model.lr / (self.config.epoch // 2))
+            print(f" Learning rate: G = {self.model.G_optim.param_groups[0]['lr']}, D = {self.model.D_optim.param_groups[0]['lr']}")
 
             epoch_iter = start_epoch if epoch == start_epoch else 0
-            for iter, data in enumerate(dataloader, start = epoch_iter):
+            dataloaderIterator = enumerate(dataloader)
+            for _ in range(epoch_iter):
+                next(dataloaderIterator)
+                
+            for iter, data in dataloaderIterator:
                 iter_start_time = time.time()  # timer for computation per iteration
                 if total_iter % self.config.log_freq == 0:
                     t_data = iter_start_time - iter_data_time
@@ -253,6 +260,8 @@ class UGATIT():
 
                 if total_iter % self.model.save_freq == 0:
                     self._save(epoch, iter)
-        
+
+            print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, self.config.epoch, time.time() - epoch_start_time))
+     
     def print(self):
         print("Unsupervised generative attentional network with adaptive layer-instance for image-to-image translation")
