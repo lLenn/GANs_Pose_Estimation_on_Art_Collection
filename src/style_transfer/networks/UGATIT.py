@@ -119,12 +119,13 @@ class UGATIT():
                 next(dataloaderIterator)
                 
             for iter, data in dataloaderIterator:
+                total_iter += dataloader.batch_size
+                epoch_iter += dataloader.batch_size
+                
                 iter_start_time = time.time()  # timer for computation per iteration
                 if total_iter % self.model.log_freq == 0:
                     t_data = iter_start_time - iter_data_time
             
-                total_iter += dataloader.batch_size
-                epoch_iter += dataloader.batch_size
                 
                 real_A = data["A"].to(self.model.device)
                 real_B = data["B"].to(self.model.device)
