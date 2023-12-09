@@ -120,7 +120,7 @@ class UGATIT():
                 
             for iter, data in dataloaderIterator:
                 iter_start_time = time.time()  # timer for computation per iteration
-                if total_iter % self.config.log_freq == 0:
+                if total_iter % self.model.log_freq == 0:
                     t_data = iter_start_time - iter_data_time
             
                 total_iter += dataloader.batch_size
