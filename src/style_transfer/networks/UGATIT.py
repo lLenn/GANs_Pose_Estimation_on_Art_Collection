@@ -7,7 +7,7 @@ from UGATITLib.utils import *
 from .UGATITVisualizer import UGATITVisualizer
 
 def sortByEpochAndIteration(name):
-    splitName = name.split("_")
+    splitName = name.split["."][-1].split("_")
     return (int(splitName[-2]), int(splitName[-1]))
 
 def cam(x, size = 256):
