@@ -109,8 +109,6 @@ class UGATIT():
             iter_data_time = time.time()    # timer for data loading per iteration
             
             if self.model.decay_flag and epoch > (self.config.epoch // 2):
-                print(self.model.lr)
-                print(self.config.epoch)
                 self.model.G_optim.param_groups[0]['lr'] -= (self.model.lr / (self.config.epoch // 2))
                 self.model.D_optim.param_groups[0]['lr'] -= (self.model.lr / (self.config.epoch // 2))
                 print(f" Learning rate: G = {self.model.G_optim.param_groups[0]['lr']}, D = {self.model.D_optim.param_groups[0]['lr']}")
