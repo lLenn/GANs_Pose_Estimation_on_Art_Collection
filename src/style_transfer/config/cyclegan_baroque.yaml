@@ -33,32 +33,9 @@ display_winsize: 256 # display window size for both visdom and HTML
 epoch: latest # which epoch to load? set to latest to use latest cached model
 verbose: True # if specified, print more debugging information
 # Test
-# results_dir: "../.output/results" # saves results here.
-# aspect_ratio: 1.0 # aspect ratio of result images
-# phase: test # train, val, test, etc
+results_dir: "../.output/results" # saves results here.
+aspect_ratio: 1.0 # aspect ratio of result images
+phase: test # train, val, test, etc
 # Dropout and Batchnorm has different behavioir during training and test.
-# eval: True # use eval mode during test time.
-# num_test: 50 # how many test images to run
-# Train
-display_freq: 400 # frequency of showing training results on screen
-display_ncols: 4 # if positive, display all images in a single visdom web panel with certain number of images per row.
-display_id: 1 # window id of the web display
-display_server: "http://localhost" # visdom server of the web display
-display_env: 'main' # visdom display environment name (default is "main")
-display_port: 8097 # visdom port of the web display
-print_freq: 100 # frequency of showing training results on console
-# network saving and loading parameters
-save_no: -1 # the number of models are saved
-save_epoch_freq: 1 # frequency of saving checkpoints at the end of epochs
-continue_train: False # continue training: load the latest model
-epoch_count: 1 # the starting epoch count, we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>, ...
-phase: 'train' # train, val, test, etc
-# training parameters
-n_epochs: 100 # number of epochs with the initial learning rate
-n_epochs_decay: 100 # number of epochs to linearly decay learning rate to zero
-beta1: 0.5 # momentum term of adam
-lr: 0.0002 # initial learning rate for adam
-gan_mode: 'lsgan' # the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.
-pool_size: 50 # the size of image buffer that stores previously generated images
-lr_policy: 'linear' # learning rate policy. [linear | step | plateau | cosine]
-lr_decay_iters: 50 # multiply by a gamma every lr_decay_iters iterations
+eval: True # use eval mode during test time.
+num_test: 50 # how many test images to run

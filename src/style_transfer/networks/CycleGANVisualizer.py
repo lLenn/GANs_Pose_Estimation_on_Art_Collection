@@ -4,21 +4,7 @@ import time
 from CycleGAN.util import util
 
 class CycleGANVisualizer():
-    """This class includes several functions that can display/save images and print/save logging information.
-
-    It uses a Python library 'visdom' for display
-    """
-
     def __init__(self, config):
-        """Initialize the Visualizer class
-
-        Parameters:
-            opt -- stores all the experiment flags; needs to be a subclass of BaseOptions
-        Step 1: Cache the training/test options
-        Step 2: connect to a visdom server
-        Step 3: create an HTML object for saveing HTML filters
-        Step 4: create a logging file to store training losses
-        """
         self.config = config  # cache the option
         self.display_id = config.display_id
         self.win_size = config.display_winsize

@@ -2,8 +2,9 @@ phase: train # train / test
 light: False # U-GAT-IT full version / U-GAT-IT light version
 dataset: 'BaroqueStyleTraining' # dataset_name
 
-iteration: 5000 # The number of training iterations
+epoch: 10000 # The number of training iterations
 batch_size: 1 # The size of batch size
+save_no: 2 # The number of models to keep saved at one time
 print_freq: 100 # The number of image print freq
 save_freq: 100  # The number of model save freq
 decay_flag: True # The decay_flag
@@ -28,3 +29,8 @@ result_dir: '.output/results' # Directory name to save the results
 device: cuda # Set gpu mode; [cpu, cuda]
 benchmark_flag: False
 resume: True
+
+display_ncols: 4 # if positive, display all images in a single visdom web panel with certain number of images per row.
+display_server: "http://localhost" # visdom server of the web display
+display_env: 'main' # visdom display environment name (default is "main")
+display_port: 8097 # visdom port of the web display

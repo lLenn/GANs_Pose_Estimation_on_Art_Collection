@@ -16,8 +16,9 @@ class UGATITConfig:
         default_config.light = False
         default_config.dataset = 'YOUR_DATASET_NAME'
 
-        default_config.iteration = 1000000
+        default_config.epoch = 10000
         default_config.batch_size = 1
+        default_config.save_no = 2
         default_config.log_freq = 1
         default_config.print_freq = 1000
         default_config.save_freq = 100000
@@ -44,4 +45,9 @@ class UGATITConfig:
         default_config.benchmark_flag = False
         default_config.resume = False
         
+        default_config.display_ncols = 4
+        default_config.display_server = "http://localhost"
+        default_config.display_env = "main"
+        default_config.display_port = 8087
+    
         return default_config

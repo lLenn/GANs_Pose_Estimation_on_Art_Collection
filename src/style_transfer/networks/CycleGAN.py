@@ -85,12 +85,6 @@ class CycleGAN:
     
     def train(self, dataset):
         dataset_size = len(dataset)    # get the number of images in the dataset.
-        dataloader = torch.utils.data.DataLoader(
-            dataset,
-            batch_size=self.config.batch_size,
-            shuffle=not self.config.serial_batches,
-            num_workers=int(self.config.num_threads)
-        )
         print('The number of training images = %d' % dataset_size)
     
         start_epoch = self.config.epoch_count

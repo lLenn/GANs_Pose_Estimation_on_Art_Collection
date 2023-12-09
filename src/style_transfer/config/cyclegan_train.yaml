@@ -19,7 +19,7 @@ no_dropout: False # no dropout for the generator
 # dataset parameters
 dataset_mode: unaligned # chooses how datasets are loaded. [unaligned | aligned | single | colorization]
 direction: AtoB # AtoB or BtoA
-serial_batches: True # if true, takes images in order to make batches, otherwise takes them randomly
+serial_batches: False # if true, takes images in order to make batches, otherwise takes them randomly
 num_threads: 4 # no. threads for loading data
 batch_size: 1 # input batch size
 load_size: 286 # scale images to this size
