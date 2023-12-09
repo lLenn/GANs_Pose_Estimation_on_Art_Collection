@@ -102,7 +102,7 @@ MODEL:
 TEST:
   FLIP_TEST: False
   IMAGES_PER_GPU: 1
-  MODEL_FILE: '../../datasets/swahr/pose_higher_hrnet_w32_512.pth' 
+  MODEL_FILE: '../../Models/swahr/pose_higher_hrnet_w32_512.pth' 
   SCALE_FACTOR: [1]
   DETECTION_THRESHOLD: 0.12
   WITH_HEATMAPS: (True, True)

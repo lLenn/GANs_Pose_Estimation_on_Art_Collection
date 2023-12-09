@@ -7,18 +7,20 @@ from torchvision.transforms import transforms
 from utils import isArrayLike
 
 class ArtPose:
-    def __init__(self, poseEstimator, styleTransformer, verbose=False):        
+    def __init__(self, poseEstimator, styleTransformer, verbose=False):
         self.poseEstimator = poseEstimator
         self.styleTransformer = styleTransformer
         self.verbose = verbose
         
+    def loadModel(self, isTrain=False):
+        self.poseEstimator.loadModel(isTrain)
+        self.styleTransformer.loadModel()
+    
     def train():
         pass
     
     def validate(self, gpuIds, dataset, indices, logger):
         gpuIds = gpuIds if isArrayLike(gpuIds) else [gpuIds]
-        
-        self.styleTransformer.loadModel("src/style_transfer/model") # Add to config
         
         sub_dataset = torch.utils.data.Subset(dataset, indices)
         data_loader = torch.utils.data.DataLoader(

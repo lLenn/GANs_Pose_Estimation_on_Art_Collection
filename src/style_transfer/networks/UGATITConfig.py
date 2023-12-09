@@ -37,6 +37,7 @@ class UGATITConfig:
         default_config.img_size = 256
         default_config.img_ch = 3
 
+        default_config.models_dir = ""
         default_config.data_dir = "data"
         default_config.result_dir = "results"
         default_config.device = "cuda"

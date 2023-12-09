@@ -14,7 +14,6 @@ class SWAHR():
     def __init__(self, config):        
         self.model = PoseHigherResolutionNet(config)
         self.config = config
-        self.loaded = False
         self.transforms = torchvision.transforms.Compose(
             [
                 torchvision.transforms.ToTensor(),
@@ -24,17 +23,13 @@ class SWAHR():
             ]
         )
         self.heatmapParser = HeatmapParser(self.config)
-
-    def _load(self):
-        if self.loaded == False and self.config.TEST.MODEL_FILE:
-            self.loaded = True
-            self.loadState(self.config.TEST.MODEL_FILE, True)
-
-    def initiateWeights(self, file, verbose=False):
-        self.model.init_weights(file, verbose=verbose)
     
-    def loadState(self, file, strict=True):
-        self.model.load_state_dict(torch.load(file), strict=strict)
+    def loadModel(self, isTrain):
+        if isTrain:
+            file = self.config.MODEL.PRETRAINED
+        else:
+            file = self.config.TEST.MODEL_FILE            
+        self.model.load_state_dict(torch.load(file), strict=True)
     
     def preprocess(self):
         pass
@@ -45,7 +40,6 @@ class SWAHR():
     def infer(self, gpuIds, image):
         gpuIds if isArrayLike(gpuIds) else [gpuIds]
         
-        self._load()
         model = torch.nn.DataParallel(self.model, device_ids=gpuIds)
         model = model.cuda()
         

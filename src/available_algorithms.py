@@ -9,13 +9,13 @@ AVAILABLE_DATASETS = [
 ]
 
 AVAILABLE_POSE_ESTIMATORS = [
-    # [SWAHR, SWAHRConfig, "src/pose_estimation/config/w32_512_test.yaml", list()],
-    [SWAHR, SWAHRConfig, "src/pose_estimation/config/w48_640_test.yaml", list()]
+    # [SWAHR, SWAHRConfig, "src/pose_estimation/config/w32_512_test.yaml", list(), dict()],
+    [SWAHR, SWAHRConfig, "src/pose_estimation/config/w48_640_test.yaml", list(), dict()]
 ]
 
 AVAILABLE_STYLE_TRANSFORMERS = [
-    [CycleGAN, CycleGANConfig, "src/style_transfer/config/cyclegan_test.yaml", list()]
-    # [UGATIT, UGATITConfig, "src/style_transfer/config/ugatit.yaml", list()]
+    [CycleGAN, CycleGANConfig, "src/style_transfer/config/cyclegan_baroque.yaml", list(), dict(phase="train")]
+    # [UGATIT, UGATITConfig, "src/style_transfer/config/ugatit.yaml", list(), dict()]
 ]
 
 def createDatasetIterator():
@@ -27,11 +27,11 @@ def createDatasetIterator():
 def createPoseEstimatorIterator():
     def iterator():
         for poseEstimatorConfig in AVAILABLE_POSE_ESTIMATORS:
-            yield poseEstimatorConfig[0](poseEstimatorConfig[1].create(poseEstimatorConfig[2], poseEstimatorConfig[3]))
+            yield poseEstimatorConfig[0](poseEstimatorConfig[1].create(poseEstimatorConfig[2], poseEstimatorConfig[3], **poseEstimatorConfig[4]))
     return iterator()
 
 def createStyleTransformerIterator():
     def iterator():
         for styleTransformerConfig in AVAILABLE_STYLE_TRANSFORMERS:
-            yield styleTransformerConfig[0](styleTransformerConfig[1].create(styleTransformerConfig[2], styleTransformerConfig[3]))
+            yield styleTransformerConfig[0](styleTransformerConfig[1].create(styleTransformerConfig[2], styleTransformerConfig[3], **styleTransformerConfig[4]))
     return iterator()

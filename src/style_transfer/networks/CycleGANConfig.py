@@ -17,6 +17,7 @@ class CycleGANConfig:
         default_config.name = "experiment_name"
         default_config.gpu_ids = [0]
         default_config.checkpoints_dir = "checkpoints"
+        default_config.models_dir = "checkpoints"
 
         default_config.model = "cycle_gan"
         default_config.input_nc = 3

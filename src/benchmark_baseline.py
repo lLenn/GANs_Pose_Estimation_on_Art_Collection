@@ -32,6 +32,7 @@ def printNameValue(logger, name_value, fullArchName):
  
 def worker(gpuIds, dataset, indices, poseEstimator, styleTransformer, logger, finalOutputDir, predictionQueue):
     artPose = ArtPose(poseEstimator, styleTransformer, True)
+    artPose.loadModel()
     predictions = artPose.validate(gpuIds, dataset, indices, logger)    
     predictionQueue.put_nowait(predictions)
     
@@ -39,24 +40,28 @@ def benchmark(dataset, poseEstimator, styleTransformer, logger):
     datasetSize = len(dataset)
     predictionQueue = Queue(100)
     workers = []
-    for i in range(NO_WORKERS):
-        index_groups = list(range(i, datasetSize, NO_WORKERS))
-        process = Process(
-            target = worker,
-            args = (
-                0, dataset, index_groups, copy.deepcopy(poseEstimator), copy.deepcopy(styleTransformer), logger, "./.output", predictionQueue
+    if NO_WORKERS > 1:
+        for i in range(NO_WORKERS):
+            index_groups = list(range(i, datasetSize, NO_WORKERS))
+            process = Process(
+                target = worker,
+                args = (
+                    0, dataset, index_groups, copy.deepcopy(poseEstimator), copy.deepcopy(styleTransformer), logger, "./.output", predictionQueue
+                )
             )
-        )
-        process.start()
-        workers.append(process)
-        logger.info("==>" + " Worker {} Started, responsible for {} images".format(i, len(index_groups)))
-    
-    allPredictions = []
-    for _ in range(NO_WORKERS):
-        allPredictions += predictionQueue.get()
-    
-    for process in workers:
-        process.join()
+            process.start()
+            workers.append(process)
+            logger.info("==>" + " Worker {} Started, responsible for {} images".format(i, len(index_groups)))
+        
+        allPredictions = []
+        for _ in range(NO_WORKERS):
+            allPredictions += predictionQueue.get()
+        
+        for process in workers:
+            process.join()
+    else:
+        worker(0, dataset, range(datasetSize), copy.deepcopy(poseEstimator), copy.deepcopy(styleTransformer), logger, "./.output", predictionQueue)
+        allPredictions = predictionQueue.get()
         
     resultFolder = ".output/results"
     if not os.path.exists(resultFolder):

@@ -13,7 +13,10 @@ class CycleGAN:
         self.model = CycleGANModel(config)
         if self.config.isTrain:
             self.model.schedulers = [networks.get_scheduler(optimizer, config) for optimizer in self.model.optimizers]
-        self.savedFiles = deque(maxlen = (None if config.save_no<0 else config.save_no))
+        maxlen = 1
+        if hasattr(config, "save_no"):
+            maxlen = (None if config.save_no<0 else config.save_no)
+        self.savedFiles = deque(maxlen = maxlen)
        
     def save_networks(self, epoch):
         """Save all the networks to the disk.
@@ -42,10 +45,11 @@ class CycleGAN:
                 toAdd[name] = save_path
         self.savedFiles.append(toAdd)
                      
-    def loadModel(self, paths, suffix=None):
-        suffix = suffix
+    def loadModel(self, paths=None, suffix=None):
+        if paths is None:
+            paths = self.config.models_dir
         if isinstance(paths, str) and suffix is None:
-            suffix = "iter_%d" % self.config.load_iter if self.config.load_iter > 0 else self.config.epoch
+            suffix = self.config.epoch
         
         toAdd = dict()
         for name in self.model.model_names:

@@ -22,6 +22,7 @@ n_dis: 6 # The number of discriminator layer
 img_size: 256 # The size of image
 img_ch: 3 # The size of image channel
 
+model_path: '../../Models/ugatit/..'
 data_dir: '../../Datasets/custom' # Directory name to save the results
 result_dir: '.output/results' # Directory name to save the results
 device: cuda # Set gpu mode; [cpu, cuda]
