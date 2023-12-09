@@ -88,8 +88,8 @@ class UGATIT():
             if not len(model_list) == 0:
                 model_list.sort(key=sortByEpochAndIteration)
                 model_split = model_list[-1].split('.')[-2].split('_')
-                start_epoch = int(model_split[-1])
-                start_iter = int(model_split[-2])
+                start_epoch = int(model_split[-2])
+                start_iter = int(model_split[-1])
                 self._load(start_epoch, start_iter)
                 print(" [*] Load SUCCESS")
                 if self.model.decay_flag and start_epoch > (self.config.epoch // 2):
