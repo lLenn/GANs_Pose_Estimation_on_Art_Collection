@@ -6,14 +6,9 @@ from UGATITLib.UGATIT import UGATIT as UGATITNetwork
 from UGATITLib.utils import *
 from .UGATITVisualizer import UGATITVisualizer
 
-def sortByEpochAndIteration(a,b):
-    splitA = a.split("_")
-    splitB = b.split("_")
-    
-    epochSort = int(splitA[-2]) - int(splitB[-2])
-    if epochSort == 0:
-        return int(splitA[-1]) - int(splitB[-1])
-    return epochSort
+def sortByEpochAndIteration(name):
+    splitName = name.split("_")
+    return (int(splitName[-2]), int(splitName[-1]))
 
 def cam(x, size = 256):
     x = x - np.min(x)
@@ -91,7 +86,7 @@ class UGATIT():
         if self.model.resume:
             model_list = glob(os.path.join(self.model.result_dir, self.model.dataset, 'model', '*.pt'))
             if not len(model_list) == 0:
-                model_list.sort(cmp=sortByEpochAndIteration)
+                model_list.sort(key=sortByEpochAndIteration)
                 model_split = model_list[-1].split('_')[-1].split('.')
                 start_epoch = int(model_split[-1])
                 start_iter = int(model_split[-2])
