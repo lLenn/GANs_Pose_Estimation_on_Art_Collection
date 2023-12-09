@@ -36,10 +36,10 @@ class UGATIT():
         self.savedFiles = deque(maxlen = maxlen)
         
     def _load(self, epoch, iter):  
-        self.loadModel(os.path.join(self.result_dir, self.dataset, 'model', f"{self.model.dataset}_params_{epoch}_{iter}.pt"))
+        self.loadModel(os.path.join(self.model.result_dir, self.model.dataset, 'model', f"{self.model.dataset}_params_{epoch}_{iter}.pt"))
         
     def _save(self, epoch, iter):  
-        self.saveModel(os.path.join(self.result_dir, self.dataset, 'model', f"{self.model.dataset}_params_{epoch}_{iter}.pt"))
+        self.saveModel(os.path.join(self.model.result_dir, self.model.dataset, 'model', f"{self.model.dataset}_params_{epoch}_{iter}.pt"))
         
     def loadModel(self, path=None):
         if path is None:
