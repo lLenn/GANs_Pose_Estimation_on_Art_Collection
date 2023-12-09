@@ -54,7 +54,7 @@ class UGATIT():
         self.model.disLB.load_state_dict(params['disLB'])
         
     def saveModel(self, path):
-        if len(self.savedFiles) == self.savedFile.maxlen:
+        if len(self.savedFiles) == self.savedFiles.maxlen:
             os.remove(self.savedFiles.popleft())
         params = {}
         params['genA2B'] = self.model.genA2B.state_dict()
