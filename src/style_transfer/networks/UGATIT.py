@@ -87,7 +87,7 @@ class UGATIT():
         self.model.disLB.train()
 
         start_epoch = 1
-        start_iter = 1
+        start_iter = 0
         if self.model.resume:
             model_list = glob(os.path.join(self.model.result_dir, self.model.dataset, 'model', '*.pt'))
             if not len(model_list) == 0:
