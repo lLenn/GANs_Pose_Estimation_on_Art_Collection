@@ -17,6 +17,7 @@ class UGATITConfig:
         default_config.dataset = 'YOUR_DATASET_NAME'
 
         default_config.epoch = 10000
+        default_config.iteration = 10000 # deprecated
         default_config.batch_size = 1
         default_config.save_no = 2
         default_config.log_freq = 1

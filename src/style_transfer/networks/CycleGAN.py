@@ -1,5 +1,6 @@
 import torch, time, os, cv2
 from glob import glob
+from torch.utils.data import DataLoader
 from collections import deque
 from CycleGAN.models import networks
 from CycleGAN.models.cycle_gan_model import CycleGANModel
@@ -82,7 +83,7 @@ class CycleGAN:
         return image
     
     def train(self, dataloader):
-        dataset_size = len(dataloader)    # get the number of images in the dataset.
+        dataset_size = len(dataloader.dataset)    # get the number of images in the dataset.
         print('The number of training images = %d' % dataset_size)
     
         start_epoch = self.config.epoch_count

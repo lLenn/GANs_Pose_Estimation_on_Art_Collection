@@ -102,7 +102,7 @@ class UGATIT():
         # training loop
         print('training start !')
         start_time = time.time()
-        dataset_size = len(dataloader)
+        dataset_size = len(dataloader.dataset)
         total_iter = (start_epoch-1)*dataset_size + start_iter
         for epoch in range(start_epoch, self.config.epoch + 1):
             epoch_start_time = time.time()  # timer for entire epoch

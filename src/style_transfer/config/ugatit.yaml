@@ -3,6 +3,7 @@ light: False # U-GAT-IT full version / U-GAT-IT light version
 dataset: 'BaroqueStyleTraining' # dataset_name
 
 epoch: 10000 # The number of training iterations
+iteration: 10000 # deprecated
 batch_size: 1 # The size of batch size
 save_no: 2 # The number of models to keep saved at one time
 print_freq: 100 # The number of image print freq
@@ -24,7 +25,7 @@ img_size: 256 # The size of image
 img_ch: 3 # The size of image channel
 
 model_path: '../../Models/ugatit/..'
-data_dir: '../../Datasets/custom' # Directory name to save the results
+data_dir: '../../../Datasets/custom' # Directory name to save the results
 result_dir: '.output/results' # Directory name to save the results
 device: cuda # Set gpu mode; [cpu, cuda]
 benchmark_flag: False
