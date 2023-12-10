@@ -14,7 +14,7 @@ AVAILABLE_POSE_ESTIMATORS = [
 ]
 
 AVAILABLE_STYLE_TRANSFORMERS = [
-    [CycleGAN, CycleGANConfig, "src/style_transfer/config/cyclegan_baroque.yaml", list(), dict(phase="train")]
+    [CycleGAN, CycleGANConfig, "src/style_transfer/config/cyclegan_baroque.yaml", list(), dict(phase="test")]
     # [UGATIT, UGATITConfig, "src/style_transfer/config/ugatit.yaml", list(), dict()]
 ]
 

@@ -1,6 +1,4 @@
-import torch
-import time
-import os
+import torch, time, os, cv2
 from glob import glob
 from collections import deque
 from CycleGAN.models import networks
@@ -74,17 +72,17 @@ class CycleGAN:
         self.savedFiles.append(toAdd)
     
     def transformFromPhotographicToArtistic(self, image):
-        self.model.netG_A.eval()
-        image = self.model.netG_A(image)
-        return image
-    
-    def transformFromArtisticToPhotographic(self, image):
         self.model.netG_B.eval()
         image = self.model.netG_B(image)
         return image
     
-    def train(self, dataset):
-        dataset_size = len(dataset)    # get the number of images in the dataset.
+    def transformFromArtisticToPhotographic(self, image):
+        self.model.netG_A.eval()
+        image = self.model.netG_A(image)
+        return image
+    
+    def train(self, dataloader):
+        dataset_size = len(dataloader)    # get the number of images in the dataset.
         print('The number of training images = %d' % dataset_size)
     
         start_epoch = self.config.epoch_count
@@ -131,4 +129,8 @@ class CycleGAN:
                 self.save_networks(epoch)
 
             print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, self.config.n_epochs + self.config.n_epochs_decay, time.time() - epoch_start_time))
+    
+    def visualize(self, image, name):
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(self.config.results_dir, f"{name}.png"), image)
     

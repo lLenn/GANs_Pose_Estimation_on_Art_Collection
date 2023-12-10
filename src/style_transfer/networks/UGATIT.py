@@ -267,3 +267,7 @@ class UGATIT():
      
     def print(self):
         print("Unsupervised generative attentional network with adaptive layer-instance for image-to-image translation")
+    
+    def visualize(self, image, name):
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(self.model.result_dir, f"{name}.png"), image)
