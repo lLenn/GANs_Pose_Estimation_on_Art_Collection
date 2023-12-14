@@ -25,6 +25,7 @@ Uniquely: does it have pretrained models for the styles we want?
 Does it apply transformation? (U-GAT-IT) (We don't want transformation, but interesting for future research)
 (CycleGAN ...) \cite{Zhu2017} Has the most pre-trained art models available
 (UNIT or StarGANv2 ...) \cite{Liu2017} Latent-space but no pretrained artistic model, but can we initialize weights with other models to speed up training?
+(AdaIn) 
 Another possible way to speed up training is to focus the dataset on human poses.
 Which is why image retrieval has been discussed previously.
 This way we can extract have more specialized datasets from the existing datasets.
@@ -46,7 +47,6 @@ Should it be an image from the style we're trying to transform to?
 The only images that yielded similar persons with different poses were when we queried an image with sports, like tennis.
 Maybe an "instance image retrieval" algorithm is not the right algorithm? We could maybe get better results with a "category retrieval algorithm"?
 
-
 \section{Pose Estimation after Applying Style Transfer to the COCO Dataset}
 \label{sec:baseline_coco_style_transfer}
 
@@ -55,6 +55,10 @@ Maybe an "instance image retrieval" algorithm is not the right algorithm? We cou
 Needed to implement a script that transforms a training model to a test model because CycleGAN leaves out certain layers for test, like dropout.
 
 \subsection{Results}
+How good is this as a measurement of the pose estimator?
+It's entirely reliable on the style transfer.
+For the CycleGAN model, there are some photo's that change little after applying style transfer.
+
 \label{sec:baseline_coco_style_transfer_results}
 
 \section{Pose Estimation on the Human-Art Dataset}
@@ -95,6 +99,13 @@ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.600\\
 | Arch | AP | Ap .5 | AP .75 | AP (M) | AP (L) | AR | AR .5 | AR .75 | AR (M) | AR (L) |\\
 |---|---|---|---|---|---|---|---|---|---|---|\\
 | SWAHR | 0.494 | 0.705 | 0.526 | 0.083 | 0.538 | 0.556 | 0.749 | 0.592 | 0.149 | 0.600 |\\
+
+\section{Related Papers}
+Enhancing Human Pose Estimation in Ancient Vase Paintings via Perceptually-grounded Style Transfer Learning \cite{Madhu2020}\\
+\subsection{Results}
+\label{sec:baseline_related_papers_results}
+Compare results with related paper
+
 
 \section{Discussion}
 \label{sec:baseline_discussion}

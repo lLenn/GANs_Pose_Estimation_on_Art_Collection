@@ -23,7 +23,7 @@ image = transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))(image)
 image = torch.stack((image,))
 image = image.to("cuda")
 
-image = network.transformFromArtisticToPhotographic(image)
+image = network.artisticToPhotographic(image)
 image = image[0] * 0.5 + 0.5
 image = image.detach().cpu().numpy()
 image = image.transpose(1,2,0)

@@ -72,12 +72,12 @@ class CycleGAN:
                 toAdd[name] = load_path
         self.savedFiles.append(toAdd)
     
-    def transformFromPhotographicToArtistic(self, image):
+    def photographicToArtistic(self, image):
         self.model.netG_B.eval()
         image = self.model.netG_B(image)
         return image
     
-    def transformFromArtisticToPhotographic(self, image):
+    def artisticToPhotographic(self, image):
         self.model.netG_A.eval()
         image = self.model.netG_A(image)
         return image

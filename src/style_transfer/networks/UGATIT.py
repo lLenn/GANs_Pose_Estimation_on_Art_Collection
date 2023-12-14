@@ -61,12 +61,12 @@ class UGATIT():
         torch.save(params, path)
         self.savedFiles.append(path)
     
-    def transformFromPhotographicToArtistic(self, image):
+    def photographicToArtistic(self, image):
         self.model.genA2B.eval()
         image, _, _ = self.model.genA2B(image)
         return image
     
-    def transformFromArtisticToPhotographic(self, image):
+    def artisticToPhotographic(self, image):
         self.model.genB2A.eval()
         image, _, _ = self.model.genB2A(image)
         return image

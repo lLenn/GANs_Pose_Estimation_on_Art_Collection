@@ -7,6 +7,10 @@ from torchvision.transforms import transforms
 from utils import isArrayLike
 
 class ArtPose:
+    
+    PHOTOGRAPHIC_TO_ARTISTIC = "photographicToArtistic"
+    ARTISTIC_TO_PHOTOGRAPHIC = "artisticToPhotographic"
+    
     def __init__(self, poseEstimator, styleTransformer, verbose=False):
         self.poseEstimator = poseEstimator
         self.styleTransformer = styleTransformer
@@ -19,15 +23,11 @@ class ArtPose:
     def train():
         pass
     
-    def validate(self, gpuIds, dataset, indices, logger):
+    def validate(self, gpuIds, data_loader, direction):
         gpuIds = gpuIds if isArrayLike(gpuIds) else [gpuIds]
-        
-        sub_dataset = torch.utils.data.Subset(dataset, indices)
-        data_loader = torch.utils.data.DataLoader(
-            sub_dataset, sampler=None, batch_size=1, shuffle=False, num_workers=0, pin_memory=False
-        )
+
         predictions = []
-        pbar = tqdm(total=len(sub_dataset)) if self.verbose else None
+        pbar = tqdm(total=len(data_loader.dataset)) if self.verbose else None
         for i, (images, annotations) in enumerate(data_loader):     
             image = images[0].float() / 255
             image = torch.permute(image, (2, 0, 1))
@@ -36,7 +36,10 @@ class ArtPose:
             image = torch.stack((image,))
             image = image.to("cuda")
 
-            image = self.styleTransformer.transformFromArtisticToPhotographic(image)
+            if direction == self.PHOTOGRAPHIC_TO_ARTISTIC:
+                image = self.styleTransformer.artisticToPhotographic(image)
+            else:    
+                image = self.styleTransformer.photographicToArtistic(image)
             image = image[0] * 0.5 + 0.5
             image = image.detach().cpu().numpy()
             image = image.transpose(1, 2, 0) * 255
