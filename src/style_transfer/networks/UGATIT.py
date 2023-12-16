@@ -225,6 +225,7 @@ class UGATIT():
                     t_comp = (time.time() - iter_start_time) / dataloader.batch_size
                     visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
                     visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
+                    visualizer.save()
                     
                 if total_iter % self.model.print_freq == 0:
                     A2B = np.zeros((self.model.img_size * 7, 0, 3))
@@ -258,6 +259,7 @@ class UGATIT():
                         fakeB2A2B = tensor2numpy(denorm(fake_B2A2B[0]))
                     )
                     visualizer.display_current_results(visuals)
+                    visualizer.save()
                     self.model.genA2B.train(), self.model.genB2A.train(), self.model.disGA.train(), self.model.disGB.train(), self.model.disLA.train(), self.model.disLB.train()
 
                 if total_iter % self.model.save_freq == 0:
