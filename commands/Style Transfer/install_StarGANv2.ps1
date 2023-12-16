@@ -4,7 +4,7 @@ Set-Location lib
 
 # Clone the StarGAN API
 if(-Not (Test-Path -Path StarGAN)) {
-    git clone https://github.com/lLenn/stylegan2-ada-pytorch.git StarGAN
+    git clone https://github.com/lLenn/stargan-v2.git StarGAN
     Set-Location StarGAN
 } else {
     Set-Location StarGAN
@@ -19,9 +19,5 @@ if(-Not (Test-Path -Path "__init__.py")) {
 Set-Location ..
 Copy-Item -Path "..\commands\Style Transfer\setup.py" -Destination .\setup.py
 python .\setup.py develop
-Set-Location StarGAN
 
-# Install dependencies
-pip install -r requirements.txt
-
-Set-Location ..\..
+Set-Location ..

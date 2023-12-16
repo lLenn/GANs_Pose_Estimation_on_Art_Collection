@@ -1,0 +1,56 @@
+ # model arguments
+device: cuda
+img_size: 256 # Image resolution
+num_domains: 2  # Number of domains
+latent_dim: 16  # Latent vector dimension
+hidden_dim: 512  # Hidden dimension of mapping network
+style_dim: 64  # Style code dimension
+
+# weight for objective functions
+lambda_reg: 1  # Weight for R1 regularization
+lambda_cyc: 1  # Weight for cyclic consistency loss
+lambda_sty: 1  # Weight for style reconstruction loss
+lambda_ds: 1  # Weight for diversity sensitive loss
+ds_iter: 100000  # Number of iterations to optimize diversity sensitive loss
+w_hpf: 0  # weight for high-pass filtering
+
+# training arguments
+randcrop_prob: 0.5  # Probabilty of using random-resized cropping
+total_iters: 100000  # Number of total iterations
+resume_iter: 0  # Iterations to resume training/testing
+batch_size: 8  # Batch size for training
+val_batch_size: 32  # Batch size for validation
+lr: 0.0001  # Learning rate for D, E and G
+f_lr: 0.000001  # Learning rate for F
+beta1: 0.0  # Decay rate for 1st moment of Adam
+beta2: 0.99  # Decay rate for 2nd moment of Adam
+weight_decay: 0.0001  # Weight decay for optimizer
+num_outs_per_domain: 10 # Number of generated images per domain during sampling
+
+# misc
+mode: 'train' # This argument is used in solver: 'train', 'eval'
+num_workers: 4  # Number of workers used in DataLoader
+seed: 777  # Seed for random number generator
+
+# directory for training
+train_img_dir: 'data/cel'  # Directory containing training images
+val_img_dir: 'data/celeb'  # Directory containing validation images
+sample_dir: '.output/sample'  # Directory for saving generated images
+checkpoint_dir: '.output/ch'  # Directory for saving network checkpoints
+
+# directory for calculating metrics
+eval_dir: '.output/eval'  # Directory for saving metrics, i.e., FID and LPIPS
+
+# directory for testing
+result_dir: '.output/result'  # Directory for saving generated images and videos
+src_dir: 'assets/represe'  # Directory containing input source images
+ref_dir: 'assets/represe'  # Directory containing input reference images
+inp_dir: 'assets/represe'  # input directory when aligning faces
+out_dir: 'assets/represe'  # output directory when aligning faces
+
+# step size
+save_no: 1
+print_every: 10
+sample_every: 5000
+save_every: 10000
+eval_every: 50000

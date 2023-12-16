@@ -6,6 +6,12 @@ if os.path.exists("CycleGAN"):
         name='CycleGAN',
         packages=['CycleGAN', 'CycleGAN.data', 'CycleGAN.models', 'CycleGAN.options', 'CycleGAN.util']
     )
+    
+if os.path.exists("StarGan"):
+    setup(
+        name='StarGan',
+        packages=['StarGan']
+    )
 
 if os.path.exists("UGATITLib"):
     setup(
