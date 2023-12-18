@@ -29,9 +29,10 @@ class StarGANConfig:
         default_config.w_hpf = 1  # weight for high-pass filtering
 
         # training arguments
+        default_config.continue_training = True  # Continue training
         default_config.randcrop_prob = 0.5  # Probabilty of using random-resized cropping
-        default_config.total_epoch = 2000  # Number of total iterations
-        default_config.epoch = 0  # Iterations to resume training/testing
+        default_config.total_iters = 100000  # Number of total iterations
+        default_config.resume_iter = 0  # Epoch to resume training/testing
         default_config.batch_size = 8  # Batch size for training
         default_config.val_batch_size = 32  # Batch size for validation
         default_config.lr = 0.0001  # Learning rate for D, E and G
@@ -68,5 +69,10 @@ class StarGANConfig:
         default_config.sample_every = 5000
         default_config.save_every = 10000
         default_config.eval_every = 50000
+        
+        # visdom
+        default_config.display_server = "http://localhost"
+        default_config.display_env = "main"
+        default_config.display_port = 8087
     
         return default_config

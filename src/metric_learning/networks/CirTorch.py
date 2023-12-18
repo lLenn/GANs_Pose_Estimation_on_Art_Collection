@@ -16,7 +16,6 @@ class CirTorch():
         self.network = None
         self.transform = None
         self.multiscale = ms = list(config.multiscale)
-
         
     def load(self):
         # loading network
