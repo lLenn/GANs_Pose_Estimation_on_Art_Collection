@@ -115,7 +115,6 @@ class CycleGAN:
 
                 if total_iters % self.config.display_freq == 0:   # display images on visdom
                     visualizer.display_current_results(self.model.get_current_visuals())
-                    visualizer.save()
 
                 if total_iters % self.config.print_freq == 0:    # print training losses and save logging information to the disk
                     losses = self.model.get_current_losses()
@@ -123,6 +122,8 @@ class CycleGAN:
                     visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
                     if self.config.display_id > 0:
                         visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
+                    
+                if total_iters % self.config.display_freq == 0 or total_iters % self.config.print_freq == 0:
                     visualizer.save()
 
                 iter_data_time = time.time()

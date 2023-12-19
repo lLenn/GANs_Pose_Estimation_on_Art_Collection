@@ -218,11 +218,13 @@ class StarGAN():
                     x_fake = nets_ema.generator(x_src, s_ref)
                     visuals[f"domain_{y_ref[0]}_{i+1}_reference"] = tensor2numpy(denormalize(x_fake[0]))
                 visualizer.display_current_results("ref", visuals, len(s_ref_list)+1)
-                visualizer.save()
                 
                 nets_ema.generator.train()
                 nets_ema.style_encoder.train()
                 nets_ema.mapping_network.train()
+                
+            if (i+1) % args.sample_every == 0 or (i+1) % args.print_every == 0:
+                visualizer.save()
 
             # save model checkpoints
             if (i+1) % args.save_every == 0:
