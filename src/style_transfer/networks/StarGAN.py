@@ -3,6 +3,7 @@ import numpy as np
 from glob import glob
 from collections import deque
 from UGATITLib.utils import denorm, tensor2numpy
+from StarGAN.core.utils import denormalize
 from StarGAN.core.solver import Solver, compute_d_loss, compute_g_loss, moving_average
 from StarGAN.core.data_loader import InputFetcher
 from StarGAN.metrics.eval import calculate_metrics
@@ -177,10 +178,10 @@ class StarGAN():
                 x_rec = nets_ema.generator(x_fake, s_src)
                 
                 visuals = dict(
-                    x_src = tensor2numpy(denorm(x_src[0])),
-                    x_ref = tensor2numpy(denorm(x_ref[0])),
-                    x_fake = tensor2numpy(denorm(x_fake[0])),
-                    x_rec = tensor2numpy(denorm(x_rec[0]))
+                    x_src = tensor2numpy(denormalize(x_src[0])),
+                    x_ref = tensor2numpy(denormalize(x_ref[0])),
+                    x_fake = tensor2numpy(denormalize(x_fake[0])),
+                    x_rec = tensor2numpy(denormalize(x_rec[0]))
                 )
                 visualizer.display_current_results("train", visuals, 4)
                 
@@ -204,18 +205,18 @@ class StarGAN():
                             s_trg = nets_ema.mapping_network(z_trg, y_trg)
                             s_trg = torch.lerp(s_avg, s_trg, psi)
                             x_fake = nets_ema.generator(x_src, s_trg)
-                            visuals[f"domain_{i+1}_val_{j+1}_latent_psi_{psi}"] = tensor2numpy(denorm(x_fake[0]))
+                            visuals[f"domain_{i+1}_val_{j+1}_latent_psi_{psi}"] = tensor2numpy(denormalize(x_fake[0]))
 
-                visualizer.display_current_results("val", visuals, len(z_trg_list))
+                visualizer.display_current_results("val", visuals, len(y_trg_list))
                 
                 # reference-guided image synthesis
                 s_ref_list = s_ref.unsqueeze(1).repeat(1, N, 1)
                 visuals = dict(
-                    x_src = tensor2numpy(denorm(x_src[0]))
+                    x_src = tensor2numpy(denormalize(x_src[0]))
                 )
                 for i, s_ref in enumerate(s_ref_list):
                     x_fake = nets_ema.generator(x_src, s_ref)
-                    visuals[f"domain_{y_ref[0]}_{i+1}_reference"] = tensor2numpy(denorm(x_fake[0]))
+                    visuals[f"domain_{y_ref[0]}_{i+1}_reference"] = tensor2numpy(denormalize(x_fake[0]))
                 visualizer.display_current_results("ref", visuals, len(s_ref_list)+1)
                 visualizer.save()
                 
