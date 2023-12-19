@@ -19,7 +19,6 @@ click==8.1.3
 colorama==0.4.5
 contourpy==1.0.5
 cycler==0.11.0
-cyhunspell==2.0.2
 Cython==3.0.0b2
 debugpy==1.6.3
 decorator==5.1.1
@@ -29,7 +28,6 @@ distlib==0.3.6
 dm-tree==0.1.8
 docker-pycreds==0.4.0
 dominate==2.7.0
-DPGN==0.0.0
 easydict==1.7
 entrypoints==0.4
 etils==0.9.0
@@ -79,7 +77,6 @@ kiwisolver==1.4.4
 kt-legacy==1.0.4
 langdetect==1.0.9
 libclang==14.0.6
-libs==1
 lxml==4.9.1
 Markdown==3.4.1
 MarkupSafe==2.1.1
@@ -135,7 +132,6 @@ pyspellchecker==0.7.0
 python-dateutil==2.8.2
 pytz==2022.4
 PyWavelets==1.4.1
-pywinpty==2.0.8
 PyYAML==6.0
 pyzmq==24.0.1
 qtconsole==5.3.2
@@ -144,9 +140,6 @@ regex==2022.9.13
 requests==2.28.1
 requests-oauthlib==1.3.1
 rsa==4.9
-scikit-image==0.19.3
-scikit-learn==1.1.2
-scipy==1.9.1
 seaborn==0.12.0
 Send2Trash==1.8.0
 sentencepiece==0.1.98
@@ -159,7 +152,6 @@ sortedcontainers==2.4.0
 soupsieve==2.3.2.post1
 spark-nlp==4.2.6
 stack-data==0.5.1
-StarGan==0.0.0
 sympy==1.11.1
 tenacity==8.1.0
 tensorboard==2.11.0
@@ -182,8 +174,6 @@ tornado==6.2
 tqdm==4.64.1
 traitlets==5.4.0
 typing_extensions==4.4.0
-UGATITLib==0.0.0
-UNKNOWN==0.0.0
 urllib3==1.26.12
 virtualenv==20.21.0
 visdom==0.2.4
