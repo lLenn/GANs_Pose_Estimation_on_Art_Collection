@@ -99,7 +99,7 @@ class StarGAN():
         fetcher = InputFetcher(dataloader_src, dataloader_ref, self.config.latent_dim, 'train')
         fetcher_val = InputFetcher(dataloader_val, None, self.config.latent_dim, 'val')
         inputs_val = next(fetcher_val)
-
+        
         # remember the initial value of ds weight
         initial_lambda_ds = args.lambda_ds
         lambda_ds = args.lambda_ds
@@ -110,6 +110,7 @@ class StarGAN():
         for i in range(start_iter, args.total_iters):
             # fetch images and labels
             inputs = next(fetcher)
+            
             x_real, y_org = inputs.x_src, inputs.y_src
             x_ref, x_ref2, y_trg = inputs.x_ref, inputs.x_ref2, inputs.y_ref
             z_trg, z_trg2 = inputs.z_trg, inputs.z_trg2
@@ -156,7 +157,7 @@ class StarGAN():
                         all_losses[prefix + key] = value
                 all_losses['G/lambda_ds'] = lambda_ds
                 visualizer.print_current_losses(i+1, all_losses, elapsed)
-
+            
             # generate images for debugging
             if (i+1) % args.sample_every == 0:
                 nets_ema.generator.eval()
@@ -169,10 +170,12 @@ class StarGAN():
                 device = inputs_val.x_src.device
                 N, C, H, W = inputs_val.x_src.size()
 
-                x_fake = nets_ema.generator(x_src, nets_ema.style_encoder(x_ref, y_ref))
-                x_rec = nets_ema.generator(x_fake, nets_ema.style_encoder(x_src, y_src))
+                s_ref = nets_ema.style_encoder(x_ref, y_ref)
+                s_src = nets_ema.style_encoder(x_src, y_src)
+                               
+                x_fake = nets_ema.generator(x_src, s_ref)
+                x_rec = nets_ema.generator(x_fake, s_src)
                 
-                x_concat = torch.cat([x_src, x_ref, x_fake, x_rec], dim=0)
                 visuals = dict(
                     x_src = tensor2numpy(denorm(x_src[0])),
                     x_ref = tensor2numpy(denorm(x_ref[0])),
@@ -185,9 +188,10 @@ class StarGAN():
                 y_trg_list = [torch.tensor(y).repeat(N).to(device) for y in range(min(args.num_domains, 5))]
                 z_trg_list = torch.randn(args.num_outs_per_domain, 1, args.latent_dim).repeat(1, N, 1).to(device)
                 visuals = dict()
-                for psi in [0.5, 0.7, 1.0]:
+                psi_vals = [0.5, 0.7, 1.0]
+                # psi_vals = [1.0]
+                for psi in psi_vals:
                     latent_dim = z_trg_list[0].size(1)
-                    x_concat = []
                     
                     for i, y_trg in enumerate(y_trg_list):
                         z_many = torch.randn(10000, latent_dim).to(device)
@@ -205,21 +209,14 @@ class StarGAN():
                 visualizer.display_current_results("val", visuals, len(z_trg_list))
                 
                 # reference-guided image synthesis
-                wb = torch.ones(1, C, H, W).to(device)
-                x_src_with_wb = torch.cat([wb, x_src], dim=0)
-
-                s_ref = nets_ema.style_encoder(x_ref, y_ref)
                 s_ref_list = s_ref.unsqueeze(1).repeat(1, N, 1)
                 visuals = dict(
-                    x_src_with_wb = x_src_with_wb[0]
+                    x_src = tensor2numpy(denorm(x_src[0]))
                 )
                 for i, s_ref in enumerate(s_ref_list):
                     x_fake = nets_ema.generator(x_src, s_ref)
-                    x_fake_with_ref = torch.cat([x_ref[i:i+1], x_fake], dim=0)
-                    visuals[f"{i+1}_reference"] = tensor2numpy(denorm(x_fake_with_ref[0]))
-
+                    visuals[f"domain_{y_ref[0]}_{i+1}_reference"] = tensor2numpy(denorm(x_fake[0]))
                 visualizer.display_current_results("ref", visuals, len(s_ref_list)+1)
-                
                 visualizer.save()
                 
                 nets_ema.generator.train()

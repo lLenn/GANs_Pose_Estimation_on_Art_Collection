@@ -29,14 +29,13 @@ class StarGANVisualizer():
         images = []
         idx = 0
         for label, image in visuals.items():
-            image_numpy = util.tensor2im(image)
             label_html_row += '<td>%s</td>' % label
-            images.append(image_numpy.transpose([2, 0, 1]))
+            images.append(image.transpose([2, 0, 1]))
             idx += 1
             if idx % n_cols == 0:
                 label_html += '<tr>%s</tr>' % label_html_row
                 label_html_row = ''
-        white_image = np.ones_like(image_numpy.transpose([2, 0, 1])) * 255
+        white_image = np.ones_like(image.transpose([2, 0, 1])) * 255
         while idx % n_cols != 0:
             images.append(white_image)
             label_html_row += '<td></td>'
