@@ -97,6 +97,7 @@ class StarGAN():
         visualizer = StarGANVisualizer(self.config)    # create a visualizer that display/save images and plots
         
         # fetch random validation images for debugging
+        dataset_size = len(dataloader_src.dataset)
         fetcher = InputFetcher(dataloader_src, dataloader_ref, self.config.latent_dim, 'train')
         fetcher_val = InputFetcher(dataloader_val, None, self.config.latent_dim, 'val')
         inputs_val = next(fetcher_val)
@@ -158,6 +159,7 @@ class StarGAN():
                         all_losses[prefix + key] = value
                 all_losses['G/lambda_ds'] = lambda_ds
                 visualizer.print_current_losses(i+1, all_losses, elapsed)
+                visualizer.plot_current_losses(i+1, float(i+1) / dataset_size, all_losses)
             
             # generate images for debugging
             if (i+1) % args.sample_every == 0:
