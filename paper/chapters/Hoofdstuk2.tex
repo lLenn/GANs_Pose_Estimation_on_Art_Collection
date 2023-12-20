@@ -108,6 +108,14 @@ Compare results with related paper
 
 Discuss the code and discissions during implementation.
 Also, what could be done differently (own implementation)
+Discuss how there are many different ways to "choose" the style (change model (cyclegan), choose number (stargan), use style image)
+This could be solved by creating a new interface for the styles with each their own options, etc 
+Make everything highly configurable
+
+With all style transfer, I notice that when trying to convert to photo, they always seem to confuse foreground and background.
+You can tell from the stargan training that this seems to be solely with photo.
+This could be because of my dataset, but it can also be that paintings aren't as high contrast and lines between foreground and background are less vage.
+(check paper about making distinction between foreground and background)
 
 \section{Discussion}
 \label{sec:baseline_discussion}

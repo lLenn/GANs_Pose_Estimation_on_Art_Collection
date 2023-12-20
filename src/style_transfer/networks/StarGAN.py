@@ -109,7 +109,7 @@ class StarGAN():
         # training loop
         print('Start training...')
         start_time = time.time()            
-        for i in range(start_iter, args.total_iters):
+        for step in range(start_iter, args.total_iters):
             # fetch images and labels
             inputs = next(fetcher)
             
@@ -151,7 +151,7 @@ class StarGAN():
                 lambda_ds -= (initial_lambda_ds / args.ds_iter)
 
             # print out log info
-            if (i+1) % args.print_every == 0:
+            if (step+1) % args.print_every == 0:
                 elapsed = time.time() - start_time
                 all_losses = dict()
                 for loss, prefix in zip([d_losses_latent, d_losses_ref, g_losses_latent, g_losses_ref], ['D/latent_', 'D/ref_', 'G/latent_', 'G/ref_']):
@@ -162,7 +162,7 @@ class StarGAN():
                 visualizer.plot_current_losses(i+1, float(i+1) / dataset_size, all_losses)
             
             # generate images for debugging
-            if (i+1) % args.sample_every == 0:
+            if (step+1) % args.sample_every == 0:
                 nets_ema.generator.eval()
                 nets_ema.style_encoder.eval()
                 nets_ema.mapping_network.eval()
@@ -225,16 +225,16 @@ class StarGAN():
                 nets_ema.style_encoder.train()
                 nets_ema.mapping_network.train()
                 
-            if (i+1) % args.sample_every == 0 or (i+1) % args.print_every == 0:
+            if (step+1) % args.sample_every == 0 or (step+1) % args.print_every == 0:
                 visualizer.save()
 
             # save model checkpoints
-            if (i+1) % args.save_every == 0:
-                self.saveModel(i+1)
+            if (step+1) % args.save_every == 0:
+                self.saveModel(step+1)
 
             # compute FID and LPIPS if necessary
-            if (i+1) % args.eval_every == 0:
-                calculate_metrics(nets_ema, args, i+1, mode='latent')
-                calculate_metrics(nets_ema, args, i+1, mode='reference')
+            if (step+1) % args.eval_every == 0:
+                calculate_metrics(nets_ema, args, step+1, mode='latent')
+                calculate_metrics(nets_ema, args, step+1, mode='reference')
         
         

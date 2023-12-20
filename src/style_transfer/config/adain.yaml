@@ -1,0 +1,36 @@
+# basic options
+device: "cuda"
+content_dir: "" # Directory path to a batch of content images
+style: "" # "File path to the style image, or multiple style images separated by commas if you want to do style interpolation or spatial control
+style_dir: "" # Directory path to a batch of style images
+vgg: "models/vgg_normalised.pth"
+decoder: "models/decoder.pth"
+
+# Additional options
+content_size: 512 # New (minimum) size for the content image keeping the original size if set to 0
+style_size: 512 # New (minimum) size for the style image, keeping the original size if set to 0
+crop: True # do center crop to create squared image
+save_ext: ".jpg" # The extension name of the output image
+output: "output" # Directory to save the output image(s)
+
+# Advanced options
+preserve_color: True # If specified, preserve color of the content image
+alpha: 1.0 # The weight that controls the degree of stylization. Should be between 0 and 1
+style_interpolation_weights: "" # The weight for blending the style of multiple style images
+
+# training options
+save_dir: "./experiments" # Directory to save the model
+log_dir: "./logs" # Directory to save the log
+lr: 1e-4
+lr_decay: 5e-5
+max_iter: 160000
+batch_size: 8
+style_weight: 10.0
+content_weight: 1.0
+n_threads: 16
+save_model_interval: 10000
+
+# visdom
+display_server: "http://localhost"
+display_env: "main"
+display_port: 8087

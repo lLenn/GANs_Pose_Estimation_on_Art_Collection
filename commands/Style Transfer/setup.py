@@ -12,6 +12,12 @@ if os.path.exists("StarGAN"):
         name='StarGAN',
         packages=['StarGAN']
     )
+    
+if os.path.exists("AdaIN"):
+    setup(
+        name='AdaIN',
+        packages=['AdaIN']
+    )
 
 if os.path.exists("UGATITLib"):
     setup(
