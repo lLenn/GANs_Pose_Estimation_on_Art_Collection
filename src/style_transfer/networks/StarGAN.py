@@ -100,7 +100,6 @@ class StarGAN():
         dataset_size = len(dataloader_src.dataset)
         fetcher = InputFetcher(dataloader_src, dataloader_ref, self.config.latent_dim, 'train')
         fetcher_val = InputFetcher(dataloader_val, None, self.config.latent_dim, 'val')
-        inputs_val = next(fetcher_val)
         
         # remember the initial value of ds weight
         initial_lambda_ds = args.lambda_ds
@@ -166,6 +165,8 @@ class StarGAN():
                 nets_ema.generator.eval()
                 nets_ema.style_encoder.eval()
                 nets_ema.mapping_network.eval()
+                
+                inputs_val = next(fetcher_val)
                 
                 x_src, y_src = inputs_val.x_src, inputs_val.y_src
                 x_ref, y_ref = inputs_val.x_ref, inputs_val.y_ref
