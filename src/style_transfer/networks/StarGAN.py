@@ -157,8 +157,8 @@ class StarGAN():
                     for key, value in loss.items():
                         all_losses[prefix + key] = value
                 all_losses['G/lambda_ds'] = lambda_ds
-                visualizer.print_current_losses(i+1, all_losses, elapsed)
-                visualizer.plot_current_losses(i+1, float(i+1) / dataset_size, all_losses)
+                visualizer.print_current_losses(step+1, all_losses, elapsed)
+                visualizer.plot_current_losses(step+1, float(step+1) / dataset_size, all_losses)
             
             # generate images for debugging
             if (step+1) % args.sample_every == 0:
