@@ -70,7 +70,7 @@ def saveImage(path, image):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     cv2.imwrite(path, image * 255.0)
 
-def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styledQueue):
+def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styledQueue):    
     # Initiate the CycleGAN model with the proper configuration
     config = CycleGANConfig.create()
     config.defrost()
@@ -145,7 +145,7 @@ def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
             )
             process.start()
             workers.append(process)
-            logger.info("==>" + " Worker {} Started, responsible for {} images".format(i, len(index_groups)))
+            logger.info(f"==> Worker {i} Started on gpu {i//num_workers}, responsible for {len(index_groups)} images")
         
         for _ in range(num_gpus*num_workers):
             styleList += styledQueue.get()
