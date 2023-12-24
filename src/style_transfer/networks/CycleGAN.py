@@ -77,7 +77,6 @@ class CycleGAN:
     def photographicToArtistic(self, image, device=None):
         if device is not None:
             self.model.netG_B.to(device)
-            self.model.netG_B.module.to(device)
             image.to(device)
         self.model.netG_B.eval()
         image = self.model.netG_B(image)
