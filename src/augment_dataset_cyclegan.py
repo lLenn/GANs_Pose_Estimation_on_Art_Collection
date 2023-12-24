@@ -141,12 +141,12 @@ def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
             process = Process(
                 target = worker,
                 args = (
-                    i//num_workers, dataset, target, models, styles, index_groups, logger, styledQueue
+                    gpu_ids[i//num_workers], dataset, target, models, styles, index_groups, logger, styledQueue
                 )
             )
             process.start()
             workers.append(process)
-            logger.info(f"==> Worker {i} Started on gpu {i//num_workers}, responsible for {len(index_groups)} images")
+            logger.info(f"==> Worker {i} Started on gpu {gpu_ids[i//num_workers]}, responsible for {len(index_groups)} images")
         
         for _ in range(num_gpus*num_workers):
             styleList += styledQueue.get()
