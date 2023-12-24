@@ -100,14 +100,14 @@ def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styled
                 pbar.update(indicesSize)
             continue
         id_addition = ID_ADDITION + ID_SUB_ADDITION * modelIndex
-        style_transfer.loadModel(os.path.join(models, model), withName=False, gpu_id=gpuId)
+        style_transfer.loadModel(os.path.join(models, model), withName=False, device=f"cuda:{gpuId}")
         for imageIndex in workerIndices:
             img_id = dataset.ids[imageIndex]
             metadata = dataset.coco.loadImgs(img_id)[0]
             file_path = os.path.join(dataset.root, 'images', dataset.dataset, metadata['file_name'])
             image = cv2.imread(file_path, cv2.IMREAD_COLOR|cv2.IMREAD_IGNORE_ORIENTATION)
             image = transform(image).unsqueeze(0)
-            styledImage = style_transfer.photographicToArtistic(image, gpuId).squeeze()
+            styledImage = style_transfer.photographicToArtistic(image, f"cuda:{gpuId}").squeeze()
             copiedMetadata = copyMetadata(metadata, id_addition)
             copiedAnnotations = copyAnnotations(dataset.coco.loadAnns(dataset.coco.getAnnIds(imgIds=metadata["id"])), id_addition)
             file_name = os.path.join(dataset.root, 'images', target, copiedMetadata["file_name"])
