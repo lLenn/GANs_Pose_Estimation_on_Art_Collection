@@ -63,7 +63,7 @@ class CycleGAN:
                 if isinstance(net, torch.nn.DataParallel):
                     net = net.module
                 print('loading the model from %s' % load_path)
-                state_dict = torch.load(load_path, map_location=(self.model.device if gpu_id is None else gpu_id))
+                state_dict = torch.load(load_path, map_location=(self.model.device if gpu_id is None else torch.device(f'cuda:{gpu_id}')))
                 if hasattr(state_dict, '_metadata'):
                     del state_dict._metadata
 
