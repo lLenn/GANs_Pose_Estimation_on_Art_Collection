@@ -136,7 +136,7 @@ def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
     num_gpus = len(gpu_ids)
     if num_gpus > 1 or num_workers > 1:
         for i in range(num_gpus*num_workers):
-            index_groups = list(range(i, datasetSize, num_workers))
+            index_groups = list(range(i, datasetSize, num_gpus*num_workers))
             process = Process(
                 target = worker,
                 args = (
