@@ -44,7 +44,7 @@ class CycleGAN:
                 toAdd[name] = save_path
         self.savedFiles.append(toAdd)
                      
-    def loadModel(self, paths=None, suffix=None, withName=True):
+    def loadModel(self, paths=None, suffix=None, withName=True, gpu_id=None):
         if paths is None:
             paths = self.config.models_dir
         if isinstance(paths, str) and suffix is None:
@@ -63,7 +63,7 @@ class CycleGAN:
                 if isinstance(net, torch.nn.DataParallel):
                     net = net.module
                 print('loading the model from %s' % load_path)
-                state_dict = torch.load(load_path, map_location=self.model.device)
+                state_dict = torch.load(load_path, map_location=(self.model.device if gpu_id is None else gpu_id))
                 if hasattr(state_dict, '_metadata'):
                     del state_dict._metadata
 

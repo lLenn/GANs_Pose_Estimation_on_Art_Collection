@@ -99,7 +99,7 @@ def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styled
                 pbar.update(indicesSize)
             continue
         id_addition = ID_ADDITION + ID_SUB_ADDITION * modelIndex
-        style_transfer.loadModel(os.path.join(models, model), withName=False)
+        style_transfer.loadModel(os.path.join(models, model), withName=False, gpu_id=gpuId)
         for imageIndex in workerIndices:
             img_id = dataset.ids[imageIndex]
             metadata = dataset.coco.loadImgs(img_id)[0]
