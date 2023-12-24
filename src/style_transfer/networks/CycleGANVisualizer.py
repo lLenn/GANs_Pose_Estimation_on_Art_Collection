@@ -119,6 +119,6 @@ class CycleGANVisualizer():
         print(message)  # print the message
         with open(self.log_name, "a") as log_file:
             log_file.write('%s\n' % message)  # save the message
-            
+         
     def save(self):
         self.vis.save([self.config.display_env])

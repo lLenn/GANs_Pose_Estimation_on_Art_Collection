@@ -2,10 +2,11 @@ import math
 from yacs.config import CfgNode as CN
 
 class CycleGANConfig:
-    def create(file, options = list(), phase="train", model="cycle_gan"):
+    def create(file=None, options=list(), phase="train", model="cycle_gan"):
         config = CycleGANConfig.createDefaultConfig(phase, model)
         config.defrost()
-        config.merge_from_file(file)
+        if file is not None:
+            config.merge_from_file(file)
         config.merge_from_list(options)
         config.freeze()
         return config

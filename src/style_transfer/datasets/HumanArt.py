@@ -17,7 +17,7 @@ class HumanArt(Dataset):
         self.categoriesToImages = defaultdict(list)
         
         print("loading annotations...")
-        if not annotationFile == None:
+        if annotationFile is not None:
             dataset = json.load(open(annotationFile))
             self.dataset = dataset
             self.createIndex()

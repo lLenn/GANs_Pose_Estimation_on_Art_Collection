@@ -5,10 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Validate baseline",
+            "name": "Python: Augment with cyclegan",
             "type": "python",
             "request": "launch",
-            "program": "./src/benchmark_baseline.py",
+            "program": "./src/augment_dataset_cyclegan.py",
+            "args": [
+                "--coco",
+                "../../Datasets/custom/coco_annotations_small",
+                "--models",
+                "../../Models/CycleGAN",
+                "--styles",
+                "baroque",
+                "impressionism",
+                "renaissance",
+                "mixed",
+                "--gpu_ids",
+                "0",
+                "--num_workers",
+                "2",
+                "--log",
+                ".output/logs"
+            ],
             "justMyCode": false
         },
         {
