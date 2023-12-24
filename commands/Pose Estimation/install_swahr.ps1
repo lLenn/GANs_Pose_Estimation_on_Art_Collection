@@ -40,17 +40,4 @@ if(-Not (Test-Path -Path SWAHR)) {
 # Setup package
 Set-Location lib
 python setup.py develop
-Set-Location ..
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Download pretrained models
-pip install gdown
-if(-Not (Test-Path -Path models)) {
-    New-Item -Name models -ItemType directory
-    gdown --folder --id 1LTC9BqodDw3qfQ2DjgH0f_n3Javds0Pe -O models\pose_coco
-    gdown --folder --id 1-W9OoshMaT5UvBaW8vPhpP8pEphIcKJ7 -O models\pose_crowdpose
-}
-
-Set-Location ..\..
+Set-Location ..\..\..

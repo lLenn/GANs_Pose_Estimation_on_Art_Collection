@@ -43,20 +43,6 @@ else
 fi
 
 # Setup package
-cd ../lib
+cd lib
 python3 ./setup.py develop
-cd ..
-
-# Install dependencies
-pip3 install -r requirements.txt
-
-# Download pretrained models
-pip3 install gdown
-if [ ! -d models ]
-then
-    mkdir models
-    gdown --folder --id 1LTC9BqodDw3qfQ2DjgH0f_n3Javds0Pe -O models/pose_coco
-    gdown --folder --id 1-W9OoshMaT5UvBaW8vPhpP8pEphIcKJ7 -O models/pose_crowdpose
-fi
-
-cd ../..
+cd ../../..
