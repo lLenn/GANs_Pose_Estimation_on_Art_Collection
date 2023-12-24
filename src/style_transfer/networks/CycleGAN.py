@@ -44,7 +44,7 @@ class CycleGAN:
                 toAdd[name] = save_path
         self.savedFiles.append(toAdd)
                      
-    def loadModel(self, paths=None, suffix=None, withName=True, device=None):
+    def loadModel(self, paths=None, suffix=None, withName=True):
         if paths is None:
             paths = self.config.models_dir
         if isinstance(paths, str) and suffix is None:
@@ -63,7 +63,7 @@ class CycleGAN:
                 if isinstance(net, torch.nn.DataParallel):
                     net = net.module
                 print('loading the model from %s' % load_path)
-                state_dict = torch.load(load_path, map_location=(self.model.device if device is None else device))
+                state_dict = torch.load(load_path, map_location=(self.model.device))
                 if hasattr(state_dict, '_metadata'):
                     del state_dict._metadata
 
@@ -74,18 +74,12 @@ class CycleGAN:
                 toAdd[name] = load_path
         self.savedFiles.append(toAdd)
     
-    def photographicToArtistic(self, image, device=None):
-        if device is not None:
-            self.model.netG_B.to(device)
-            image.to(device)
+    def photographicToArtistic(self, image):
         self.model.netG_B.eval()
         image = self.model.netG_B(image)
         return image
     
-    def artisticToPhotographic(self, image, device=None):
-        if device is not None:
-            self.model.netG_A.to(device)
-            image.to(device)
+    def artisticToPhotographic(self, image):
         self.model.netG_A.eval()
         image = self.model.netG_A(image)
         return image
