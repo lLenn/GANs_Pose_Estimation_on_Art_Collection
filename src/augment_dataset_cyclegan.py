@@ -75,6 +75,7 @@ def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styled
     config = CycleGANConfig.create()
     config.defrost()
     config.isTrain = False
+    config.gpu_ids = []
     config.freeze()
     style_transfer = CycleGAN(config)
     
