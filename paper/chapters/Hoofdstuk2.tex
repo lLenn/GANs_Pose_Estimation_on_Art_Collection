@@ -32,6 +32,7 @@ This way we can extract have more specialized datasets from the existing dataset
 Even with the genre categorization it's still too broad.
 This has become apparent when training U-GAT-IT (This was before I realized that this model also does content transformation)
 
+StarGAN experiences mode collapse after 100,000 iterations. (iterations because their implementation doesn't use epochs)
 \section{Choice of Dataset}
 (dirty version)
 CIBR works well when there's something very recognisable, like a tennis court.
@@ -123,3 +124,4 @@ Also examine how the perception field works, like how does it actually work?
 \section{Discussion}
 \label{sec:baseline_discussion}
 Already it is apparent that pose estimation on art collections is strongly dependent on the efficacy of the style transfer.
+Use something else than visdom, because it takes too long to save when there are too many datapoints.

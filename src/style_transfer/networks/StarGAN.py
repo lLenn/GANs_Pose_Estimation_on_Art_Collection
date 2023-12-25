@@ -68,14 +68,14 @@ class StarGAN():
         self.savedFiles.append(toAdd)
         
     def photographicToArtistic(self, image):
-        return self.imageToStyle(image, 1)
+        return self.imageToStyle(image, torch.tensor([1]).to(self.model.device))
     
     def artisticToPhotographic(self, image):
-        return self.imageToStyle(image, 0)
+        return self.imageToStyle(image, torch.tensor([0]).to(self.model.device))
     
     def imageToStyle(self, image, style):
         noise = torch.randn(1, self.config.latent_dim).to(self.config.device)
-        styleEnc = self.model.nets_ema.mapping_network(noise, np.array([style]))
+        styleEnc = self.model.nets_ema.mapping_network(noise, style)
         styledImage = self.model.nets_ema.generator(image, styleEnc)
         return styledImage
     

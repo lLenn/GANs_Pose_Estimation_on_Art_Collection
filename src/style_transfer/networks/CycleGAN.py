@@ -116,9 +116,11 @@ class CycleGAN:
                 self.model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
 
                 if total_iters % self.config.display_freq == 0:   # display images on visdom
+                    print("results")
                     visualizer.display_current_results(self.model.get_current_visuals())
 
                 if total_iters % self.config.print_freq == 0:    # print training losses and save logging information to the disk
+                    print("loses")
                     losses = self.model.get_current_losses()
                     t_comp = (time.time() - iter_start_time) / self.config.batch_size
                     visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
@@ -126,6 +128,7 @@ class CycleGAN:
                         visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
                     
                 if total_iters % self.config.display_freq == 0 or total_iters % self.config.print_freq == 0:
+                    print("save")
                     visualizer.save()
 
                 iter_data_time = time.time()
