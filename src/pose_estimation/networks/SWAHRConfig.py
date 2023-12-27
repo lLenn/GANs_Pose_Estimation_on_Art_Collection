@@ -3,7 +3,7 @@ import torch.backends.cudnn as cudnn
 from SWAHR.config import update_config, check_config
 
 class SWAHRConfig:
-    def create(file, options):
+    def create(file=None, options=list()):
         args = type('', (object, ), { "cfg": file, "opts": options })
         config = SWAHRConfig.createDefaultConfig()
         update_config(config, args)
@@ -25,6 +25,7 @@ class SWAHRConfig:
         default_config.WORKERS = 4
         default_config.WORLD_SIZE = 8
         default_config.PRINT_FREQ = 20
+        default_config.SAVE_FREQ = 1
         default_config.AUTO_RESUME = False
         default_config.PIN_MEMORY = True
         default_config.RANK = 0
@@ -112,6 +113,7 @@ class SWAHRConfig:
         default_config.TRAIN.WARM_UP_EPOCH = 3
 
         default_config.TRAIN.RESUME = False
+        default_config.TRAIN.SAVE_NO = 1
         default_config.TRAIN.CHECKPOINT = ''
 
         default_config.TRAIN.IMAGES_PER_GPU = 32
@@ -152,5 +154,11 @@ class SWAHRConfig:
         default_config.DEBUG.SAVE_HEATMAPS_GT = True
         default_config.DEBUG.SAVE_HEATMAPS_PRED = True
         default_config.DEBUG.SAVE_TAGMAPS_PRED = True
+        
+        default_config.VISDOM = CN()
+        default_config.VISDOM.NAME = "experiments"
+        default_config.VISDOM.SERVER = "http://localhost"
+        default_config.VISDOM.PORT = "8097"
+        default_config.VISDOM.ENV = "main"
         
         return default_config

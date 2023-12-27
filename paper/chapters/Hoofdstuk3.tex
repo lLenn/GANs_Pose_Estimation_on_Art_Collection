@@ -14,3 +14,11 @@ This section will discuss (2)
 Top-down pose estimators also require that the human detector is trained with styled images.
 
 \section{Discussion}
+It would be useful to train a network to learn proper 
+Suppose you take a \gls{CNN}: it will do convolutions, max pooling until you get as output a vector which you can use for cross-entropy, softmax loss.
+This has the entire image as perceptive field, with every layer the perceptive field grows bigger (check if this is true) until the last layer has the entire image in its field.
+Suppose that you want to know the coordinates of the object found, all you would need to know is what point in the neural network the perceptive field can see the object.
+From that point in the network it would be convenient to have the coordinates marked somewhere so that the object can be found at different scales.
+Meaning that for every layer it branches to a subnetwork or as another entrance for backpropogation (as with RNN).
+Is this how HRNet works? (research)
+

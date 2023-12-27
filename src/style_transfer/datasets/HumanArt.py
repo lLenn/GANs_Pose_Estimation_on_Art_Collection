@@ -108,7 +108,7 @@ class HumanArt(Dataset):
                 'bbox'  : [ data[i, 1], data[i, 2], data[i, 3], data[i, 4] ],
                 'score' : data[i, 5],
                 'category_id': int(data[i, 6]),
-                }]
+            }]
         return annotations
         
     def loadImages(self, ids=[]):

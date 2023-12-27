@@ -41,6 +41,28 @@
             "justMyCode": false
         },
         {
+            "name": "Python: Train SWAHR",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/train_SWAHR.py",
+            "args": [
+                "--gpu_id",
+                "0",
+                "--batch_size",
+                "1",
+                "--num_workers",
+                "4",
+                "--log",
+                ".output/logs",
+                "--config_file",
+                "src/pose_estimation/config/w48_640_train.yaml",
+                "--annotation_file",
+                "person_keypoints_styled_train_mixed.json"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "Python: Test UGATIT",
             "type": "python",
             "request": "launch",

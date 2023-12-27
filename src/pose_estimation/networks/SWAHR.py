@@ -1,41 +1,195 @@
-import torch
-import os
-import torchvision.transforms
-import cv2
+import torch, os, cv2, time
 import numpy as np
+import torchvision.transforms as transforms
+from glob import glob
 from utils import isArrayLike
+from collections import deque
 from tqdm import tqdm
 from SWAHR.models.pose_higher_hrnet import PoseHigherResolutionNet
 from SWAHR.core.group import HeatmapParser
 from SWAHR.core.inference import get_multi_stage_outputs, aggregate_results
+from SWAHR.core.loss import MultiLossFactory
+from SWAHR.core.trainer import do_train
 from SWAHR.utils.transforms import get_multi_scale_size, resize_align_multi_scale, get_final_preds
+from SWAHR.utils.utils import get_model_summary, get_optimizer, AverageMeter
+from .SWAHRVisualizer import SWAHRVisualizer
 
 class SWAHR():
     def __init__(self, config):        
         self.model = PoseHigherResolutionNet(config)
         self.config = config
-        self.transforms = torchvision.transforms.Compose(
+        self.transforms = transforms.Compose(
             [
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Normalize(
+                transforms.ToTensor(),
+                transforms.Normalize(
                     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
                 ),
             ]
         )
         self.heatmapParser = HeatmapParser(self.config)
+        
+        maxlen = 1
+        if hasattr(config, "SAVE_NO"):
+            maxlen = (None if config.SAVE_NO<0 else config.SAVE_NO)
+        self.savedFiles = deque(maxlen = maxlen)
     
-    def loadModel(self, isTrain):
-        if isTrain:
-            file = self.config.MODEL.PRETRAINED
-        else:
-            file = self.config.TEST.MODEL_FILE            
+    def saveModel(self, epoch):
+        if len(self.savedFiles) == self.savedFiles.maxlen:
+            os.remove(self.savedFiles.popleft())
+                   
+        file = os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{epoch}") 
+        torch.save(self.model.cpu().state_dict(), file)
+        self.savedFiles.append(file)
+        self.model.cuda()
+        
+    def loadModel(self, file = None, isTrain = False):
+        if file == None:
+            if isTrain:
+                file = self.config.MODEL.PRETRAINED
+            else:
+                file = self.config.TEST.MODEL_FILE
         self.model.load_state_dict(torch.load(file), strict=True)
-    
+        self.savedFiles.append(file)
+        
     def preprocess(self):
         pass
     
-    def train(self):
-        pass
+    def train(self, dataloader, logger):
+        dataset_size = len(dataloader.dataset)
+        if self.config.VERBOSE:
+            logger.info('The number of training images = %d' % dataset_size)
+    
+        start_epoch = self.config.TRAIN.BEGIN_EPOCH
+        if self.config.TRAIN.RESUME:
+            model_list = glob(os.path.join(self.config.TRAIN.CHECKPOINT, '*.pth'))
+            if not len(model_list) == 0:
+                model_list.sort()
+                load_epoch = int(os.path.split(model_list[-1])[1].split('_')[0])
+                self.loadModel(os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{load_epoch}"))
+                start_epoch = load_epoch+1
+                 
+        dump_input = torch.rand((1, 3, self.config.DATASET.INPUT_SIZE, self.config.DATASET.INPUT_SIZE))
+        logger.info(get_model_summary(self.model, dump_input, verbose=self.config.VERBOSE))
+
+        visualizer = SWAHRVisualizer(self.config)
+
+        # define loss function (criterion) and optimizer
+        model = torch.nn.DataParallel(self.model).cuda()
+        loss_factory = MultiLossFactory(self.config).cuda()
+        optimizer = get_optimizer(self.config, model)
+
+        end_epoch = self.config.TRAIN.END_EPOCH
+        warm_up_epoch = self.config.TRAIN.WARM_UP_EPOCH
+        iters_per_epoch = len(dataloader)
+        warm_up_iters = warm_up_epoch * iters_per_epoch
+        train_iters = (end_epoch - warm_up_epoch) * iters_per_epoch
+        initial_lr = self.config.TRAIN.LR
+        
+        for epoch in range(start_epoch, end_epoch):
+            batch_time = AverageMeter()
+            data_time = AverageMeter()
+
+            heatmaps_loss_meter = [AverageMeter() for _ in range(self.config.LOSS.NUM_STAGES)]
+            scale_loss_meter = [AverageMeter() for _ in range(self.config.LOSS.NUM_STAGES)]
+            push_loss_meter = [AverageMeter() for _ in range(self.config.LOSS.NUM_STAGES)]
+            pull_loss_meter = [AverageMeter() for _ in range(self.config.LOSS.NUM_STAGES)]
+
+            # switch to train mode
+            model.train()
+
+            end = time.time()
+            for i, (images, heatmaps, masks, joints) in tqdm(enumerate(dataloader)):
+                # measure data loading time
+                data_time.update(time.time() - end)
+
+                # compute output
+                outputs = model(images)
+
+                heatmaps = list(map(lambda x: x.cuda(non_blocking=True), heatmaps))
+                masks = list(map(lambda x: x.cuda(non_blocking=True), masks))
+                joints = list(map(lambda x: x.cuda(non_blocking=True), joints))
+
+                # loss = loss_factory(outputs, heatmaps, masks)
+                heatmaps_losses, scale_losses, push_losses, pull_losses = loss_factory(outputs, heatmaps, masks, joints)
+
+                loss = 0
+                for idx in range(self.config.LOSS.NUM_STAGES):
+                    if heatmaps_losses[idx] is not None:
+                        heatmaps_loss = heatmaps_losses[idx].mean(dim=0)
+                        scale_loss = scale_losses[idx].mean(dim=0)
+
+                        heatmaps_loss_meter[idx].update(
+                            heatmaps_loss.item(), images.size(0)
+                        )
+                        scale_loss_meter[idx].update(
+                            scale_loss.item(), images.size(0)
+                        )
+
+                        loss = loss + heatmaps_loss + scale_loss
+                        if push_losses[idx] is not None:
+                            push_loss = push_losses[idx].mean(dim=0)
+                            push_loss_meter[idx].update(
+                                push_loss.item(), images.size(0)
+                            )
+                            loss = loss + push_loss
+                        if pull_losses[idx] is not None:
+                            pull_loss = pull_losses[idx].mean(dim=0)
+                            pull_loss_meter[idx].update(
+                                pull_loss.item(), images.size(0)
+                            )
+                            loss = loss + pull_loss
+
+                # compute gradient and do update step
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                
+                # adjust learning rate
+                current_iters = epoch * iters_per_epoch + i
+                if current_iters < warm_up_iters:
+                    lr = initial_lr * 0.1 + current_iters / warm_up_iters * initial_lr * 0.9
+                else:
+                    lr = (1 - (current_iters - warm_up_iters) / train_iters) * initial_lr
+                    
+                for param in optimizer.param_groups:
+                    param['lr'] = lr
+
+                # measure elapsed time
+                batch_time.update(time.time() - end)
+                end = time.time()
+
+                if i % self.config.PRINT_FREQ == 0:
+                    losses = {
+                        "heatmaps": heatmaps_loss_meter,
+                        "scale": scale_loss_meter,
+                        "push": push_loss_meter,
+                        "pull": pull_loss_meter
+                    }
+                    visualizer.print_current_losses(epoch, i, iters_per_epoch, lr, batch_time, images.size(0)/batch_time.val, data_time, losses)
+
+                    for key in losses:
+                        loss = {}
+                        for idx in range(self.config.LOSS.NUM_STAGES):
+                            loss[f"stage{idx}-{key}"] = heatmaps_loss_meter[idx].val
+                        visualizer.plot_current_losses(f"{key} loss over time", key, epoch, i/iters_per_epoch, loss)
+                    
+                    for scale_idx in range(len(outputs)):
+                        prefix_scale = f"train_output_{self.config.DATASET.OUTPUT_SIZE[scale_idx]}"
+                        num_joints = self.config.DATASET.NUM_JOINTS
+                        batch_pred_heatmaps = outputs[scale_idx][:, :num_joints, :, :]
+                        batch_pred_tagmaps = outputs[scale_idx][:, num_joints:, :, :]
+
+                        if self.config.DEBUG.SAVE_HEATMAPS_GT and heatmaps[scale_idx] is not None:
+                            visualizer.display_current_results(f'{prefix_scale}_hm_gt.jpg', visualizer.save_batch_maps(images, heatmaps[scale_idx], masks[scale_idx], 'heatmap'), len(images))
+                        if self.config.DEBUG.SAVE_HEATMAPS_PRED:
+                            visualizer.display_current_results(f'{prefix_scale}_hm_pred.jpg', visualizer.save_batch_maps(images, batch_pred_heatmaps, masks[scale_idx], 'heatmap'), len(images))
+                        if self.config.DEBUG.SAVE_TAGMAPS_PRED:
+                            visualizer.display_current_results(f'{prefix_scale}_tag_pred.jpg', visualizer.save_batch_maps(images, batch_pred_tagmaps, masks[scale_idx], 'tagmap'), len(images))
+
+                    visualizer.save()
+                    
+            if epoch % self.config.SAVE_FREQ == 0:
+                self.saveModel(epoch)
     
     def infer(self, gpuIds, image):
         gpuIds if isArrayLike(gpuIds) else [gpuIds]
@@ -85,12 +239,12 @@ class SWAHR():
     
     def validate(self, gpuIds, dataset, indices, logger):
         sub_dataset = torch.utils.data.Subset(dataset, indices)
-        data_loader = torch.utils.data.DataLoader(
+        dataloader = torch.utils.data.DataLoader(
             sub_dataset, sampler=None, batch_size=1, shuffle=False, num_workers=0, pin_memory=False
         )
         predictions = []
         pbar = tqdm(total=len(sub_dataset)) if self.config.TEST.LOG_PROGRESS else None
-        for i, (images, annotations) in enumerate(data_loader):
+        for i, (images, annotations) in enumerate(dataloader):
             image = images[0].cpu().numpy()
 
             image_resized, final_heatmaps, final_results, scores = self.infer(gpuIds, image)
@@ -135,9 +289,6 @@ class SWAHR():
             pbar.close()
             
         return predictions
-
-    def inference(self):
-        pass
     
     def visualize(self, image, heatmaps, filename):
         visual_heatmap = torch.max(heatmaps, dim=0, keepdim=True)[0]

@@ -1,8 +1,8 @@
 AUTO_RESUME: False
 DATA_DIR: ''
 GPUS: (0,)
-LOG_DIR: .log
-OUTPUT_DIR: .output
+LOG_DIR: log
+OUTPUT_DIR: output
 PRINT_FREQ: 100
 FP16:
   ENABLED: False
@@ -13,8 +13,8 @@ CUDNN:
   ENABLED: True
 DATASET:
   SIGMA: 2
-  DATASET: humanart
-  DATASET_TEST: humanart
+  DATASET: coco_kpt
+  DATASET_TEST: coco
   DATA_FORMAT: jpg
   FLIP: 0.5
   INPUT_SIZE: 640
@@ -26,7 +26,7 @@ DATASET:
   MAX_TRANSLATE: 40
   MIN_SCALE: 0.75
   NUM_JOINTS: 17
-  ROOT: '../../datasets/human-art/'
+  ROOT: '/data/coco_data/'
   TEST: val2017
   TRAIN: train2017
 DEBUG:
@@ -101,12 +101,12 @@ MODEL:
   SYNC_BN: True
   NAME: pose_higher_hrnet
   NUM_JOINTS: 17
-  PRETRAINED: '../../datasets/swahr/hrnet_w48-8ef0771d.pth'
+  PRETRAINED: '/data/models/pytorch/imagenet/hrnet_w48-8ef0771d.pth'
   TAG_PER_JOINT: True
 TEST:
-  FLIP_TEST: False
+  FLIP_TEST: True
   IMAGES_PER_GPU: 1
-  MODEL_FILE: '../../Models/swahr/pose_higher_hrnet_w48_640.pth' 
+  MODEL_FILE: '' 
   SCALE_FACTOR: [1]
   DETECTION_THRESHOLD: 0.1
   WITH_HEATMAPS: (True, True)
@@ -127,7 +127,6 @@ TRAIN:
   NESTEROV: False
   OPTIMIZER: adam
   RESUME: False
-  SAVE_NO: 2
   SHUFFLE: True
   WD: 0.0001
 WORKERS: 4

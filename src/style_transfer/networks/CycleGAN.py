@@ -97,7 +97,6 @@ class CycleGAN:
                 self.loadModel(self.config.checkpoints_dir, load_epoch)
                 start_epoch = load_epoch+1
                 
-    
         visualizer = CycleGANVisualizer(self.config)    # create a visualizer that display/save images and plots
         total_iters = 0     # the total number of training iterations
         for epoch in range(start_epoch, self.config.n_epochs + self.config.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
