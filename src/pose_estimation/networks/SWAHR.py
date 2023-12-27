@@ -173,7 +173,7 @@ class SWAHR():
                             loss[f"stage{idx}-{key}"] = heatmaps_loss_meter[idx].val
                         visualizer.plot_current_losses(f"{key} loss over time", key, epoch, i/iters_per_epoch, loss)
                     
-                    for scale_idx in range(min(3, len(outputs))):
+                    for scale_idx in range(len(outputs)):
                         prefix_scale = f"train_output_{self.config.DATASET.OUTPUT_SIZE[scale_idx]}"
                         num_joints = self.config.DATASET.NUM_JOINTS
                         batch_pred_heatmaps = outputs[scale_idx][:, :num_joints, :, :]

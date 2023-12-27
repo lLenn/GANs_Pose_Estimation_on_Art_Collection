@@ -71,7 +71,7 @@ class SWAHRVisualizer():
         map_width = batch_maps.size(3)
         
         grid = np.empty((0, map_height, (num_joints+1)*map_width, 3))
-        for i in range(batch_size):
+        for i in range(min(3, batch_size)):
             image = batch_image[i].mul(255).clamp(0, 255).byte().permute(1, 2, 0).cpu().numpy()
 
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
