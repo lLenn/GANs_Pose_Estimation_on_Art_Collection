@@ -181,11 +181,11 @@ class SWAHR():
                         batch_pred_tagmaps = outputs[scale_idx][:, num_joints:, :, :]
 
                         if self.config.DEBUG.SAVE_HEATMAPS_GT and heatmaps[scale_idx] is not None:
-                            visualizer.display_current_results(f'{prefix_scale}_hm_gt.jpg', visualizer.save_batch_maps(images, heatmaps[scale_idx], masks[scale_idx], 'heatmap'), num_joints+1)
+                            visualizer.display_current_results(f'{prefix_scale}_hm_gt.jpg', visualizer.save_batch_maps(images, heatmaps[scale_idx], masks[scale_idx], 'heatmap'), 1)
                         if self.config.DEBUG.SAVE_HEATMAPS_PRED:
-                            visualizer.display_current_results(f'{prefix_scale}_hm_pred.jpg', visualizer.save_batch_maps(images, batch_pred_heatmaps, masks[scale_idx], 'heatmap'), num_joints+1)
+                            visualizer.display_current_results(f'{prefix_scale}_hm_pred.jpg', visualizer.save_batch_maps(images, batch_pred_heatmaps, masks[scale_idx], 'heatmap'), 1)
                         if self.config.DEBUG.SAVE_TAGMAPS_PRED:
-                            visualizer.display_current_results(f'{prefix_scale}_tag_pred.jpg', visualizer.save_batch_maps(images, batch_pred_tagmaps, masks[scale_idx], 'tagmap'), num_joints+1)
+                            visualizer.display_current_results(f'{prefix_scale}_tag_pred.jpg', visualizer.save_batch_maps(images, batch_pred_tagmaps, masks[scale_idx], 'tagmap'), 1)
 
                     visualizer.save()
                     
