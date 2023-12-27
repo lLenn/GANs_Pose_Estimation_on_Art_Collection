@@ -10,7 +10,7 @@ def main(name, gpu, batch_size, num_workers, config_file, annotation_file, log_d
     config = SWAHRConfig.create(config_file, [])
     config.defrost()
     config.WORLD_SIZE = 1
-    config.PRINT_FREQ = 1000
+    config.PRINT_FREQ = 100
     config.SAVE_FREQ = 1
     config.LOG_DIR = log_dir
     config.TRAIN.SAVE_NO = 2
@@ -23,7 +23,7 @@ def main(name, gpu, batch_size, num_workers, config_file, annotation_file, log_d
     config.VISDOM.ENV = "swahr_" + name
     config.freeze()
     SWAHRConfig.configureEnvironment(config)
-    network = SWAHR(config)
+    network = SWAHR(name, config)
 
     if gpu is not None:
         print("Use GPU: {} for training".format(gpu))

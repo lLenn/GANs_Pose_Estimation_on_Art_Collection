@@ -15,7 +15,8 @@ from SWAHR.utils.utils import get_model_summary, get_optimizer, AverageMeter
 from .SWAHRVisualizer import SWAHRVisualizer
 
 class SWAHR():
-    def __init__(self, config):        
+    def __init__(self, name, config):        
+        self.name = name
         self.model = PoseHigherResolutionNet(config)
         self.config = config
         self.transforms = transforms.Compose(
@@ -37,7 +38,7 @@ class SWAHR():
         if len(self.savedFiles) == self.savedFiles.maxlen:
             os.remove(self.savedFiles.popleft())
                    
-        file = os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{epoch}") 
+        file = os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{self.name}_{epoch}") 
         torch.save(self.model.cpu().state_dict(), file)
         self.savedFiles.append(file)
         self.model.cuda()
@@ -65,7 +66,7 @@ class SWAHR():
             if not len(model_list) == 0:
                 model_list.sort()
                 load_epoch = int(os.path.split(model_list[-1])[1].split('_')[0])
-                self.loadModel(os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{load_epoch}"))
+                self.loadModel(os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{self.name}_{load_epoch}"))
                 start_epoch = load_epoch+1
                  
         dump_input = torch.rand((1, 3, self.config.DATASET.INPUT_SIZE, self.config.DATASET.INPUT_SIZE))
