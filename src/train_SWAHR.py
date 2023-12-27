@@ -6,18 +6,21 @@ from torch.utils.data import DataLoader
 from pose_estimation.datasets import ArtPoseKeypoints
 from pose_estimation.networks import SWAHR, SWAHRConfig
 
-def main(gpu, batch_size, num_workers, config_file, annotation_file, log_dir, logger):
+def main(name, gpu, batch_size, num_workers, config_file, annotation_file, log_dir, logger):
     config = SWAHRConfig.create(config_file, [])
     config.defrost()
     config.WORLD_SIZE = 1
-    config.TRAIN.SAVE_NO = 2
-    config.PRINT_FREQ = 1
+    config.PRINT_FREQ = 1000
     config.SAVE_FREQ = 1
     config.LOG_DIR = log_dir
+    config.TRAIN.SAVE_NO = 2
     config.TRAIN.RESUME = True
+    config.TRAIN.END_EPOCH = 300
     config.TRAIN.CHECKPOINT = "../../Models/swahr/checkpoints"
-    config.DATASET.ROOT = "../../Datasets/custom/coco_annotations_small"
-    config.TRAIN.END_EPOCH = 2
+    config.DATASET.ROOT = "../../Datasets/coco"
+    config.VISDOM.NAME = name + " swahr"
+    config.VISDOM.SERVER = "http://116.203.134.130"
+    config.VISDOM.ENV = "swahr_" + name
     config.freeze()
     SWAHRConfig.configureEnvironment(config)
     network = SWAHR(config)
@@ -39,6 +42,7 @@ def main(gpu, batch_size, num_workers, config_file, annotation_file, log_dir, lo
 
 if __name__ == '__main__':        
     parser = argparse.ArgumentParser()
+    parser.add_argument('--name', type=str, default="", help='The name of the training')
     parser.add_argument('--gpu_id', type=int, default=0, help='GPU to use')
     parser.add_argument('--batch_size', type=int, default=1, help='The batch size to use')
     parser.add_argument('--num_workers', type=int, default=1, help='The number of workers for the dataloader')
@@ -59,4 +63,4 @@ if __name__ == '__main__':
     else:
         logger = None
         
-    main(args.gpu_id, args.batch_size, args.num_workers, args.config_file, args.annotation_file, args.log, logger)
+    main(args.name, args.gpu_id, args.batch_size, args.num_workers, args.config_file, args.annotation_file, args.log, logger)

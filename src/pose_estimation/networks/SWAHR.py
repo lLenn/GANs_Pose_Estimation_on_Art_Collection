@@ -173,18 +173,18 @@ class SWAHR():
                             loss[f"stage{idx}-{key}"] = heatmaps_loss_meter[idx].val
                         visualizer.plot_current_losses(f"{key} loss over time", key, epoch, i/iters_per_epoch, loss)
                     
-                    for scale_idx in range(len(outputs)):
+                    for scale_idx in range(min(3, len(outputs))):
                         prefix_scale = f"train_output_{self.config.DATASET.OUTPUT_SIZE[scale_idx]}"
                         num_joints = self.config.DATASET.NUM_JOINTS
                         batch_pred_heatmaps = outputs[scale_idx][:, :num_joints, :, :]
                         batch_pred_tagmaps = outputs[scale_idx][:, num_joints:, :, :]
 
                         if self.config.DEBUG.SAVE_HEATMAPS_GT and heatmaps[scale_idx] is not None:
-                            visualizer.display_current_results(f'{prefix_scale}_hm_gt.jpg', visualizer.save_batch_maps(images, heatmaps[scale_idx], masks[scale_idx], 'heatmap'), len(images))
+                            visualizer.display_current_results(f'{prefix_scale}_hm_gt.jpg', visualizer.save_batch_maps(images, heatmaps[scale_idx], masks[scale_idx], 'heatmap'), num_joints+1)
                         if self.config.DEBUG.SAVE_HEATMAPS_PRED:
-                            visualizer.display_current_results(f'{prefix_scale}_hm_pred.jpg', visualizer.save_batch_maps(images, batch_pred_heatmaps, masks[scale_idx], 'heatmap'), len(images))
+                            visualizer.display_current_results(f'{prefix_scale}_hm_pred.jpg', visualizer.save_batch_maps(images, batch_pred_heatmaps, masks[scale_idx], 'heatmap'), num_joints+1)
                         if self.config.DEBUG.SAVE_TAGMAPS_PRED:
-                            visualizer.display_current_results(f'{prefix_scale}_tag_pred.jpg', visualizer.save_batch_maps(images, batch_pred_tagmaps, masks[scale_idx], 'tagmap'), len(images))
+                            visualizer.display_current_results(f'{prefix_scale}_tag_pred.jpg', visualizer.save_batch_maps(images, batch_pred_tagmaps, masks[scale_idx], 'tagmap'), num_joints+1)
 
                     visualizer.save()
                     
