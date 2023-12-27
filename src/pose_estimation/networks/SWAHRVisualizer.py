@@ -63,7 +63,7 @@ class SWAHRVisualizer():
             batch_image = batch_image.clone()
             min_val = float(batch_image.min())
             max_val = float(batch_image.max())
-            batch_image.add_(-min).div_(max_val - min_val + 1e-5)
+            batch_image.add_(-min_val).div_(max_val - min_val + 1e-5)
 
         batch_size = batch_maps.size(0)
         num_joints = batch_maps.size(1)
