@@ -61,9 +61,9 @@ class SWAHRVisualizer():
     def save_batch_maps(self, batch_image, batch_maps, batch_mask, map_type='heatmap', normalize=True):
         if normalize:
             batch_image = batch_image.clone()
-            min = float(batch_image.min())
-            max = float(batch_image.max())
-            batch_image.add_(-min).div_(max - min + 1e-5)
+            min_val = float(batch_image.min())
+            max_val = float(batch_image.max())
+            batch_image.add_(-min).div_(max_val - min_val + 1e-5)
 
         batch_size = batch_maps.size(0)
         num_joints = batch_maps.size(1)
