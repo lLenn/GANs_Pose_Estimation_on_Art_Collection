@@ -34,7 +34,7 @@ class SWAHRVisualizer():
                 'title': title,
                 'legend': losKeys,
                 'xlabel': 'epoch',
-                'ylabel': 'loss'
+                'ylabel': 'loss',
                 'ytype': 'log'
             },
             win=f"{name}_loss",
