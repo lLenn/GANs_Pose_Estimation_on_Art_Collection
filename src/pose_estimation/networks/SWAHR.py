@@ -73,7 +73,8 @@ class SWAHR():
         dump_input = torch.rand((1, 3, self.config.DATASET.INPUT_SIZE, self.config.DATASET.INPUT_SIZE))
         logger.info(get_model_summary(self.model, dump_input, verbose=self.config.VERBOSE))
 
-        visualizer = SWAHRVisualizer(self.config)
+        if rank == 0:
+            visualizer = SWAHRVisualizer(self.config)
 
         # define loss function (criterion) and optimizer
         if world_size == 1:
