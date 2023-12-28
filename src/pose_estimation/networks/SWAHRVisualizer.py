@@ -85,6 +85,8 @@ class SWAHRVisualizer():
             if batch_mask is not None:
                 mask = np.expand_dims(batch_mask[i].byte().cpu().numpy(), -1)
                 image_with_hms[:, :map_width, :] = image_with_hms[:, :map_width, :] * mask
+                
+            image_with_hms = cv2.cvtColor(image_with_hms, cv2.COLOR_BGR2RGB)
             grid = np.append(grid, [image_with_hms], axis=0)
             
         return grid       
