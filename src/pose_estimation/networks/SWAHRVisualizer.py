@@ -35,6 +35,7 @@ class SWAHRVisualizer():
                 'legend': losKeys,
                 'xlabel': 'epoch',
                 'ylabel': 'loss'
+                'ytype': 'log'
             },
             win=f"{name}_loss",
             update='append'
