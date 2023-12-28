@@ -5,6 +5,7 @@ from glob import glob
 from utils import isArrayLike
 from collections import deque
 from tqdm import tqdm
+from torch.nn.parallel import DistributedDataParallel
 from SWAHR.models.pose_higher_hrnet import PoseHigherResolutionNet
 from SWAHR.core.group import HeatmapParser
 from SWAHR.core.inference import get_multi_stage_outputs, aggregate_results
@@ -55,7 +56,7 @@ class SWAHR():
     def preprocess(self):
         pass
     
-    def train(self, dataloader, logger):
+    def train(self, rank, world_size, dataloader, logger):
         dataset_size = len(dataloader.dataset)
         if self.config.VERBOSE:
             logger.info('The number of training images = %d' % dataset_size)
@@ -75,7 +76,10 @@ class SWAHR():
         visualizer = SWAHRVisualizer(self.config)
 
         # define loss function (criterion) and optimizer
-        model = torch.nn.DataParallel(self.model).cuda()
+        if world_size == 1:
+            model = torch.nn.DataParallel(self.model).cuda()
+        else:
+            model = DistributedDataParallel(slef.model, device_ids=[rank])
         loss_factory = MultiLossFactory(self.config).cuda()
         optimizer = get_optimizer(self.config, model)
 
@@ -87,6 +91,8 @@ class SWAHR():
         initial_lr = self.config.TRAIN.LR
         
         for epoch in range(start_epoch, end_epoch):
+            dataloader.sampler.set_epoch(epoch)
+            
             batch_time = AverageMeter()
             data_time = AverageMeter()
 
@@ -159,7 +165,7 @@ class SWAHR():
                 batch_time.update(time.time() - end)
                 end = time.time()
 
-                if i % self.config.PRINT_FREQ == 0:
+                if rank == 0 and i % self.config.PRINT_FREQ == 0:
                     losses = {
                         "heatmaps": heatmaps_loss_meter,
                         "scale": scale_loss_meter,
@@ -189,7 +195,7 @@ class SWAHR():
 
                     visualizer.save()
                     
-            if epoch % self.config.SAVE_FREQ == 0:
+            if rank == 0 and epoch % self.config.SAVE_FREQ == 0:
                 self.saveModel(epoch)
     
     def infer(self, gpuIds, image):
