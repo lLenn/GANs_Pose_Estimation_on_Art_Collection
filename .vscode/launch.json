@@ -46,8 +46,8 @@
             "request": "launch",
             "program": "./src/train_SWAHR.py",
             "args": [
-                "--gpu_id",
-                "0",
+                "--name",
+                "styled",
                 "--batch_size",
                 "1",
                 "--num_workers",
@@ -57,7 +57,7 @@
                 "--config_file",
                 "src/pose_estimation/config/w48_640_train.yaml",
                 "--annotation_file",
-                "person_keypoints_styled_train_mixed.json"
+                "person_keypoints_train2017.json"
             ],
             "console": "integratedTerminal",
             "justMyCode": false

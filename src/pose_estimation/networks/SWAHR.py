@@ -30,16 +30,14 @@ class SWAHR():
         )
         self.heatmapParser = HeatmapParser(self.config)
         
-        maxlen = 1
-        if hasattr(config, "SAVE_NO"):
-            maxlen = (None if config.SAVE_NO<0 else config.SAVE_NO)
+        maxlen = (None if config.TRAIN.SAVE_NO<0 else config.TRAIN.SAVE_NO)
         self.savedFiles = deque(maxlen = maxlen)
     
     def saveModel(self, epoch):
         if len(self.savedFiles) == self.savedFiles.maxlen:
             os.remove(self.savedFiles.popleft())
                    
-        file = os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{self.name}_{epoch}") 
+        file = os.path.join(self.config.TRAIN.CHECKPOINT, f"{epoch}_pose_higher_hrnet_{self.name}.pth") 
         torch.save(self.model.cpu().state_dict(), file)
         self.savedFiles.append(file)
         self.model.cuda()
@@ -63,12 +61,12 @@ class SWAHR():
     
         start_epoch = self.config.TRAIN.BEGIN_EPOCH
         if self.config.TRAIN.RESUME:
-            model_list = glob(os.path.join(self.config.TRAIN.CHECKPOINT, '*.pth'))
+            model_list = glob(os.path.join(self.config.TRAIN.CHECKPOINT, f"*_pose_higher_hrnet_{self.name}.pth"))
             if not len(model_list) == 0:
                 model_list.sort()
                 load_epoch = int(os.path.split(model_list[-1])[1].split('_')[0])
-                self.loadModel(os.path.join(self.config.TRAIN.CHECKPOINT, f"pose_higher_hrnet_{self.name}_{load_epoch}"))
-                start_epoch = load_epoch+1
+                self.loadModel(os.path.join(self.config.TRAIN.CHECKPOINT, f"{load_epoch}_pose_higher_hrnet_{self.name}.pth"))
+                start_epoch = load_epoch
                  
         dump_input = torch.rand((1, 3, self.config.DATASET.INPUT_SIZE, self.config.DATASET.INPUT_SIZE))
         logger.info(get_model_summary(self.model, dump_input, verbose=self.config.VERBOSE))
@@ -93,7 +91,8 @@ class SWAHR():
         initial_lr = self.config.TRAIN.LR
         
         for epoch in range(start_epoch, end_epoch):
-            dataloader.sampler.set_epoch(epoch)
+            if world_size > 1:
+                dataloader.sampler.set_epoch(epoch)
             
             batch_time = AverageMeter()
             data_time = AverageMeter()
@@ -198,7 +197,7 @@ class SWAHR():
                     visualizer.save()
                     
             if rank == 0 and epoch % self.config.SAVE_FREQ == 0:
-                self.saveModel(epoch)
+                self.saveModel(epoch+1)
     
     def infer(self, gpuIds, image):
         gpuIds if isArrayLike(gpuIds) else [gpuIds]

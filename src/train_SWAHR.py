@@ -21,16 +21,16 @@ def main(rank, world_size, name, batch_size, num_workers, config_file, annotatio
     config.defrost()
     config.RANK = rank
     config.WORLD_SIZE = 1
-    config.PRINT_FREQ = 100
+    config.PRINT_FREQ = 1
     config.SAVE_FREQ = 1
     config.LOG_DIR = log_dir
     config.TRAIN.SAVE_NO = 2
     config.TRAIN.RESUME = True
-    config.TRAIN.END_EPOCH = 300
+    config.TRAIN.END_EPOCH = 5
     config.TRAIN.CHECKPOINT = "../../Models/swahr/checkpoints"
-    config.DATASET.ROOT = "../../Datasets/coco"
+    config.DATASET.ROOT = "../../Datasets/custom/coco_annotations_small"
     config.VISDOM.NAME = name + " swahr"
-    config.VISDOM.SERVER = "http://116.203.134.130"
+    config.VISDOM.SERVER = "http://localhost"
     config.VISDOM.ENV = "swahr_" + name
     config.freeze()
     SWAHRConfig.configureEnvironment(config)
