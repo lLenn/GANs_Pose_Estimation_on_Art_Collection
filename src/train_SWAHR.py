@@ -19,6 +19,7 @@ def main(rank, world_size, name, batch_size, num_workers, config_file, annotatio
     
     config = SWAHRConfig.create(config_file, [])
     config.defrost()
+    config.RANK = rank
     config.WORLD_SIZE = 1
     config.PRINT_FREQ = 100
     config.SAVE_FREQ = 1

@@ -77,9 +77,10 @@ class SWAHR():
 
         # define loss function (criterion) and optimizer
         if world_size == 1:
-            model = torch.nn.DataParallel(self.model).cuda()
+            model = torch.nn.DataParallel(self.model).cuda(rank)
         else:
-            model = DistributedDataParallel(slef.model, device_ids=[rank])
+            self.model.cuda(rank)
+            model = DistributedDataParallel(self.model, device_ids=[rank])
         loss_factory = MultiLossFactory(self.config).cuda()
         optimizer = get_optimizer(self.config, model)
 
