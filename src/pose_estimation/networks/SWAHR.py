@@ -165,7 +165,7 @@ class SWAHR():
                 batch_time.update(time.time() - end)
                 end = time.time()
 
-                if rank == 0 and i % self.config.PRINT_FREQ == 0:
+                if rank == 0 and (i+1) % self.config.PRINT_FREQ == 0:
                     losses = {
                         "heatmaps": heatmaps_loss_meter,
                         "scale": scale_loss_meter,
@@ -195,7 +195,7 @@ class SWAHR():
 
                     visualizer.save()
                     
-            if rank == 0 and epoch % self.config.SAVE_FREQ == 0:
+            if rank == 0 and (epoch+1) % self.config.SAVE_FREQ == 0:
                 self.saveModel(epoch+1)
     
     def infer(self, gpuIds, image):
