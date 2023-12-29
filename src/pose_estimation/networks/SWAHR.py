@@ -88,6 +88,7 @@ class SWAHR():
         warm_up_iters = warm_up_epoch * iters_per_epoch
         train_iters = (end_epoch - warm_up_epoch) * iters_per_epoch
         initial_lr = self.config.TRAIN.LR
+        total_iter = start_epoch * dataset_size
         
         for epoch in range(start_epoch, end_epoch):
             if world_size > 1:
@@ -108,6 +109,7 @@ class SWAHR():
             for i, (images, heatmaps, masks, joints) in tqdm(enumerate(dataloader)):
                 # measure data loading time
                 data_time.update(time.time() - end)
+                total_iter += i
 
                 # compute output
                 outputs = model(images)
@@ -165,7 +167,7 @@ class SWAHR():
                 batch_time.update(time.time() - end)
                 end = time.time()
 
-                if rank == 0 and (i+1) % self.config.PRINT_FREQ == 0:
+                if rank == 0 and (total_iter+1) % self.config.PRINT_FREQ == 0:
                     losses = {
                         "heatmaps": heatmaps_loss_meter,
                         "scale": scale_loss_meter,
