@@ -38,9 +38,8 @@ class SWAHR():
             os.remove(self.savedFiles.popleft())
                    
         file = os.path.join(self.config.TRAIN.CHECKPOINT, f"{epoch}_pose_higher_hrnet_{self.name}.pth") 
-        torch.save(self.model.cpu().state_dict(), file)
+        torch.save(self.model.state_dict(), file)
         self.savedFiles.append(file)
-        self.model.cuda()
         
     def loadModel(self, file = None, isTrain = False):
         if file == None:
