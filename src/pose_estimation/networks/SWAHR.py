@@ -109,7 +109,7 @@ class SWAHR():
             for i, (images, heatmaps, masks, joints) in tqdm(enumerate(dataloader)):
                 # measure data loading time
                 data_time.update(time.time() - end)
-                total_iter += i
+                total_iter += 1
 
                 # compute output
                 outputs = model(images)
