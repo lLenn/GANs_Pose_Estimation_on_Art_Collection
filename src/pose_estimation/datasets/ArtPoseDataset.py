@@ -2,7 +2,7 @@ import os
 from SWAHR.dataset.COCODataset import CocoDataset
 
 class ArtPoseDataset(CocoDataset):
-    def __init__(self, root, dataset, file, data_format, transform=None, target_transform=None):
+    def __init__(self, root, dataset, file):
         self.file = file
         super().__init__(root, dataset, "jpg")
             

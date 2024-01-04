@@ -48,6 +48,8 @@ Should it be an image from the style we're trying to transform to?
 The only images that yielded similar persons with different poses were when we queried an image with sports, like tennis.
 Maybe an "instance image retrieval" algorithm is not the right algorithm? We could maybe get better results with a "category retrieval algorithm"?
 
+I removed masking from the COCO dataset which was a mistake. 
+
 \section{Pose Estimation after Applying Style Transfer to the COCO Dataset}
 \label{sec:baseline_coco_style_transfer}
 
@@ -120,6 +122,10 @@ This could be because of my dataset, but it can also be that paintings aren't as
 
 The dataset could have more images, but just not more paintings, but also more different faces and angles of the body, etc, positioned all over the image.
 Also examine how the perception field works, like how does it actually work?
+
+Style transfer encoders lose data, one should wonder then whether this is actually a good approach.
+Should there instead be more information "encoded" then is visible on the image.
+The network should basically be able to render the "content" in 3d.
 
 \section{Discussion}
 \label{sec:baseline_discussion}

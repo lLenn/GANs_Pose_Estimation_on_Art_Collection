@@ -2,7 +2,7 @@
 python -m pip install --upgrade pip
 
 # Install PyTorch
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 
 # Create tmp folder for install
 if(-Not (Test-Path -Path lib)) {

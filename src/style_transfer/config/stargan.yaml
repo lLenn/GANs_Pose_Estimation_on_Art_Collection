@@ -1,7 +1,7 @@
  # model arguments
 device: cuda
 img_size: 256 # Image resolution
-num_domains: 3  # Number of domains
+num_domains: 4  # Number of domains
 latent_dim: 16  # Latent vector dimension
 hidden_dim: 512  # Hidden dimension of mapping network
 style_dim: 64  # Style code dimension

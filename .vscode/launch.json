@@ -63,6 +63,44 @@
             "justMyCode": false
         },
         {
+            "name": "Python: Validate ViTPose",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/train_ViTPose.py",
+            "args": [
+                "--batch_size",
+                "1",
+                "--num_workers",
+                "4",
+                "--log",
+                ".output/logs",
+                "--config_file",
+                "src/pose_estimation/config/ViTPose_base_coco_256x192.py",
+                "--annotation_file",
+                "person_keypoints_val2017.json"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Infer ViTPose",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/train_ViTPose.py",
+            "args": [
+                "--model",
+                "../../Models/vitpose/vitpose-b.pth",
+                "--log",
+                ".output/logs",
+                "--config_file",
+                "src/pose_estimation/config/ViTPose_base_coco_256x192.py",
+                "--infer_file",
+                "../../Datasets/coco/images/val2017/000000000872.jpg"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "Python: Test UGATIT",
             "type": "python",
             "request": "launch",
