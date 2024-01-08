@@ -1,4 +1,4 @@
-from mmengine import Config
+from mmengine.config import Config
 
 class ViTPoseConfig():
     def create(file, options=dict()):

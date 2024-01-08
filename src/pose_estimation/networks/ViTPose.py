@@ -17,7 +17,9 @@ class ViTPose:
         self.savedFiles.append(file)
         
     def infer(self, rank, image):
+        # Add human detection
         self.model.cuda(rank)
         self.model.eval()
         with torch.no_grad():
-            return self.model(image)
+            heatmap = self.model(image, None, "tensor").detach().cpu().numpy()[0]
+            return self.model.head.decoder.decode(heatmap)

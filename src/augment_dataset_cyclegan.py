@@ -110,6 +110,7 @@ def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styled
             file_path_to = os.path.join(dataset.root, 'images', target, copiedMetadata["file_name"])
             if not os.path.exists(file_path_to):
                 image = cv2.imread(file_path_from, cv2.IMREAD_COLOR|cv2.IMREAD_IGNORE_ORIENTATION)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 image = transform(image).unsqueeze(0)
                 styledImage = style_transfer.photographicToArtistic(image).squeeze()
                 saveImage(file_path_to, styledImage)

@@ -89,13 +89,15 @@
             "program": "./src/train_ViTPose.py",
             "args": [
                 "--model",
-                "../../Models/vitpose/vitpose-b.pth",
+                "../../Models/vitpose/td-hm_ViTPose-base_8xb64-210e_coco-256x192-216eae50_20230314.pth",
                 "--log",
                 ".output/logs",
+                "--results_dir",
+                ".output/results",
                 "--config_file",
-                "src/pose_estimation/config/ViTPose_base_coco_256x192.py",
+                "src/pose_estimation/config/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
                 "--infer_file",
-                "../../Datasets/coco/images/val2017/000000000872.jpg"
+                "../../Datasets/custom/000000001407.png"
             ],
             "console": "integratedTerminal",
             "justMyCode": false
