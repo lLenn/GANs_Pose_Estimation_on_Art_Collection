@@ -195,10 +195,10 @@ class SWAHR():
                         if self.config.DEBUG.SAVE_TAGMAPS_PRED:
                             visualizer.display_current_results(f'{prefix_scale}_tag_pred.jpg', visualizer.save_batch_maps(images, batch_pred_tagmaps, masks[scale_idx], 'tagmap'), 1)
 
-                    visualizer.save()
                     
             if rank == 0 and (epoch+1) % self.config.SAVE_FREQ == 0:
                 self.saveModel(epoch+1)
+                visualizer.save()
     
     def infer(self, gpuIds, image):
         gpuIds if isArrayLike(gpuIds) else [gpuIds]

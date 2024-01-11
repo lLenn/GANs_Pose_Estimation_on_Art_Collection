@@ -71,13 +71,15 @@
                 "--batch_size",
                 "1",
                 "--num_workers",
-                "4",
+                "1",
+                "--model",
+                "../../Models/vitpose/td-hm_ViTPose-base_8xb64-210e_coco-256x192-216eae50_20230314.pth",
                 "--log",
                 ".output/logs",
                 "--config_file",
-                "src/pose_estimation/config/ViTPose_base_coco_256x192.py",
+                "src/pose_estimation/config/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
                 "--annotation_file",
-                "person_keypoints_val2017.json"
+                "HumanArt/annotations/test_humanart_oil_painting.json"
             ],
             "console": "integratedTerminal",
             "justMyCode": false

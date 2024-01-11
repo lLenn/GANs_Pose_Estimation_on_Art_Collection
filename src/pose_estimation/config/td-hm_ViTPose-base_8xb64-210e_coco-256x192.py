@@ -89,8 +89,8 @@ model = dict(
     ))
 
 # base dataset settings
-data_root = 'data/coco/'
-dataset_type = 'CocoDataset'
+data_root = '../../Datasets/'
+dataset_type = 'HumanArtDataset'
 data_mode = 'topdown'
 
 # pipelines
@@ -121,8 +121,7 @@ train_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_mode=data_mode,
-        ann_file='annotations/person_keypoints_train2017.json',
-        data_prefix=dict(img='train2017/'),
+        ann_file='HumanArt/annotations/test_humanart_oil_painting.json',
         pipeline=train_pipeline,
     ))
 val_dataloader = dict(
@@ -135,10 +134,7 @@ val_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_mode=data_mode,
-        ann_file='annotations/person_keypoints_val2017.json',
-        bbox_file='data/coco/person_detection_results/'
-        'COCO_val2017_detections_AP_H_56_person.json',
-        data_prefix=dict(img='val2017/'),
+        ann_file='HumanArt/annotations/test_humanart_oil_painting.json',
         test_mode=True,
         pipeline=val_pipeline,
     ))
@@ -147,5 +143,5 @@ test_dataloader = val_dataloader
 # evaluators
 val_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root + 'annotations/person_keypoints_val2017.json')
+    ann_file=data_root + 'HumanArt/annotations/test_humanart_oil_painting.json')
 test_evaluator = val_evaluator

@@ -259,12 +259,10 @@ class UGATIT():
                     )
                     visualizer.display_current_results(visuals)
                     self.model.genA2B.train(), self.model.genB2A.train(), self.model.disGA.train(), self.model.disGB.train(), self.model.disLA.train(), self.model.disLB.train()
-
-                if total_iter % self.model.log_freq == 0 or total_iter % self.model.print_freq == 0:
-                    visualizer.save()
                 
                 if total_iter % self.model.save_freq == 0:
                     self._save(epoch, iter)
+                    visualizer.save()
 
             print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, self.config.epoch, time.time() - epoch_start_time))
      

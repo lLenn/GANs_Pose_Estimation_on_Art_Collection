@@ -225,13 +225,11 @@ class StarGAN():
                 nets_ema.generator.train()
                 nets_ema.style_encoder.train()
                 nets_ema.mapping_network.train()
-                
-            if (step+1) % args.sample_every == 0 or (step+1) % args.print_every == 0:
-                visualizer.save()
 
             # save model checkpoints
             if (step+1) % args.save_every == 0:
                 self.saveModel(step+1)
+                visualizer.save()
 
             # compute FID and LPIPS if necessary
             if (step+1) % args.eval_every == 0:

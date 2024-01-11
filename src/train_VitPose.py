@@ -3,77 +3,98 @@ import argparse
 import torch
 import cv2
 import torch.multiprocessing as mp
-import mmcv
-import mmpose.datasets.transforms
 import numpy as np
-from mmengine.structures import InstanceData
-from mmengine.dataset import Compose, pseudo_collate
+import json
+from datetime import datetime
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
-from torchvision.transforms import transforms
-from pose_estimation.datasets import ArtPoseDataset
+from torch.distributed import init_process_group, destroy_process_group
+from mmpose.datasets.datasets.body.humanart_dataset import HumanArtDataset
+from mmengine.evaluator.evaluator import Evaluator
+from mmpose.evaluation.metrics.coco_metric import CocoMetric
+from mmengine.dataset.utils import pseudo_collate
 from pose_estimation.networks import ViTPose, ViTPoseConfig, ViTPoseVisualizer
-from mmpose.datasets.datasets.utils import parse_pose_metainfo
-import mmpose.datasets.datasets
-from mmpose.registry import DATASETS
 
-def infer(gpu, model_path, image_path, log, results_dir, config_file):
+def main(parser_args):
+    world_size = torch.cuda.device_count()
+    
+    method = validate
+    args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file)
+   
+    '''
+    method = infer
+    args = (world_size, parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
+    post_process = None
+    '''
+    
+    if world_size > 1:
+        mp.spawn(method, args, nprocs=world_size, join=False)
+    else:
+        method(0, *args)
+
+def init_distributed(rank, world_size):
+    if world_size > 1:
+        os.environ["MASTER_ADDR"] = "localhost"
+        os.environ["MASTER_PORT"] = "12355"
+        init_process_group(backend="nccl", rank=rank, world_size=world_size)
+        torch.cuda.set_device(rank) 
+
+def close_distributed(rank, world_size):
+    if world_size > 1:
+        destroy_process_group()
+
+def infer(gpu, model_path, image_path, log, results_dir, config_file):    
     config = ViTPoseConfig.create(config_file)
     config.model.backbone.init_cfg = None
     model = ViTPose(config)
     model.loadModel(model_path)
     
-    '''
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        # transforms.Resize((192, 256)),
-        transforms.Normalize(mean=(123.675, 116.28, 103.53), std=(58.395, 57.12, 57.375))
-    ])
-    
-    transformed_image = transform(image).cuda(gpu).unsqueeze(0)
-    keypoints, scores = model.infer(gpu, transformed_image)
-    instance = InstanceData(keypoints=keypoints, keypoint_scores=scores)
-    '''
-    dataset_meta = parse_pose_metainfo(DATASETS.get(config.val_dataloader.dataset.type).METAINFO)
-    
-    image = mmcv.imread(image_path, channel_order='rgb')
     h, w = image.shape[:2]
-    bboxes = np.array([[0, 0, w, h]], dtype=np.float32)
+    bbox = np.array([0, 0, w, h], dtype=np.float32)
     
-    data_list = []
-    pipeline = Compose(config.val_pipeline)
-    data_info = dict(img_path=image_path, bbox=bboxes)
-    data_info['bbox_score'] = np.ones(1, dtype=np.float32)  # shape (1,)
-    data_info.update(dataset_meta)
-    data_list.append(pipeline(data_info))
-    data_samples = model.model.test_step(pseudo_collate(data_list))
+    pred_instances = model.infer(gpu, image, bbox)
     
     visualizer = ViTPoseVisualizer(log, config.visdom)
-    prediction_image = visualizer.draw_predictions(image, data_samples[0].pred_instances)
+    prediction_image = visualizer.draw_predictions(image, pred_instances)
     prediction_image = cv2.cvtColor(prediction_image, cv2.COLOR_RGB2BGR)
     cv2.imwrite(os.path.join(results_dir, "vit_inference.png"), prediction_image)
 
-def validate(gpu, world_size, batch_size, num_workers, log, config_file, annotation_file):
-    config = ViTPoseConfig.create(config_file)
-    config.model.pretrained = None
-    config.data.test.test_mode = True
-    config.work_dir = log
-    model = ViTPose(config)
+def validate(rank, world_size, batch_size, num_workers, model_path, log, config_file, annotation_file):
+    init_distributed(rank, world_size)
     
-    dataset = ArtPoseDataset("../../Datasets/coco", "coco", "person_keypoints_val2017")
+    config = ViTPoseConfig.create(config_file)
+    config.model.backbone.init_cfg = None
+    model = ViTPose(config)
+    model.loadModel(model_path)
+    
+    dataset = HumanArtDataset(annotation_file, data_root="../../Datasets/", pipeline=config.val_pipeline, test_mode=True)
     dataloader = DataLoader(
         dataset,
         batch_size=batch_size,
-        shuffle=True if world_size == 1 else False,
+        shuffle=False,
         num_workers=num_workers,
-        pin_memory=config.data.pin_memory,
-        sampler=None if world_size == 1 else DistributedSampler(dataset)
+        persistent_workers=True,
+        pin_memory=True,    
+        drop_last=False,
+        sampler=None if world_size == 1 else DistributedSampler(dataset),
+        collate_fn=pseudo_collate
     )
     
-
+    # visualizer = ViTPoseVisualizer(log, config.visdom)
+    # visualizer.dataset_meta = datset.metainfo
+    prefix = os.path.splitext(os.path.basename(annotation_file))[0]
+    evaluator = Evaluator(CocoMetric(os.path.join("../../Datasets/", annotation_file), prefix=False))
+    evaluator.dataset_meta = dataset.metainfo
+    metrics = model.validate(rank, world_size, dataloader, evaluator)
+    
+    if rank == 0:
+        json.dump(metrics, open(os.path.join(log, f"metrics_vitpose_{prefix}_{datetime.strftime(datetime.now(), '%Y-%m-%d-%H-%M')}.json"), 'w'))
+    
+    close_distributed(rank, world_size)
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=1, help='The batch size to use')
@@ -86,17 +107,4 @@ if __name__ == '__main__':
     parser.add_argument('--annotation_file', type=str, default="", help='File of the annotations')
     parser_args = parser.parse_args()
     
-    world_size = torch.cuda.device_count()
-    
-    '''
-    method = validate
-    args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.log, parser_args.config_file, parser_args.annotation_file)
-    '''
-    
-    method = infer
-    args = (parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
-    
-    if world_size > 1:
-        mp.spawn(method, args, nprocs=world_size)
-    else:
-        method(0, *args)
+    main(parser_args)

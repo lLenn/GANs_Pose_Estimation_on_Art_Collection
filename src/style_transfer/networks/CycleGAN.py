@@ -128,13 +128,13 @@ class CycleGAN:
                     
                 if total_iters % self.config.display_freq == 0 or total_iters % self.config.print_freq == 0:
                     print("save")
-                    visualizer.save()
 
                 iter_data_time = time.time()
                 
             if epoch % self.config.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
                 print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
                 self.save_networks(epoch)
+                visualizer.save()
 
             print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, self.config.n_epochs + self.config.n_epochs_decay, time.time() - epoch_start_time))
     
