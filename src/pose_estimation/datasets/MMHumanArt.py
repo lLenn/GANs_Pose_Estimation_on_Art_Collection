@@ -3,5 +3,5 @@ from mmpose.registry import DATASETS
 from mmpose.datasets.datasets.base import BaseCocoStyleDataset
 
 
-class HumanArtDataset(BaseCocoStyleDataset):
+class MMHumanArtDataset(BaseCocoStyleDataset):
     METAINFO: dict = dict(from_file='src/pose_estimation/config/humanart.py')

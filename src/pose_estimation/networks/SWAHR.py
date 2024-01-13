@@ -49,9 +49,6 @@ class SWAHR():
                 file = self.config.TEST.MODEL_FILE
         self.model.load_state_dict(torch.load(file), strict=True)
         self.savedFiles.append(file)
-        
-    def preprocess(self):
-        pass
     
     def train(self, rank, world_size, dataloader, logger):
         dataset_size = len(dataloader.dataset)

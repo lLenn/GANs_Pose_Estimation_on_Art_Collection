@@ -9,17 +9,18 @@ from datetime import datetime
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from torch.distributed import init_process_group, destroy_process_group
-from mmpose.datasets.datasets.body.humanart_dataset import HumanArtDataset
+from mmpose.datasets.datasets.body import HumanArtDataset
 from mmengine.evaluator.evaluator import Evaluator
 from mmpose.evaluation.metrics.coco_metric import CocoMetric
 from mmengine.dataset.utils import pseudo_collate
 from pose_estimation.networks import ViTPose, ViTPoseConfig, ViTPoseVisualizer
+from pose_estimation.datasets import MMArtPoseDataset
 
 def main(parser_args):
     world_size = torch.cuda.device_count()
     
     method = validate
-    args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file)
+    args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.data_root, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file)
    
     '''
     method = infer
@@ -62,7 +63,7 @@ def infer(gpu, model_path, image_path, log, results_dir, config_file):
     prediction_image = cv2.cvtColor(prediction_image, cv2.COLOR_RGB2BGR)
     cv2.imwrite(os.path.join(results_dir, "vit_inference.png"), prediction_image)
 
-def validate(rank, world_size, batch_size, num_workers, model_path, log, config_file, annotation_file):
+def validate(rank, world_size, batch_size, num_workers, data_root, model_path, log, config_file, annotation_file):
     init_distributed(rank, world_size)
     
     config = ViTPoseConfig.create(config_file)
@@ -70,7 +71,7 @@ def validate(rank, world_size, batch_size, num_workers, model_path, log, config_
     model = ViTPose(config)
     model.loadModel(model_path)
     
-    dataset = HumanArtDataset(annotation_file, data_root="../../Datasets/", pipeline=config.val_pipeline, test_mode=True)
+    dataset = HumanArtDataset(annotation_file, data_root=data_root, pipeline=config.val_pipeline, test_mode=True)
     dataloader = DataLoader(
         dataset,
         batch_size=batch_size,
@@ -95,16 +96,53 @@ def validate(rank, world_size, batch_size, num_workers, model_path, log, config_
     
     close_distributed(rank, world_size)
     
+def train(rank, world_size, batch_size, num_workers, data_root, log, config_file, annotation_file):
+    if 'LOCAL_RANK' not in os.environ:
+        os.environ['LOCAL_RANK'] = str(rank)
+
+    
+    config = ViTPoseConfig.create(config_file)
+    config.visdom.name = "vitpose"
+    config.visdom.env = "test_vitpose"
+    config.work_dir = "../../Models/vitpose/checkpoints"
+    config.save_no = 2
+    config.resume = True
+    config.load_from = None    
+    config.auto_scale_lr.enable = True
+    model = ViTPose(config)
+    
+    dataset = MMArtPoseDataset(annotation_file, data_root=data_root, pipeline=config.train_pipeline, data_prefix=dict(img='train/'))
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        persistent_workers=True,
+        pin_memory=True,    
+        drop_last=False,
+        sampler=None if world_size == 1 else DistributedSampler(dataset),
+        collate_fn=pseudo_collate
+    )
+    
+    visualizer = ViTPoseVisualizer(log, config.visdom)
+    visualizer.dataset_meta = dataset.metainfo
+    
+    model.train(rank, world_size, dataloader, visualizer)
+    
+    close_distributed(rank, world_size)
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--name', type=str, default="", help='The name of the training')
     parser.add_argument('--batch_size', type=int, default=1, help='The batch size to use')
     parser.add_argument('--num_workers', type=int, default=1, help='The number of workers for the dataloader')
     parser.add_argument('--log', type=str, default="", help='Path to log dir')
+    parser.add_argument('--data_root', type=str, default="", help='The path to the data root')
     parser.add_argument('--results_dir', type=str, default="", help='Path to results dir')
     parser.add_argument('--model', type=str, default="", help='Path to pretrained model')
     parser.add_argument('--infer_file', type=str, default="", help='File to infer')
     parser.add_argument('--config_file', type=str, default="", help='Path to config file')
-    parser.add_argument('--annotation_file', type=str, default="", help='File of the annotations')
+    parser.add_argument('--annotation_file', type=str, default="", help='File of the annotations relative from data root')
     parser_args = parser.parse_args()
     
     main(parser_args)

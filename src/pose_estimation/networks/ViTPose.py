@@ -1,15 +1,13 @@
 import torch
 import numpy as np
-import mmpose.datasets.datasets
 import mmpose.datasets.transforms
 from tqdm import tqdm
 from collections import deque
-from mmengine.structures import InstanceData
 from mmengine.dataset import Compose, pseudo_collate
 from mmpose.models import build_pose_estimator
 from mmpose.datasets.datasets.utils import parse_pose_metainfo
 from mmpose.registry import DATASETS
-from mmpose.evaluation.metrics.coco_metric import CocoMetric
+from mmengine.runner import Runner
 
 class ViTPose:
     def __init__(self, config):
@@ -25,7 +23,6 @@ class ViTPose:
         self.savedFiles.append(file)
         
     def infer(self, rank, image, bbox):
-        # Add human detection
         data_list = []
         pipeline = Compose(self.config.val_pipeline)
         data_info = dict(img=image, bbox=bbox[None,])
@@ -35,7 +32,7 @@ class ViTPose:
         data_samples = self.model.test_step(pseudo_collate(data_list))
         return data_samples[0].pred_instances
     
-    def validate(self, rank, world_size, data_loader, evaluator:CocoMetric):
+    def validate(self, rank, world_size, data_loader, evaluator):
         pbar = tqdm(total=len(data_loader))
         self.model.eval()
         with torch.no_grad():
@@ -47,5 +44,6 @@ class ViTPose:
             pbar.close()
             return evaluator.evaluate(len(data_loader.dataset))
     
-    def train(self, rank, world_size, data_loader):
-        pass
+    def train(self, rank, world_size, data_loader, visualizer):
+        runner = Runner.from_cfg(self.config)
+        runner.train()

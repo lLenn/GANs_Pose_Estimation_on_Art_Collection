@@ -61,7 +61,8 @@ Needed to implement a script that transforms a training model to a test model be
 How good is this as a measurement of the pose estimator?
 It's entirely reliable on the style transfer.
 For the CycleGAN model, there are some photo's that change little after applying style transfer.
-
+Forgot to add masks in dataset (removed them while coping because didn't think it relevant, but there are images with multiple people where some people are not in the keypoint instances, so they need to be removed)
+Only found out about this when a masked image was shown in the experiments
 \label{sec:baseline_coco_style_transfer_results}
 
 \section{Pose Estimation on the Human-Art Dataset}

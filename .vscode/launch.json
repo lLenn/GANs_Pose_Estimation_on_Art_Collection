@@ -72,6 +72,8 @@
                 "1",
                 "--num_workers",
                 "1",
+                "--data_root",
+                "../../Datasets/",
                 "--model",
                 "../../Models/vitpose/td-hm_ViTPose-base_8xb64-210e_coco-256x192-216eae50_20230314.pth",
                 "--log",
@@ -79,7 +81,31 @@
                 "--config_file",
                 "src/pose_estimation/config/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
                 "--annotation_file",
-                "HumanArt/annotations/test_humanart_oil_painting.json"
+                "HumanArt/annotations/validation_humanart_oil_painting.json"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Train ViTPose",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/train_ViTPose.py",
+            "args": [
+                "--name",
+                "test",
+                "--batch_size",
+                "1",
+                "--num_workers",
+                "1",
+                "--data_root",
+                "../../Datasets/",
+                "--log",
+                ".output/logs",
+                "--config_file",
+                "src/pose_estimation/config/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
+                "--annotation_file",
+                "HumanArt/annotations/validation_humanart_oil_painting.json"
             ],
             "console": "integratedTerminal",
             "justMyCode": false
