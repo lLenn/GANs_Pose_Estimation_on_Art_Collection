@@ -44,6 +44,6 @@ class ViTPose:
             pbar.close()
             return evaluator.evaluate(len(data_loader.dataset))
     
-    def train(self, rank, world_size, data_loader, visualizer):
+    def train(self):
         runner = Runner.from_cfg(self.config)
         runner.train()

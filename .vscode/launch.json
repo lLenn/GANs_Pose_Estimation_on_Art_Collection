@@ -98,14 +98,11 @@
                 "1",
                 "--num_workers",
                 "1",
-                "--data_root",
-                "../../Datasets/",
-                "--log",
-                ".output/logs",
                 "--config_file",
-                "src/pose_estimation/config/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
+                "src/pose_estimation/config/vitpose_base_train.py",
                 "--annotation_file",
-                "HumanArt/annotations/validation_humanart_oil_painting.json"
+                "annotations/person_keypoints_train2017.json",
+                "annotations/person_keypoints_val2017.json"
             ],
             "console": "integratedTerminal",
             "justMyCode": false
@@ -139,6 +136,18 @@
                 "PYTORCH_CUDA_ALLOC_CONF": "max_split_size_mb:512",
                 "CUDA_LAUNCH_BLOCKING": "1"
             },
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Correct Annotations",
+            "type": "python",
+            "request": "launch",
+            "program": "src/correct_annotations.py",
+            "args": [
+                "--annotations_dir",
+                "../../Datasets/custom/coco_annotations_small/annotations"
+            ],
             "console": "integratedTerminal",
             "justMyCode": false
         },

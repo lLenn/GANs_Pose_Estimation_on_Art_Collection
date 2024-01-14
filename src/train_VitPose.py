@@ -19,10 +19,13 @@ from pose_estimation.datasets import MMArtPoseDataset
 def main(parser_args):
     world_size = torch.cuda.device_count()
     
-    method = validate
-    args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.data_root, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file)
-   
+    method = train
+    args = (parser_args.name, parser_args.batch_size, parser_args.num_workers, parser_args.config_file, parser_args.annotation_file[0], parser_args.annotation_file[1])
+    
     '''
+    method = validate
+    args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.data_root, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file[0])
+   
     method = infer
     args = (world_size, parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
     post_process = None
@@ -96,40 +99,30 @@ def validate(rank, world_size, batch_size, num_workers, data_root, model_path, l
     
     close_distributed(rank, world_size)
     
-def train(rank, world_size, batch_size, num_workers, data_root, log, config_file, annotation_file):
+def train(rank, name, batch_size, num_workers, config_file, annotation_file_train, annotation_file_val):
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(rank)
-
     
     config = ViTPoseConfig.create(config_file)
-    config.visdom.name = "vitpose"
-    config.visdom.env = "test_vitpose"
+    config.experiment_name = "vitpose_" + name
     config.work_dir = "../../Models/vitpose/checkpoints"
-    config.save_no = 2
     config.resume = True
-    config.load_from = None    
+    config.load_from = None
     config.auto_scale_lr.enable = True
+    config.train_dataloader.batch_size = batch_size
+    config.train_dataloader.num_workers = num_workers
+    config.train_dataloader.dataset.ann_file = annotation_file_train
+    config.val_dataloader.batch_size = batch_size//2 if batch_size > 1 else 1
+    config.val_dataloader.num_workers = num_workers
+    config.val_dataloader.dataset.ann_file = annotation_file_val
+    config.val_evaluator.ann_file = os.path.join(config.data_root, annotation_file_val)
+    '''
+    config.vis_backends[0].name = name + " vitpose"
+    config.vis_backends[0].env = "vitpose_" + name
+    '''
     model = ViTPose(config)
     
-    dataset = MMArtPoseDataset(annotation_file, data_root=data_root, pipeline=config.train_pipeline, data_prefix=dict(img='train/'))
-    dataloader = DataLoader(
-        dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-        persistent_workers=True,
-        pin_memory=True,    
-        drop_last=False,
-        sampler=None if world_size == 1 else DistributedSampler(dataset),
-        collate_fn=pseudo_collate
-    )
-    
-    visualizer = ViTPoseVisualizer(log, config.visdom)
-    visualizer.dataset_meta = dataset.metainfo
-    
-    model.train(rank, world_size, dataloader, visualizer)
-    
-    close_distributed(rank, world_size)
+    model.train()
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -142,7 +135,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', type=str, default="", help='Path to pretrained model')
     parser.add_argument('--infer_file', type=str, default="", help='File to infer')
     parser.add_argument('--config_file', type=str, default="", help='Path to config file')
-    parser.add_argument('--annotation_file', type=str, default="", help='File of the annotations relative from data root')
+    parser.add_argument('--annotation_file', type=str, nargs='+', default="", help='File of the annotations relative from data root')
     parser_args = parser.parse_args()
     
     main(parser_args)

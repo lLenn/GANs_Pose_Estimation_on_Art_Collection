@@ -32,29 +32,20 @@ env_cfg = dict(
 # visualizer
 vis_backends = [
     dict(type='LocalVisBackend'),
-    # dict(type='TensorboardVisBackend'),
-    # dict(type='WandbVisBackend'),
+    # dict(type='VisdomBackend', name="vitpose", server="localhost", port=8097, env="test_vitpose")
 ]
 visualizer = dict(
     type='PoseLocalVisualizer', vis_backends=vis_backends, name='visualizer')
 
 # logger
-log_processor = dict(
-    type='LogProcessor', window_size=50, by_epoch=True, num_digits=6)
+log_processor = dict(type='LogProcessor', window_size=50, by_epoch=True, num_digits=6)
 log_level = 'INFO'
 load_from = None
 resume = False
-save_no = 2
 
 # file I/O backend
 backend_args = dict(backend='local')
 
 # training/validation/testing progress
 train_cfg = dict(by_epoch=True)
-
-visdom = dict(
-    name="test",
-    server="http://localhost",
-    port=8097,
-    env="test"
-)
+val_cfg = dict()

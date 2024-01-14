@@ -1,4 +1,4 @@
-_base_ = ['../../../_base_/default_runtime.py']
+_base_ = ['default_runtime.py']
 
 # runtime
 train_cfg = dict(max_epochs=210, val_interval=10)
@@ -43,17 +43,16 @@ param_scheduler = [
 auto_scale_lr = dict(enabled=True,base_batch_size=512)
 
 # hooks
-default_hooks = dict(
-    checkpoint=dict(save_best='coco/AP', rule='greater', max_keep_ckpts=1))
+default_hooks = dict(checkpoint=dict(save_best='coco/AP', rule='greater', max_keep_ckpts=2))
 
 # codec settings
-codec = dict(
-    type='UDPHeatmap', input_size=(192, 256), heatmap_size=(48, 64), sigma=2)
+codec = dict(type='UDPHeatmap', input_size=(192, 256), heatmap_size=(48, 64), sigma=2)
 
 # model settings
 model = dict(
     type='TopdownPoseEstimator',
     data_preprocessor=dict(
+         _scope_='mmpose',
         type='PoseDataPreprocessor',
         mean=[123.675, 116.28, 103.53],
         std=[58.395, 57.12, 57.375],
@@ -94,14 +93,20 @@ data_mode = 'topdown'
 
 # pipelines
 train_pipeline = [
-    dict(type='LoadImage'),
-    dict(type='GetBBoxCenterScale'),
-    dict(type='RandomFlip', direction='horizontal'),
-    dict(type='RandomHalfBody'),
-    dict(type='RandomBBoxTransform'),
-    dict(type='TopdownAffine', input_size=codec['input_size'], use_udp=True),
-    dict(type='GenerateTarget', encoder=codec),
-    dict(type='PackPoseInputs')
+    dict(type='LoadImage', _scope_='mmpose'),
+    dict(type='GetBBoxCenterScale', _scope_='mmpose'),
+    dict(type='RandomFlip', direction='horizontal', _scope_='mmpose'),
+    dict(type='RandomHalfBody', _scope_='mmpose'),
+    dict(type='RandomBBoxTransform', _scope_='mmpose'),
+    dict(type='TopdownAffine', input_size=codec['input_size'], use_udp=True, _scope_='mmpose'),
+    dict(type='GenerateTarget', encoder=codec, _scope_='mmpose'),
+    dict(type='PackPoseInputs', _scope_='mmpose')
+]
+val_pipeline = [
+    dict(type='LoadImage', _scope_='mmpose'),
+    dict(type='GetBBoxCenterScale', _scope_='mmpose'),
+    dict(type='TopdownAffine', input_size=codec['input_size'], use_udp=True, _scope_='mmpose'),
+    dict(type='PackPoseInputs', _scope_='mmpose')
 ]
 
 # data loaders
@@ -114,7 +119,26 @@ train_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_mode=data_mode,
-        ann_file='annotations/person_keypoints_train2017.json',
-        data_prefix=dict(img='train/'),
+        ann_file='annotations_corrected/person_keypoints_coco_and_styled_train_mixed.json',
+        data_prefix=dict(img='images'),
         pipeline=train_pipeline,
     ))
+val_dataloader = dict(
+    batch_size=32,
+    num_workers=4,
+    persistent_workers=True,
+    drop_last=False,
+    sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
+    dataset=dict(
+        type=dataset_type,
+        data_root=data_root,
+        data_mode=data_mode,
+        ann_file='annotations_corrected/person_keypoints_coco_and_styled_val_mixed.json',
+        data_prefix=dict(img='images'),
+        test_mode=True,
+        pipeline=val_pipeline,
+    ))
+
+val_evaluator = dict(
+    type='CocoMetric',
+    ann_file=data_root + 'annotations_corrected/person_keypoints_coco_and_styled_val_mixed.json')
