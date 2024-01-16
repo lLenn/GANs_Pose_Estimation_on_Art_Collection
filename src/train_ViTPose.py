@@ -31,7 +31,7 @@ def main(parser_args):
         args = (parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
     
     if world_size > 1:
-        mp.spawn(method, args, nprocs=world_size, join=False)
+        mp.spawn(method, args, nprocs=world_size)
     else:
         method(0, *args)
 
