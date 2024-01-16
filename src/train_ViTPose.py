@@ -22,7 +22,7 @@ def main(parser_args):
     
     if parser_args.method == "train":
         method = train
-        args = (parser_args.name, parser_args.batch_size, parser_args.num_workers, parser_args.config_file, parser_args.annotation_file[0], parser_args.annotation_file[1])
+        args = (world_size, parser_args.name, parser_args.batch_size, parser_args.num_workers, parser_args.config_file, parser_args.annotation_file[0], parser_args.annotation_file[1])
     elif parser_args.method == "validate":
         method = validate
         args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.data_root, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file[0])
@@ -66,7 +66,11 @@ def infer(gpu, model_path, image_path, log, results_dir, config_file):
     cv2.imwrite(os.path.join(results_dir, "vit_inference.png"), prediction_image)
 
 def validate(rank, world_size, batch_size, num_workers, data_root, model_path, log, config_file, annotation_file):
-    init_distributed(rank, world_size)
+    os.environ['LOCAL_RANK'] = str(rank)
+    os.environ['RANK'] = str(rank)
+    os.environ['WORLD_SIZE'] = str(world_size)
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
     
     config = ViTPoseConfig.create(config_file)
     config.model.backbone.init_cfg = None
@@ -96,15 +100,19 @@ def validate(rank, world_size, batch_size, num_workers, data_root, model_path, l
     
     close_distributed(rank, world_size)
     
-def train(rank, name, batch_size, num_workers, config_file, annotation_file_train, annotation_file_val):
-    if 'LOCAL_RANK' not in os.environ:
-        os.environ['LOCAL_RANK'] = str(rank)
+def train(rank, world_size, name, batch_size, num_workers, config_file, annotation_file_train, annotation_file_val):
+    os.environ['LOCAL_RANK'] = str(rank)
+    os.environ['RANK'] = str(rank)
+    os.environ['WORLD_SIZE'] = str(world_size)
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
     
     config = ViTPoseConfig.create(config_file)
     config.experiment_name = "vitpose_" + name
-    config.work_dir = "../../Models/vitpose/checkpoints"
+    config.work_dir = "../../Results/vitpose"
     config.resume = True
     config.load_from = None
+    # config.launcher = "pytorch"
     config.auto_scale_lr.enable = True
     config.train_dataloader.batch_size = batch_size
     config.train_dataloader.num_workers = num_workers
@@ -113,6 +121,10 @@ def train(rank, name, batch_size, num_workers, config_file, annotation_file_trai
     config.val_dataloader.num_workers = num_workers
     config.val_dataloader.dataset.ann_file = annotation_file_val
     config.val_evaluator.ann_file = os.path.join(config.data_root, annotation_file_val)
+    config.default_hooks.checkpoint.out_dir = f"../../Models/vitpose/{name}"
+    config.visualizer.vis_backends[1].init_kwargs.name = "test"
+    config.visualizer.vis_backends[1].init_kwargs.server = "http://116.203.134.130"
+    config.visualizer.vis_backends[1].init_kwargs.env = "test_vitpose"
     '''
     config.vis_backends[0].name = name + " vitpose"
     config.vis_backends[0].env = "vitpose_" + name
