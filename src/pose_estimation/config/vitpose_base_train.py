@@ -1,7 +1,7 @@
 _base_ = ['default_runtime.py']
 
 # runtime
-train_cfg = dict(max_epochs=210, val_interval=10)
+train_cfg = dict(max_epochs=20, val_interval=2)
 
 # optimizer
 custom_imports = dict(
@@ -52,7 +52,7 @@ codec = dict(type='UDPHeatmap', input_size=(192, 256), heatmap_size=(48, 64), si
 model = dict(
     type='TopdownPoseEstimator',
     data_preprocessor=dict(
-         _scope_='mmpose',
+        _scope_='mmpose',
         type='PoseDataPreprocessor',
         mean=[123.675, 116.28, 103.53],
         std=[58.395, 57.12, 57.375],

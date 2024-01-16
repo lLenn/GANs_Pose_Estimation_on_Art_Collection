@@ -10,26 +10,25 @@ from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from torch.distributed import init_process_group, destroy_process_group
 from mmpose.datasets.datasets.body import HumanArtDataset
+from mmpose.visualization import PoseLocalVisualizer
 from mmengine.evaluator.evaluator import Evaluator
 from mmpose.evaluation.metrics.coco_metric import CocoMetric
 from mmengine.dataset.utils import pseudo_collate
-from pose_estimation.networks import ViTPose, ViTPoseConfig, ViTPoseVisualizer
+from pose_estimation.networks import ViTPose, ViTPoseConfig
 from pose_estimation.datasets import MMArtPoseDataset
 
 def main(parser_args):
     world_size = torch.cuda.device_count()
     
-    method = train
-    args = (parser_args.name, parser_args.batch_size, parser_args.num_workers, parser_args.config_file, parser_args.annotation_file[0], parser_args.annotation_file[1])
-    
-    '''
-    method = validate
-    args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.data_root, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file[0])
-   
-    method = infer
-    args = (world_size, parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
-    post_process = None
-    '''
+    if parser_args.method == "train":
+        method = train
+        args = (parser_args.name, parser_args.batch_size, parser_args.num_workers, parser_args.config_file, parser_args.annotation_file[0], parser_args.annotation_file[1])
+    elif parser_args.method == "validate":
+        method = validate
+        args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.data_root, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file[0])
+    elif parser_args.method == "infer":   
+        method = infer
+        args = (parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
     
     if world_size > 1:
         mp.spawn(method, args, nprocs=world_size, join=False)
@@ -61,8 +60,8 @@ def infer(gpu, model_path, image_path, log, results_dir, config_file):
     
     pred_instances = model.infer(gpu, image, bbox)
     
-    visualizer = ViTPoseVisualizer(log, config.visdom)
-    prediction_image = visualizer.draw_predictions(image, pred_instances)
+    visualizer = PoseLocalVisualizer()
+    prediction_image = visualizer._draw_instances_kpts(image, pred_instances, 0.3, False, 'mmpose')
     prediction_image = cv2.cvtColor(prediction_image, cv2.COLOR_RGB2BGR)
     cv2.imwrite(os.path.join(results_dir, "vit_inference.png"), prediction_image)
 
@@ -87,8 +86,6 @@ def validate(rank, world_size, batch_size, num_workers, data_root, model_path, l
         collate_fn=pseudo_collate
     )
     
-    # visualizer = ViTPoseVisualizer(log, config.visdom)
-    # visualizer.dataset_meta = datset.metainfo
     prefix = os.path.splitext(os.path.basename(annotation_file))[0]
     evaluator = Evaluator(CocoMetric(os.path.join("../../Datasets/", annotation_file), prefix=False))
     evaluator.dataset_meta = dataset.metainfo
@@ -126,6 +123,7 @@ def train(rank, name, batch_size, num_workers, config_file, annotation_file_trai
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--method', type=str, default="infer", help='The method to execute: infer, validate, train')
     parser.add_argument('--name', type=str, default="", help='The name of the training')
     parser.add_argument('--batch_size', type=int, default=1, help='The batch size to use')
     parser.add_argument('--num_workers', type=int, default=1, help='The number of workers for the dataloader')

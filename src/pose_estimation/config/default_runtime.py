@@ -1,19 +1,22 @@
 default_scope = 'mmpose'
 
+backend_interval = 3
+save_interval = 3
+
 # hooks
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
-    logger=dict(type='LoggerHook', interval=50),
+    logger=dict(type='LoggerHook', interval=backend_interval),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', interval=10),
+    checkpoint=dict(type='VisdomCheckpointHook', interval=save_interval),
     sampler_seed=dict(type='DistSamplerSeedHook'),
-    visualization=dict(type='PoseVisualizationHook', enable=False),
+    visualization=dict(type='RandomPoseVisualizationHook', no_samples=1),
     badcase=dict(
         type='BadCaseAnalysisHook',
         enable=False,
-        out_dir='badcase',
         metric_type='loss',
-        badcase_thr=5))
+        badcase_thr=5,
+        interval=backend_interval))
 
 # custom hooks
 custom_hooks = [
@@ -32,13 +35,13 @@ env_cfg = dict(
 # visualizer
 vis_backends = [
     dict(type='LocalVisBackend'),
-    # dict(type='VisdomBackend', name="vitpose", server="localhost", port=8097, env="test_vitpose")
+    dict(type='VisdomBackend', init_kwargs=dict(name="vitpose", server="localhost", port=8097, env="test_vitpose"))
 ]
 visualizer = dict(
-    type='PoseLocalVisualizer', vis_backends=vis_backends, name='visualizer')
+    type='VisdomPoseVisualizer', vis_backends=vis_backends, name='visualizer')
 
 # logger
-log_processor = dict(type='LogProcessor', window_size=50, by_epoch=True, num_digits=6)
+log_processor = dict(type='VisdomLogProcessor', window_size=50, by_epoch=True, num_digits=6)
 log_level = 'INFO'
 load_from = None
 resume = False

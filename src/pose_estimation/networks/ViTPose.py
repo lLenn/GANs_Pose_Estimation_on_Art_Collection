@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import mmpose.datasets.transforms
+import pose_estimation.vitpose
 from tqdm import tqdm
 from collections import deque
 from mmengine.dataset import Compose, pseudo_collate

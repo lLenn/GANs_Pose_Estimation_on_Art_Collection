@@ -68,6 +68,8 @@
             "request": "launch",
             "program": "./src/train_ViTPose.py",
             "args": [
+                "--method",
+                "validate",
                 "--batch_size",
                 "1",
                 "--num_workers",
@@ -79,7 +81,7 @@
                 "--log",
                 ".output/logs",
                 "--config_file",
-                "src/pose_estimation/config/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
+                "src/pose_estimation/config/vitpose_base_validation.py",
                 "--annotation_file",
                 "HumanArt/annotations/validation_humanart_oil_painting.json"
             ],
@@ -92,10 +94,12 @@
             "request": "launch",
             "program": "./src/train_ViTPose.py",
             "args": [
+                "--method",
+                "train",
                 "--name",
                 "test",
                 "--batch_size",
-                "1",
+                "2",
                 "--num_workers",
                 "1",
                 "--config_file",
@@ -113,6 +117,8 @@
             "request": "launch",
             "program": "./src/train_ViTPose.py",
             "args": [
+                "--method",
+                "infer",
                 "--model",
                 "../../Models/vitpose/td-hm_ViTPose-base_8xb64-210e_coco-256x192-216eae50_20230314.pth",
                 "--log",
@@ -120,7 +126,7 @@
                 "--results_dir",
                 ".output/results",
                 "--config_file",
-                "src/pose_estimation/config/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
+                "src/pose_estimation/config/vitpose_base_validation.py",
                 "--infer_file",
                 "../../Datasets/custom/000000001407.png"
             ],
