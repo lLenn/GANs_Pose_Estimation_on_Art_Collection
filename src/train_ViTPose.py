@@ -105,10 +105,10 @@ def train(rank, world_size, name, batch_size, num_workers, config_file, annotati
     
     config = ViTPoseConfig.create(config_file)
     config.experiment_name = "vitpose_" + name
-    config.work_dir = f"../../Models/vitpose/{name}"
+    config.work_dir = "../../Results/vitpose"
     config.resume = True
     config.load_from = None
-    # config.launcher = "pytorch"
+    config.launcher = "pytorch"
     config.auto_scale_lr.enable = True
     config.train_dataloader.batch_size = batch_size
     config.train_dataloader.num_workers = num_workers
@@ -118,6 +118,9 @@ def train(rank, world_size, name, batch_size, num_workers, config_file, annotati
     config.val_dataloader.dataset.ann_file = annotation_file_val
     config.val_evaluator.ann_file = os.path.join(config.data_root, annotation_file_val)
     config.default_hooks.checkpoint.out_dir = f"../../Models/vitpose/{name}"
+    config.visualizer.vis_backends[1].init_kwargs.name = name + " vitpose"
+    config.visualizer.vis_backends[1].init_kwargs.server = "http://116.203.134.130"
+    config.visualizer.vis_backends[1].init_kwargs.env = "vitpose_" + name
     model = ViTPose(config)
     
     model.train()
