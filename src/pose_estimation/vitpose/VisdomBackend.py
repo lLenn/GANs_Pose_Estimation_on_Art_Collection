@@ -1,7 +1,8 @@
 import visdom, torch
 import numpy as np
 from typing import Optional, Sequence, Union
-
+from torchvision import transforms
+from torchvision.transforms import InterpolationMode
 from mmengine.config import Config
 from mmengine.registry import VISBACKENDS
 from mmengine.visualization.vis_backend import BaseVisBackend, force_init_env
@@ -10,11 +11,13 @@ from mmengine.visualization.vis_backend import BaseVisBackend, force_init_env
 class VisdomBackend(BaseVisBackend):
     def __init__(self,
                  save_dir: str,
-                 init_kwargs: Optional[dict] = None):
+                 init_kwargs: Optional[dict] = None,
+                 output_size: (int,int) = (192, 256)):
         super().__init__(save_dir)
         self.images = dict()
         self.scalars = dict()
         self._init_kwargs = init_kwargs
+        self.output_size = output_size
 
     def _init_env(self):
         self.vis = visdom.Visdom(server=self._init_kwargs.server, port=self._init_kwargs.port, env=self._init_kwargs.env)
@@ -85,10 +88,8 @@ class VisdomBackend(BaseVisBackend):
     @force_init_env
     def push(self) -> None:
         for key, steps in self.images.items():
-            images = []
-            for _, image in steps.items():
-                images.append(image.transpose([2, 0, 1]))
-            self.vis.images(images, nrow=len(images), win=f"{self._init_kwargs.name}_{key}_images", padding=2, opts=dict(title=f"{self._init_kwargs.name} {key} images"))
+            for idx, image in steps.items():
+                self.vis.images(image.transpose([2, 0, 1]), nrow=1, win=f"{self._init_kwargs.name}_{key}_image_{idx}", padding=2, opts=dict(title=f"{self._init_kwargs.name} {key} image {idx}"))
         self.images = dict()
      
     @force_init_env   

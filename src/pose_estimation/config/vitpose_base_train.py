@@ -87,7 +87,7 @@ model = dict(
     ))
 
 # base dataset settings
-data_root = "../../Datasets/coco"
+data_root = "../../Datasets/custom/coco_annotations_small"
 dataset_type = 'CocoDataset'
 data_mode = 'topdown'
 
