@@ -118,9 +118,9 @@ def train(rank, world_size, name, batch_size, num_workers, config_file, annotati
     config.val_dataloader.dataset.ann_file = annotation_file_val
     config.val_evaluator.ann_file = os.path.join(config.data_root, annotation_file_val)
     config.default_hooks.checkpoint.out_dir = f"../../Models/vitpose/{name}"
-    config.visualizer.vis_backends[1].init_kwargs.name = name + "vitpose"
+    config.visualizer.vis_backends[1].init_kwargs.name = name + " vitpose"
     config.visualizer.vis_backends[1].init_kwargs.server = "http://116.203.134.130"
-    config.visualizer.vis_backends[1].init_kwargs.env = "vitpose" + name
+    config.visualizer.vis_backends[1].init_kwargs.env = "vitpose_" + name
     model = ViTPose(config)
     
     model.train()
