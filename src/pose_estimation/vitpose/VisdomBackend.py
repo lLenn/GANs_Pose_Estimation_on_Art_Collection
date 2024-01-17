@@ -86,7 +86,7 @@ class VisdomBackend(BaseVisBackend):
     @force_init_env
     def push(self) -> None:
         for key, steps in self.images.items():
-            for idx, image in steps.items():
+            for idx, (_, image) in enumerate(steps.items()):
                 self.vis.images(image.transpose([2, 0, 1]), nrow=1, win=f"{self._init_kwargs.name}_{key}_image_{idx}", padding=2, opts=dict(title=f"{self._init_kwargs.name} {key} image {idx}"))
         self.images = dict()
      
