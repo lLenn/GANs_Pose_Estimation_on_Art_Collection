@@ -1,7 +1,7 @@
 _base_ = ['default_runtime.py']
 
 # runtime
-train_cfg = dict(max_epochs=20, val_interval=2)
+train_cfg = dict(max_epochs=210, val_interval=10)
 
 # optimizer
 custom_imports = dict(
@@ -87,7 +87,7 @@ model = dict(
     ))
 
 # base dataset settings
-data_root = '../../Datasets/coco'
+data_root = "../../Datasets/coco"
 dataset_type = 'CocoDataset'
 data_mode = 'topdown'
 

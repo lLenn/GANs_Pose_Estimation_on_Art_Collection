@@ -82,6 +82,7 @@ class VisdomBackend(BaseVisBackend):
                 update='append'
             )
 
+    @force_init_env
     def push(self) -> None:
         for key, steps in self.images.items():
             images = []
@@ -89,6 +90,7 @@ class VisdomBackend(BaseVisBackend):
                 images.append(image.transpose([2, 0, 1]))
             self.vis.images(images, nrow=len(images), win=f"{self._init_kwargs.name}_{key}_images", padding=2, opts=dict(title=f"{self._init_kwargs.name} {key} images"))
         self.images = dict()
-        
+     
+    @force_init_env   
     def save(self):
         self.vis.save([self._init_kwargs.env])

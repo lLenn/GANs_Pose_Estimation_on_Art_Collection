@@ -1,7 +1,7 @@
 default_scope = 'mmpose'
 
-backend_interval = 3
-save_interval = 3
+backend_interval = 1000
+save_interval = 10
 
 # hooks
 default_hooks = dict(
@@ -10,7 +10,7 @@ default_hooks = dict(
     param_scheduler=dict(type='ParamSchedulerHook'),
     checkpoint=dict(type='VisdomCheckpointHook', interval=save_interval),
     sampler_seed=dict(type='DistSamplerSeedHook'),
-    visualization=dict(type='RandomPoseVisualizationHook', no_samples=1),
+    visualization=dict(type='RandomPoseVisualizationHook', no_samples=5),
     badcase=dict(
         type='BadCaseAnalysisHook',
         enable=False,
@@ -28,7 +28,7 @@ custom_hooks = [
 # multi-processing backend
 env_cfg = dict(
     cudnn_benchmark=False,
-    mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0),
+    mp_cfg=dict(mp_start_method='spawn', opencv_num_threads=0),
     dist_cfg=dict(backend='nccl'),
 )
 

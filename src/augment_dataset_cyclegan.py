@@ -124,7 +124,9 @@ def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styled
     
     if logger is not None:
         pbar.close()
+    print(f"Worker {gpuId} closing ...")
     styledQueue.put_nowait(style_list)
+    print(f"Worker {gpuId} closed")
     
 def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
     dataset = CocoDataset(coco, source, "jpg")
@@ -227,12 +229,12 @@ if __name__ == "__main__":
     else:
         logger = None
     
-    trainPath = os.path.join(args.coco, "images", "train")
-    valPath = os.path.join(args.coco, "images", "val")
+    trainPath = os.path.join(args.coco, "images", "train_corrected")
+    valPath = os.path.join(args.coco, "images", "val_corrected")
     if not os.path.exists(trainPath):
         os.makedirs(trainPath)
     if not os.path.exists(valPath):
         os.makedirs(valPath)
         
-    augment(args.coco, "train2017", "train", args.models, args.styles, args.gpu_ids, args.num_workers, logger)
-    augment(args.coco, "val2017", "val", args.models, args.styles, args.gpu_ids, args.num_workers, logger)
+    augment(args.coco, "train2017", "train_corrected", args.models, args.styles, args.gpu_ids, args.num_workers, logger)
+    augment(args.coco, "val2017", "val_corrected", args.models, args.styles, args.gpu_ids, args.num_workers, logger)

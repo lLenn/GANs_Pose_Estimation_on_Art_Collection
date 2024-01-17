@@ -5,7 +5,7 @@ import torch
 import torch.multiprocessing as mp
 from torch.utils.data.distributed import DistributedSampler
 from torch.distributed import init_process_group, destroy_process_group
-from datetime import datetime
+from datetime import datetime, timedelta
 from torch.utils.data import DataLoader
 from pose_estimation.datasets import ArtPoseKeypoints
 from pose_estimation.networks import SWAHR, SWAHRConfig
@@ -14,23 +14,23 @@ def main(rank, world_size, name, batch_size, num_workers, config_file, annotatio
     if world_size > 1:
         os.environ["MASTER_ADDR"] = "localhost"
         os.environ["MASTER_PORT"] = "12355"
-        init_process_group(backend="nccl", rank=rank, world_size=world_size)
+        init_process_group(backend="nccl", rank=rank, world_size=world_size, timeout=timedelta(seconds=600))
         torch.cuda.set_device(rank)
     
     config = SWAHRConfig.create(config_file, [])
     config.defrost()
     config.RANK = rank
     config.WORLD_SIZE = world_size
-    config.PRINT_FREQ = 1
+    config.PRINT_FREQ = 1000
     config.SAVE_FREQ = 1
     config.LOG_DIR = log_dir
     config.TRAIN.SAVE_NO = 2
     config.TRAIN.RESUME = True
-    config.TRAIN.END_EPOCH = 5
-    config.TRAIN.CHECKPOINT = "../../Models/swahr/checkpoints"
-    config.DATASET.ROOT = "../../Datasets/custom/coco_annotations_small"
+    config.TRAIN.END_EPOCH = 200
+    config.TRAIN.CHECKPOINT = "../../Models/swahr/saves"
+    config.DATASET.ROOT = "../../Datasets/coco"
     config.VISDOM.NAME = name + " swahr"
-    config.VISDOM.SERVER = "http://localhost"
+    config.VISDOM.SERVER = "http://116.203.134.130"
     config.VISDOM.ENV = "swahr_" + name
     config.freeze()
     SWAHRConfig.configureEnvironment(config)

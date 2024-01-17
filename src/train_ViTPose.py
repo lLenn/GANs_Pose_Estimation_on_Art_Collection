@@ -31,7 +31,7 @@ def main(parser_args):
         args = (parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
     
     if world_size > 1:
-        mp.spawn(method, args, nprocs=world_size)
+        mp.spawn(method, args, nprocs=world_size,)
     else:
         method(0, *args)
 
@@ -66,11 +66,7 @@ def infer(gpu, model_path, image_path, log, results_dir, config_file):
     cv2.imwrite(os.path.join(results_dir, "vit_inference.png"), prediction_image)
 
 def validate(rank, world_size, batch_size, num_workers, data_root, model_path, log, config_file, annotation_file):
-    os.environ['LOCAL_RANK'] = str(rank)
-    os.environ['RANK'] = str(rank)
-    os.environ['WORLD_SIZE'] = str(world_size)
-    os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "12355"
+    init_distributed(rank, world_size)
     
     config = ViTPoseConfig.create(config_file)
     config.model.backbone.init_cfg = None
@@ -112,7 +108,7 @@ def train(rank, world_size, name, batch_size, num_workers, config_file, annotati
     config.work_dir = "../../Results/vitpose"
     config.resume = True
     config.load_from = None
-    # config.launcher = "pytorch"
+    config.launcher = "pytorch"
     config.auto_scale_lr.enable = True
     config.train_dataloader.batch_size = batch_size
     config.train_dataloader.num_workers = num_workers
@@ -122,13 +118,9 @@ def train(rank, world_size, name, batch_size, num_workers, config_file, annotati
     config.val_dataloader.dataset.ann_file = annotation_file_val
     config.val_evaluator.ann_file = os.path.join(config.data_root, annotation_file_val)
     config.default_hooks.checkpoint.out_dir = f"../../Models/vitpose/{name}"
-    config.visualizer.vis_backends[1].init_kwargs.name = "test"
+    config.visualizer.vis_backends[1].init_kwargs.name = name + "vitpose"
     config.visualizer.vis_backends[1].init_kwargs.server = "http://116.203.134.130"
-    config.visualizer.vis_backends[1].init_kwargs.env = "test_vitpose"
-    '''
-    config.vis_backends[0].name = name + " vitpose"
-    config.vis_backends[0].env = "vitpose_" + name
-    '''
+    config.visualizer.vis_backends[1].init_kwargs.env = "vitpose" + name
     model = ViTPose(config)
     
     model.train()
