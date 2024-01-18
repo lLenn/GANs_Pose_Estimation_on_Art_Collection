@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 import mmcv
 import mmengine
 import mmengine.fileio as fileio
+from mmengine.dist import get_dist_info, broadcast_object_list
 from mmengine.hooks import Hook
 from mmengine.runner import Runner
 from mmengine.visualization import Visualizer
@@ -58,9 +59,20 @@ class RandomPoseVisualizationHook(Hook):
     def before_val(self, runner: Runner) -> None:
         self._visualizer.set_dataset_meta(runner.val_evaluator.dataset_meta)
         
+        rank, world_size = get_dist_info()
         self.sampleIndices = []
-        for _ in range(self.no_samples):
-            self.sampleIndices.append(random.randint(0, len(runner.val_dataloader.dataset)-1))
+        
+        if rank == 0:
+            for _ in range(self.no_samples):
+                self.sampleIndices.append(random.randint(0, len(runner.val_dataloader.dataset)-1))
+            
+            if world_size == 1:
+                return
+            
+        else:
+            self.sampleIndices = [None] * self.no_samples
+            
+        broadcast_object_list(self.sampleIndices, 0)
         
     def after_val_iter(self, runner: Runner, batch_idx: int, data_batch: dict, outputs: Sequence[PoseDataSample]) -> None:
         """Run after every ``self.interval`` validation iterations.
