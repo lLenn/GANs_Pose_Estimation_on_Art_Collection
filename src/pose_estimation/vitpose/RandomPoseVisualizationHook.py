@@ -83,7 +83,7 @@ class RandomPoseVisualizationHook(Hook):
             img_path = data_batch['data_samples'][idx-lower_val_iter].get('img_path')
             img_bytes = fileio.get(img_path, backend_args=self.backend_args)
             img = mmcv.imfrombytes(img_bytes, channel_order='rgb')
-            data_sample = outputs[0]
+            data_sample = outputs[idx-lower_val_iter]
 
             # revert the heatmap on the original image
             data_sample = merge_data_samples([data_sample])
