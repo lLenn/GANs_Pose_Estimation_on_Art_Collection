@@ -80,7 +80,7 @@ class RandomPoseVisualizationHook(Hook):
         upper_bound = range*(self.sampled+1)
         rdm_idx = random.randint(lower_bound, upper_bound-1)
         
-        if rdm_idx < batch_idx:
+        if rdm_idx <= batch_idx:
             batch_idx = random.randint(0, batch_size-1)
             
             # Visualize only the first data
