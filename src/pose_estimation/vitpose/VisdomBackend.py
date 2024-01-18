@@ -55,7 +55,7 @@ class VisdomBackend(BaseVisBackend):
         
         if "loss" in scalarKeys:
             self.vis.line(
-                X=np.array([[scalar_dict["iter"]/scalar_dict["dataloader_len"]]]),
+                X=np.array([[scalar_dict["epoch"] + scalar_dict["batch_idx"]/scalar_dict["dataloader_len"]]]),
                 Y=np.array([[scalar_dict["loss"]]]),
                 opts={
                     'title': "Loss ViTPose",
