@@ -103,6 +103,7 @@ class RandomPoseVisualizationHook(Hook):
                 wait_time=0,
                 kpt_thr=self.kpt_thr,
                 step=total_curr_iter)
+            self.sampled += 1
             
     def after_val(self, runner):
         self.sampled = 0
