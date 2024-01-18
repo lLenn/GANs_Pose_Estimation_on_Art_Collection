@@ -60,11 +60,11 @@ class RandomPoseVisualizationHook(Hook):
         
         for _ in range(self.no_samples):
             index = random.randint(0, len(runner.val_dataloader)-1)
-            batch_index = random.randint(0, len(runner.val_dataloader.batch_size)-1)
+            batch_index = random.randint(0, runner.val_dataloader.batch_size-1)
             id = runner.val_dataloader[index][batch_index]["data_samples"].get("id")
             while id in self.sampleIds:
                 index = random.randint(0, len(runner.val_dataloader)-1)
-                batch_index = random.randint(0, len(runner.val_dataloader.batch_size)-1)
+                batch_index = random.randint(0, runner.val_dataloader.batch_size-1)
                 id = runner.val_dataloader[index][batch_index]["data_samples"].get("id")
             self.sampleIds.append(id)
             
