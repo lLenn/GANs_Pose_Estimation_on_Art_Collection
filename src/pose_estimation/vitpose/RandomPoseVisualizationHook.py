@@ -81,7 +81,7 @@ class RandomPoseVisualizationHook(Hook):
         rdm_idx = random.randint(lower_bound, upper_bound-1)
         
         if rdm_idx <= batch_idx:
-            batch_idx = random.randint(0, batch_size-1)
+            batch_idx = random.randint(0, len(outputs)-1)
             
             # Visualize only the first data
             img_path = data_batch['data_samples'][batch_idx].get('img_path')
