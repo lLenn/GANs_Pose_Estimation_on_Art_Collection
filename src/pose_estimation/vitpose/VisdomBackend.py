@@ -12,7 +12,7 @@ class VisdomBackend(BaseVisBackend):
                  init_kwargs: Optional[dict] = None,
                  output_size: (int,int) = (192, 256)):
         super().__init__(save_dir)
-        self.images = dict()
+        self.image_idx = dict()
         self.scalars = dict()
         self._init_kwargs = init_kwargs
         self.output_size = output_size
@@ -37,9 +37,10 @@ class VisdomBackend(BaseVisBackend):
 
     @force_init_env
     def add_image(self, name: str, image: np.ndarray, step: int = 0, **kwargs) -> None:
-        if name not in self.images:
-            self.images[name] = dict()
-        self.images[name][step] = image
+        if name not in self.image_idx:
+            self.image_idx[name] = 0
+        self.vis.images(image.transpose([2, 0, 1]), nrow=1, win=f"{self._init_kwargs.name}_{name}_image_{self.image_idx[name]}", padding=2, opts=dict(title=f"{self._init_kwargs.name} {name} image {self.image_idx[name]}"))
+        self.image_idx[name] += 1
 
     @force_init_env
     def add_scalar(self, name: str, value: Union[int, float, torch.Tensor, np.ndarray], step: int = 0, **kwargs) -> None:
@@ -85,10 +86,7 @@ class VisdomBackend(BaseVisBackend):
 
     @force_init_env
     def push(self) -> None:
-        for key, steps in self.images.items():
-            for idx, (_, image) in enumerate(steps.items()):
-                self.vis.images(image.transpose([2, 0, 1]), nrow=1, win=f"{self._init_kwargs.name}_{key}_image_{idx}", padding=2, opts=dict(title=f"{self._init_kwargs.name} {key} image {idx}"))
-        self.images = dict()
+        self.image_idx = dict()
      
     @force_init_env   
     def save(self):
