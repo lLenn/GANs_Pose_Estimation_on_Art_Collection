@@ -53,20 +53,10 @@ class RandomPoseVisualizationHook(Hook):
         self.out_dir = out_dir
         self._test_index = 0
         self.backend_args = backend_args
-        self.sampleIds = []
+        self.sampled = 0
 
     def before_val(self, runner: Runner) -> None:
         self._visualizer.set_dataset_meta(runner.val_evaluator.dataset_meta)
-        
-        for _ in range(self.no_samples):
-            index = random.randint(0, len(runner.val_dataloader)-1)
-            batch_index = random.randint(0, runner.val_dataloader.batch_size-1)
-            id = runner.val_dataloader[index][batch_index]["data_samples"].get("id")
-            while id in self.sampleIds:
-                index = random.randint(0, len(runner.val_dataloader)-1)
-                batch_index = random.randint(0, runner.val_dataloader.batch_size-1)
-                id = runner.val_dataloader[index][batch_index]["data_samples"].get("id")
-            self.sampleIds.append(id)
             
     def after_val_iter(self, runner: Runner, batch_idx: int, data_batch: dict, outputs: Sequence[PoseDataSample]) -> None:
         """Run after every ``self.interval`` validation iterations.
@@ -77,18 +67,25 @@ class RandomPoseVisualizationHook(Hook):
             data_batch (dict): Data from dataloader.
             outputs (Sequence[:obj:`PoseDataSample`]): Outputs from model.
         """
-        batch_size = len(data_batch["inputs"])
+        if self.sampled >= self.no_samples:
+            return
+        
         total_curr_iter = runner.iter + batch_idx
         
-        for idx in range(batch_size):
-            if data_batch['data_samples'][idx].get('id') not in self.sampleIds:
-                continue
+        batch_size = runner.val_dataloader.batch_size
+        range = len(runner.val_dataloader)//self.no_samples
+        lower_bound = range*self.sampled
+        upper_bound = range*(self.sampled+1)
+        rdm_idx = random.randint(lower_bound, upper_bound-1)
+        
+        if rdm_idx < batch_idx:
+            batch_idx = random.randint(0, batch_size-1)
             
             # Visualize only the first data
-            img_path = data_batch['data_samples'][idx].get('img_path')
+            img_path = data_batch['data_samples'][batch_idx].get('img_path')
             img_bytes = fileio.get(img_path, backend_args=self.backend_args)
             img = mmcv.imfrombytes(img_bytes, channel_order='rgb')
-            data_sample = outputs[idx]
+            data_sample = outputs[batch_idx]
 
             # revert the heatmap on the original image
             data_sample = merge_data_samples([data_sample])
@@ -106,4 +103,5 @@ class RandomPoseVisualizationHook(Hook):
                 step=total_curr_iter)
             
     def after_val(self, runner):
+        self.sampled = 0
         self._visualizer.push_images_to_backend()
