@@ -74,6 +74,8 @@ class RandomPoseVisualizationHook(Hook):
         
         batch_size = runner.val_dataloader.batch_size
         range = len(runner.val_dataloader)//self.no_samples
+        if range <= 0:
+            range = 1
         lower_bound = range*self.sampled
         upper_bound = range*(self.sampled+1)
         rdm_idx = random.randint(lower_bound, upper_bound-1)
