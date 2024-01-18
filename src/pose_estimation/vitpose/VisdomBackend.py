@@ -9,13 +9,11 @@ from mmengine.visualization.vis_backend import BaseVisBackend, force_init_env
 class VisdomBackend(BaseVisBackend):
     def __init__(self,
                  save_dir: str,
-                 init_kwargs: Optional[dict] = None,
-                 output_size: (int,int) = (192, 256)):
+                 init_kwargs: Optional[dict] = None):
         super().__init__(save_dir)
         self.image_idx = dict()
         self.scalars = dict()
         self._init_kwargs = init_kwargs
-        self.output_size = output_size
 
     def _init_env(self):
         self.vis = visdom.Visdom(server=self._init_kwargs.server, port=self._init_kwargs.port, env=self._init_kwargs.env)
