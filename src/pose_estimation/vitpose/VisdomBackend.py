@@ -39,8 +39,8 @@ class VisdomBackend(BaseVisBackend):
     @force_init_env
     def add_image(self, name: str, image: np.ndarray, step: int = 0, **kwargs) -> None:
         if name not in self.images:
-            self.images[name] = dict()
-        self.images[name][step] = image
+            self.images[name] = []
+        self.images[name].append(image)
 
     @force_init_env
     def add_scalar(self, name: str, value: Union[int, float, torch.Tensor, np.ndarray], step: int = 0, **kwargs) -> None:
@@ -86,12 +86,19 @@ class VisdomBackend(BaseVisBackend):
 
     @force_init_env
     def push(self) -> None:
-        images = collect_results(self.images, self.no_samples)
+        collected_images = collect_results(self.images, self.no_samples)
         self.images = dict()
         
-        if is_main_process():        
-            for key, steps in images.items():
-                for idx, (_, image) in enumerate(steps.items()):
+        if is_main_process():
+            images = dict()
+            for part_images in collected_images:
+                for key, value in part_images.items():
+                    if key not in images:
+                        images[key] = []
+                    images[key] += value
+                    
+            for key, value in images.items():
+                for idx, image in enumerate(value):
                     self.vis.images(image.transpose([2, 0, 1]), nrow=1, win=f"{self._init_kwargs.name}_{key}_image_{idx}", padding=2, opts=dict(title=f"{self._init_kwargs.name} {key} image {idx}"))
      
     @force_init_env   
