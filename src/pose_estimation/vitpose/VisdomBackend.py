@@ -1,7 +1,6 @@
 import visdom, torch
 import numpy as np
 from typing import Optional, Sequence, Union
-from mmengine.dist import collect_results, is_main_process
 from mmengine.config import Config
 from mmengine.registry import VISBACKENDS
 from mmengine.visualization.vis_backend import BaseVisBackend, force_init_env
@@ -11,12 +10,12 @@ class VisdomBackend(BaseVisBackend):
     def __init__(self,
                  save_dir: str,
                  init_kwargs: Optional[dict] = None,
-                 no_samples: int = 5):
+                 output_size: (int,int) = (192, 256)):
         super().__init__(save_dir)
-        self.images = dict()
+        self.image_idx = dict()
         self.scalars = dict()
         self._init_kwargs = init_kwargs
-        self.no_samples = no_samples
+        self.output_size = output_size
 
     def _init_env(self):
         self.vis = visdom.Visdom(server=self._init_kwargs.server, port=self._init_kwargs.port, env=self._init_kwargs.env)
@@ -38,9 +37,10 @@ class VisdomBackend(BaseVisBackend):
 
     @force_init_env
     def add_image(self, name: str, image: np.ndarray, step: int = 0, **kwargs) -> None:
-        if name not in self.images:
-            self.images[name] = []
-        self.images[name].append(image)
+        if name not in self.image_idx:
+            self.image_idx[name] = 0
+        self.vis.images(image.transpose([2, 0, 1]), nrow=1, win=f"{self._init_kwargs.name}_{name}_image_{self.image_idx[name]}", padding=2, opts=dict(title=f"{self._init_kwargs.name} {name} image {self.image_idx[name]}"))
+        self.image_idx[name] += 1
 
     @force_init_env
     def add_scalar(self, name: str, value: Union[int, float, torch.Tensor, np.ndarray], step: int = 0, **kwargs) -> None:
@@ -86,20 +86,7 @@ class VisdomBackend(BaseVisBackend):
 
     @force_init_env
     def push(self) -> None:
-        collected_images = collect_results(self.images, self.no_samples)
-        self.images = dict()
-        
-        if is_main_process():
-            images = dict()
-            for part_images in collected_images:
-                for key, value in part_images.items():
-                    if key not in images:
-                        images[key] = []
-                    images[key] += value
-                    
-            for key, value in images.items():
-                for idx, image in enumerate(value):
-                    self.vis.images(image.transpose([2, 0, 1]), nrow=1, win=f"{self._init_kwargs.name}_{key}_image_{idx}", padding=2, opts=dict(title=f"{self._init_kwargs.name} {key} image {idx}"))
+        self.image_idx = dict()
      
     @force_init_env   
     def save(self):

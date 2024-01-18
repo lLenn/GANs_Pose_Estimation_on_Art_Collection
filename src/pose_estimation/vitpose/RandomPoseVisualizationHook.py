@@ -53,31 +53,21 @@ class RandomPoseVisualizationHook(Hook):
         self.out_dir = out_dir
         self._test_index = 0
         self.backend_args = backend_args
-        self.samples = []
-        self.sampleIndices = []
+        self.sampleIds = []
 
     def before_val(self, runner: Runner) -> None:
         self._visualizer.set_dataset_meta(runner.val_evaluator.dataset_meta)
         
-        rank, world_size = get_dist_info()
-        self.sampleIndices = []
-        
-        if rank == 0:
-            for _ in range(self.no_samples):
-                index = random.randint(0, len(runner.val_dataloader.dataset)-1)
-                id = runner.val_dataloader.dataset[index]["data_samples"].get("id")
-                while id in self.sampleIndices:
-                    index = random.randint(0, len(runner.val_dataloader.dataset)-1)
-                    id = runner.val_dataloader.dataset[index]["data_samples"].get("id")
-                self.sampleIndices.append(id)
+        for _ in range(self.no_samples):
+            index = random.randint(0, len(runner.val_dataloader)-1)
+            batch_index = random.randint(0, len(runner.val_dataloader.batch_size)-1)
+            id = runner.val_dataloader[index][batch_index]["data_samples"].get("id")
+            while id in self.sampleIds:
+                index = random.randint(0, len(runner.val_dataloader)-1)
+                batch_index = random.randint(0, len(runner.val_dataloader.batch_size)-1)
+                id = runner.val_dataloader[index][batch_index]["data_samples"].get("id")
+            self.sampleIds.append(id)
             
-            if world_size == 1:
-                return
-        else:
-            self.sampleIndices = [None] * self.no_samples
-            
-        broadcast_object_list(self.sampleIndices, 0)
-        
     def after_val_iter(self, runner: Runner, batch_idx: int, data_batch: dict, outputs: Sequence[PoseDataSample]) -> None:
         """Run after every ``self.interval`` validation iterations.
 
@@ -91,7 +81,7 @@ class RandomPoseVisualizationHook(Hook):
         total_curr_iter = runner.iter + batch_idx
         
         for idx in range(batch_size):
-            if data_batch['data_samples'][idx].get('id') not in self.sampleIndices:
+            if data_batch['data_samples'][idx].get('id') not in self.sampleIds:
                 continue
             
             # Visualize only the first data
