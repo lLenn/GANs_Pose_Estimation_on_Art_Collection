@@ -64,11 +64,15 @@ class RandomPoseVisualizationHook(Hook):
         
         if rank == 0:
             for _ in range(self.no_samples):
-                self.sampleIndices.append(random.randint(0, len(runner.val_dataloader.dataset)-1))
+                index = random.randint(0, len(runner.val_dataloader.dataset)-1)
+                id = runner.val_dataloader.dataset[index]["data_samples"].get("id")
+                while id in self.sampleIndices:
+                    index = random.randint(0, len(runner.val_dataloader.dataset)-1)
+                    id = runner.val_dataloader.dataset[index]["data_samples"].get("id")
+                self.sampleIndices.append(id)
             
             if world_size == 1:
                 return
-            
         else:
             self.sampleIndices = [None] * self.no_samples
             
@@ -84,18 +88,17 @@ class RandomPoseVisualizationHook(Hook):
             outputs (Sequence[:obj:`PoseDataSample`]): Outputs from model.
         """
         batch_size = len(data_batch["inputs"])
-        lower_val_iter = batch_idx*batch_size
         total_curr_iter = runner.iter + batch_idx
-
-        for idx in range(lower_val_iter, (batch_idx+1)*batch_size):
-            if idx not in self.sampleIndices:
+        
+        for idx in range(batch_size):
+            if data_batch['data_samples'][idx].get('id') not in self.sampleIndices:
                 continue
             
             # Visualize only the first data
-            img_path = data_batch['data_samples'][idx-lower_val_iter].get('img_path')
+            img_path = data_batch['data_samples'][idx].get('img_path')
             img_bytes = fileio.get(img_path, backend_args=self.backend_args)
             img = mmcv.imfrombytes(img_bytes, channel_order='rgb')
-            data_sample = outputs[idx-lower_val_iter]
+            data_sample = outputs[idx]
 
             # revert the heatmap on the original image
             data_sample = merge_data_samples([data_sample])
