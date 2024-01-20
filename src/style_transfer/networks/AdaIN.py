@@ -19,7 +19,6 @@ class AdaIN:
             
     def transformTo(self, content, style):
         alpha = self.config.alpha
-        print(alpha)
         device = self.config.device
         
         vgg = nn.Sequential(*list(self.vgg.children())[:31])
