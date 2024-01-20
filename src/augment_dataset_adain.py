@@ -24,6 +24,7 @@ def worker(gpuId, dataset, target, style_dir, styles, workerIndices, logger, sty
     config.defrost()
     config.preserve_color = False
     config.alpha = 1.0
+    config.device = f"cuda:{gpuId}"
     config.freeze()
     style_transfer = AdaIN(config)
     style_transfer.loadModel({
