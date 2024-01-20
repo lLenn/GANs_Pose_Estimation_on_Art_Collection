@@ -4,65 +4,83 @@ import logging
 import copy
 import argparse
 import cv2
-import torch
+import sys
+import random
 from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm
 from torchvision.transforms import transforms
 from multiprocessing import Process, Queue
 from SWAHR.dataset.COCODataset import CocoDataset
-from style_transfer.networks import CycleGAN, CycleGANConfig
-from utils.Augmentation import copyAnnotations, copyDataset, copyMetadata, saveImage, createDatasets
+from style_transfer.networks import AdaIN, AdaINConfig
+from utils.Augmentation import copyAnnotations, copyMetadata, saveImage, createDatasets
 
-ID_ADDITION = 7000000000000
+ID_ADDITION = 8000000000000
 ID_SUB_ADDITION = 100000000000
 
-def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styledQueue):    
-    # Initiate the CycleGAN model with the proper configuration
-    config = CycleGANConfig.create()
+def worker(gpuId, dataset, target, style_dir, styles, workerIndices, logger, styledQueue):    
+    # Initiate the AdaIN model with the proper configuration
+    config = AdaINConfig.create("src/style_transfer/config/adain.yaml")
     config.defrost()
-    config.isTrain = False
-    config.gpu_ids = [gpuId]
+    config.preserve_color = False
+    config.alpha = 1.0
     config.freeze()
-    style_transfer = CycleGAN(config)
+    style_transfer = AdaIN(config)
+    style_transfer.loadModel({
+        "vgg": "../../Models/AdaIN/vgg_normalised.pth",
+        "decoder": "../../Models/AdaIN/decoder.pth"
+    })
     
-    # Each model found at the given path will be iterated
-    model_list = [file for file in os.listdir(models) if os.path.isdir(os.path.join(models, file))]
+    # Each style found at the given path will be iterated
+    style_list = [file for file in os.listdir(style_dir) if os.path.isdir(os.path.join(style_dir, file))]
     indicesSize = len(workerIndices)
     
     # Array that will be passed back to the main process
-    style_list = []
+    styled_images = []
     
-    # Transform image to proper input for cyclegan model
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
-    ])
-    
-    pbar = tqdm(total=indicesSize*len(model_list)) if logger is not None else None
+    pbar = tqdm(total=indicesSize*len(style_list)) if logger is not None else None
     # Each model is iterated and the workerIndices are split equally so 
-    for modelIndex, model in enumerate(model_list):
+    for modelIndex, model in enumerate(style_list):
         if model not in styles:
             if logger is not None:
                 pbar.update(indicesSize)
             continue
         id_addition = ID_ADDITION + ID_SUB_ADDITION * modelIndex
-        style_transfer.loadModel(os.path.join(models, model), withName=False)
+        
+        # Load a list of images that can be used for the style transfer
+        style_images = [file for file in os.listdir(os.path.join(style_dir, model)) if os.path.isfile(os.path.join(style_dir, model, file))]
+        len_style_images = len(style_images)
         for imageIndex in workerIndices:
+            # Copy the metadata and the annotations
             img_id = dataset.ids[imageIndex]
             metadata = dataset.coco.loadImgs(img_id)[0]
             file_path_from = os.path.join(dataset.root, 'images', dataset.dataset, metadata['file_name'])
             copiedMetadata = copyMetadata(metadata, id_addition)
             copiedAnnotations = copyAnnotations(dataset.coco.loadAnns(dataset.coco.getAnnIds(imgIds=metadata["id"])), id_addition)
+            
+            # Check if the images wasn't already created in a previous execution
             file_path_to = os.path.join(dataset.root, 'images', target, copiedMetadata["file_name"])
             if not os.path.exists(file_path_to):
+                # Load random style image
+                style_path = os.path.join(style_dir, model, style_images[random.randint(0, len_style_images-1)])
+                style = cv2.imread(style_path, cv2.IMREAD_COLOR|cv2.IMREAD_IGNORE_ORIENTATION)
+                style = cv2.cvtColor(style, cv2.COLOR_BGR2RGB)
                 image = cv2.imread(file_path_from, cv2.IMREAD_COLOR|cv2.IMREAD_IGNORE_ORIENTATION)
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                image = transform(image).unsqueeze(0)
-                styledImage = style_transfer.photographicToArtistic(image).squeeze()
-                styledImage = styledImage * 0.5 + 0.5
+                # Transform style to fit dimensions of content
+                smallest_size = sys.maxsize
+                for val in image.shape[:2]:
+                    if val < smallest_size:
+                        smallest_size = val
+                transform = transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Resize(smallest_size),
+                ])
+                style = transform(style)
+                image = transform(image)
+                styledImage = style_transfer.transformTo(image, style).squeeze()
                 saveImage(file_path_to, styledImage)
-            style_list.append({
+            styled_images.append({
                 "style": model,
                 "metadata": copiedMetadata,
                 "annotations": copiedAnnotations
@@ -73,10 +91,10 @@ def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styled
     if logger is not None:
         pbar.close()
     print(f"Worker {gpuId} closing ...")
-    styledQueue.put_nowait(style_list)
+    styledQueue.put_nowait(styled_images)
     print(f"Worker {gpuId} closed")
     
-def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
+def augment(coco, source, target, style_dir, styles, gpu_ids, num_workers, logger):
     dataset = CocoDataset(coco, source, "jpg")
     datasetSize = len(dataset)
     workers = []
@@ -93,7 +111,7 @@ def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
             process = Process(
                 target = worker,
                 args = (
-                    gpu_ids[i//num_workers], dataset, target, models, styles, index_groups, logger, styledQueue
+                    gpu_ids[i//num_workers], dataset, target, style_dir, styles, index_groups, logger, styledQueue
                 )
             )
             process.start()
@@ -107,58 +125,24 @@ def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
             process.join()
     else:
         logger.info("==>" + " No worker Started, main thread responsible for {} images".format(datasetSize))
-        worker(0, dataset, target, models, styles, list(range(datasetSize)), logger, styledQueue)
+        worker(0, dataset, target, style_dir, styles, list(range(datasetSize)), logger, styledQueue)
         styleList += styledQueue.get()
-        
-    # Copying the annotations to create our own datasets
-    # For each style we keep track of the already added number, as well as the image name
-    # The max number is determined by floor division and + 1 if style index is within the remainder
-    cocoAndStyledAnnotations = dict()
-    styledOnlyAnnotations = dict()
-    addedMixed = dict()
-    addedIds = []
-    withMixed = "mixed" in styles
-    lenStyles = len(styles) - (1 if withMixed else 0)
-    styleIndex = 0
-    for style in styles:
-        cocoAndStyledAnnotations[style] = copyDataset(dataset.coco.dataset)
-        styledOnlyAnnotations[style] = copyDataset(dataset.coco.dataset, True)
-        if style != "mixed":
-            countStyle = len(dataset.coco.dataset["images"])//lenStyles
-            if styleIndex < len(dataset.coco.dataset["images"])%lenStyles:
-                countStyle += 1
-            addedMixed[style] = [0, countStyle]
-            styleIndex += 1
     
-    for item in styleList:
-        id = int(str(item["metadata"]["id"])[2:])
-        cocoAndStyledAnnotations[item["style"]]["images"].append(item["metadata"])
-        cocoAndStyledAnnotations[item["style"]]["annotations"] += item["annotations"]
-        styledOnlyAnnotations[item["style"]]["images"].append(item["metadata"])
-        styledOnlyAnnotations[item["style"]]["annotations"] += item["annotations"]
-    
-        if withMixed:
-            if addedMixed[item["style"]][0] < addedMixed[item["style"]][1] and id not in addedIds:
-                styledOnlyAnnotations["mixed"]["images"].append(item["metadata"])
-                styledOnlyAnnotations["mixed"]["annotations"] += item["annotations"]
-                addedMixed[item["style"]][0] += 1
-                addedIds.append(id)
-    cocoAndStyledAnnotations["mixed"]["images"] += styledOnlyAnnotations["mixed"]["images"]
-    cocoAndStyledAnnotations["mixed"]["annotations"] += styledOnlyAnnotations["mixed"]["annotations"]
+    cocoAndStyledAnnotations, styledOnlyAnnotations = createDatasets(dataset.coco.dataset, styles, styleList)
         
     for style in styles:
         assert(len(cocoAndStyledAnnotations[style]["images"]) == len(dataset.coco.dataset["images"])*2 == len(styledOnlyAnnotations[style]["images"])*2)
         assert(len(cocoAndStyledAnnotations[style]["annotations"]) == len(dataset.coco.dataset["annotations"])*2 == len(styledOnlyAnnotations[style]["annotations"])*2)
     
-        with open(os.path.join(coco, "annotations", f"person_keypoints_coco_and_styled_{target}_{style}.json"), 'w') as file:
+        with open(os.path.join(coco, "annotations", f"person_keypoints_coco_and_adain_{target}_{style}.json"), 'w') as file:
             json.dump(cocoAndStyledAnnotations[style], file)
-        with open(os.path.join(coco, "annotations", f"person_keypoints_styled_{target}_{style}.json"), 'w') as file:
+        with open(os.path.join(coco, "annotations", f"person_keypoints_adain_{target}_{style}.json"), 'w') as file:
             json.dump(styledOnlyAnnotations[style], file)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--coco', type=str, required=True, help='Path to the coco dataset')
-    parser.add_argument('--models', type=str, required=True, help='Directory with models to use for transfer')
+    parser.add_argument('--style_dir', type=str, required=True, help='Directory with style datasets')
     parser.add_argument('--gpu_ids', type=int, nargs='+', default=[0], help='GPUs to use')
     parser.add_argument('--num_workers', type=int, default=1, help='Number of workers to use')
     parser.add_argument('--styles', type=str, nargs='+', default=[], help='List of styles to transform to')
@@ -167,7 +151,7 @@ if __name__ == "__main__":
      
     if args.log != "":
         logging.basicConfig(
-            filename=os.path.join(args.log, f"augmentation_cyclegan_{datetime.strftime(datetime.now(), '%Y-%m-%d-%H-%M')}.log"),
+            filename=os.path.join(args.log, f"augmentation_adain_{datetime.strftime(datetime.now(), '%Y-%m-%d-%H-%M')}.log"),
             format='%(asctime)-15s %(message)s'
         )
         logger = logging.getLogger()
@@ -177,12 +161,12 @@ if __name__ == "__main__":
     else:
         logger = None
     
-    trainPath = os.path.join(args.coco, "images", "train_corrected")
-    valPath = os.path.join(args.coco, "images", "val_corrected")
+    trainPath = os.path.join(args.coco, "images", "train_adain")
+    valPath = os.path.join(args.coco, "images", "val_adain")
     if not os.path.exists(trainPath):
         os.makedirs(trainPath)
     if not os.path.exists(valPath):
         os.makedirs(valPath)
         
-    augment(args.coco, "train2017", "train_corrected", args.models, args.styles, args.gpu_ids, args.num_workers, logger)
-    augment(args.coco, "val2017", "val_corrected", args.models, args.styles, args.gpu_ids, args.num_workers, logger)
+    augment(args.coco, "train2017", "train_adain", args.style_dir, args.styles, args.gpu_ids, args.num_workers, logger)
+    augment(args.coco, "val2017", "val_adain", args.style_dir, args.styles, args.gpu_ids, args.num_workers, logger)
