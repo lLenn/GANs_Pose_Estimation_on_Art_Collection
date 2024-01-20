@@ -20,7 +20,7 @@ ID_SUB_ADDITION = 100000000000
 
 def worker(gpuId, dataset, target, style_dir, styles, workerIndices, logger, styledQueue):    
     # Initiate the AdaIN model with the proper configuration
-    config = AdaINConfig.create("src/style_transfer/config/adain.yaml")
+    config = AdaINConfig.create("style_transfer/config/adain.yaml")
     config.defrost()
     config.preserve_color = False
     config.alpha = 1.0
@@ -32,7 +32,7 @@ def worker(gpuId, dataset, target, style_dir, styles, workerIndices, logger, sty
     })
     
     # Each style found at the given path will be iterated
-    style_list = [file for file in os.listdir(style_dir) if os.path.isdir(os.path.join(style_dir, file))]
+    style_list = [file for file in os.listdir(style_dir) if os.path.isdir(os.path.join(style_dir, file)) and file in styles]
     indicesSize = len(workerIndices)
     
     # Array that will be passed back to the main process
