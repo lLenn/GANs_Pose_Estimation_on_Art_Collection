@@ -88,6 +88,10 @@ def worker(gpuId, dataset, target, style_dir, styles, workerIndices, logger, sty
             })            
             if logger is not None:
                 pbar.update()
+            elif imageIndex % 1000 == 0:
+                print(f"Worker {gpuId} finished {modelIndex+1} images of {model}")
+        if logger is None:
+            print(f"Worker {gpuId} finished {model}")
     
     if logger is not None:
         pbar.close()
@@ -117,7 +121,7 @@ def augment(coco, source, target, style_dir, styles, gpu_ids, num_workers, logge
             )
             process.start()
             workers.append(process)
-            logger.info(f"==> Worker {i} Started on gpu {gpu_ids[i//num_workers]}, responsible for {len(index_groups)} images")
+            print(f"==> Worker {i} Started on gpu {gpu_ids[i//num_workers]}, responsible for {len(index_groups)} images")
         
         for _ in range(num_gpus*num_workers):
             styleList += styledQueue.get()
@@ -125,7 +129,7 @@ def augment(coco, source, target, style_dir, styles, gpu_ids, num_workers, logge
         for process in workers:
             process.join()
     else:
-        logger.info("==>" + " No worker Started, main thread responsible for {} images".format(datasetSize))
+        print("==>" + " No worker Started, main thread responsible for {} images".format(datasetSize))
         worker(0, dataset, target, style_dir, styles, list(range(datasetSize)), logger, styledQueue)
         styleList += styledQueue.get()
     
