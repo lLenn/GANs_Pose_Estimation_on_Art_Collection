@@ -102,7 +102,7 @@ def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
             )
             process.start()
             workers.append(process)
-            logger.info(f"==> Worker {i} Started on gpu {gpu_ids[i//num_workers]}, responsible for {len(index_groups)} images")
+            print(f"==> Worker {i} Started on gpu {gpu_ids[i//num_workers]}, responsible for {len(index_groups)} images")
         
         for _ in range(num_gpus*num_workers):
             styleList += styledQueue.get()
@@ -110,7 +110,7 @@ def augment(coco, source, target, models, styles, gpu_ids, num_workers, logger):
         for process in workers:
             process.join()
     else:
-        logger.info("==>" + " No worker Started, main thread responsible for {} images".format(datasetSize))
+        print("==>" + " No worker Started, main thread responsible for {} images".format(datasetSize))
         worker(0, dataset, target, models, styles, list(range(datasetSize)), logger, styledQueue)
         styleList += styledQueue.get()
         
