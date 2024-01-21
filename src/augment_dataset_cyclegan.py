@@ -66,10 +66,14 @@ def worker(gpuId, dataset, target, models, styles, workerIndices, logger, styled
                 "style": model,
                 "metadata": copiedMetadata,
                 "annotations": copiedAnnotations
-            })            
+            })
             if logger is not None:
                 pbar.update()
-    
+            elif imageIndex % 1000 == 0:
+                print(f"Worker {gpuId} finished {modelIndex+1} images of {model}")
+        if logger is None:
+            print(f"Worker {gpuId} finished {model}")
+            
     if logger is not None:
         pbar.close()
     print(f"Worker {gpuId} closing ...")
