@@ -8,3 +8,9 @@ class ArtPoseDataset(CocoDataset):
             
     def _get_anno_file_name(self):
         return os.path.join(self.root, "annotations", self.file)
+    
+    def _get_image_path(self, file_name):
+        if self.data_format == 'zip':
+            return os.path.join(self.root, 'images') + '.zip@' + file_name
+        else:
+            return os.path.join(self.root, 'images', file_name)
