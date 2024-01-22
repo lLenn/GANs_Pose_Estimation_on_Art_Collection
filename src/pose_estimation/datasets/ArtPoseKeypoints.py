@@ -27,7 +27,7 @@ class ArtPoseKeypoints(CocoKeypoints):
         super().__init__(cfg, cfg.DATASET.TRAIN, True, heatmap_generator, joints_generator, transforms)
         
     def _get_anno_file_name(self):
-        return os.path.join(self.root, "annotations", self.file)
+        return os.path.join(self.root, self.file)
     
     def __getitem__(self, index):
         coco = self.coco
