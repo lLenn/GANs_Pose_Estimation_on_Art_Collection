@@ -4,6 +4,8 @@ import argparse
 import re
 from multiprocessing import Process
 
+# Adds the correct folder to the filename.
+
 def convert(worker_no, file_path):
     print(f"Worker {worker_no} started")
     with open(file_path, "r+") as file:
@@ -11,8 +13,10 @@ def convert(worker_no, file_path):
         annotationsJSON = json.load(file)
         images = []
         for image in annotationsJSON["images"]:
-            if int(image["id"]) >= 1000000000000:
+            if int(image["id"]) >= 7000000000000:
                 image["file_name"] = os.path.join(f"{prefix}_corrected", image["file_name"])
+            if int(image["id"]) >= 8000000000000:
+                image["file_name"] = os.path.join(f"{prefix}_adain", image["file_name"])
             else:
                 image["file_name"] = os.path.join(f"{prefix}2017", image["file_name"])
             images.append(image)
