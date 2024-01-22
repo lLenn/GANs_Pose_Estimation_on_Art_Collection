@@ -4,7 +4,8 @@ import argparse
 import re
 from multiprocessing import Process
 
-# Adds the correct folder to the filename.
+# Adds the correct folder to the filename
+# ViTPose and ArtPose use filename relative from coco root
 
 def convert(worker_no, file_path):
     print(f"Worker {worker_no} started")
@@ -13,9 +14,10 @@ def convert(worker_no, file_path):
         annotationsJSON = json.load(file)
         images = []
         for image in annotationsJSON["images"]:
-            if int(image["id"]) >= 7000000000000:
+            id = int(image["id"])
+            if id >= 7000000000000 and id < 8000000000000:
                 image["file_name"] = os.path.join(f"{prefix}_corrected", image["file_name"])
-            if int(image["id"]) >= 8000000000000:
+            elif id >= 8000000000000:
                 image["file_name"] = os.path.join(f"{prefix}_adain", image["file_name"])
             else:
                 image["file_name"] = os.path.join(f"{prefix}2017", image["file_name"])
