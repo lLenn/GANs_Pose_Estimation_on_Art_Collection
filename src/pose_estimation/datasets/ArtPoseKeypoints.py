@@ -7,9 +7,6 @@ from SWAHR.dataset.target_generators import ScaleAwareHeatmapGenerator
 from SWAHR.dataset.target_generators import JointsGenerator
 from SWAHR.utils import zipreader
 
-ID_ADDITION = 7000000000000
-ID_SUB_ADDITION = 100000000000
-
 class ArtPoseKeypoints(CocoKeypoints):
     def __init__(self, cfg, file):
         transforms = build_transforms(cfg, True)
@@ -40,12 +37,12 @@ class ArtPoseKeypoints(CocoKeypoints):
 
         if self.data_format == 'zip':
             img = zipreader.imread(
-                self._get_image_path(file_name, image_info["id"]>=ID_SUB_ADDITION),
+                self._get_image_path(file_name),
                 cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION
             )
         else:
             img = cv2.imread(
-                self._get_image_path(file_name, image_info["id"]>=ID_SUB_ADDITION),
+                self._get_image_path(file_name),
                 cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION
             )
 
