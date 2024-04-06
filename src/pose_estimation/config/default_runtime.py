@@ -1,6 +1,6 @@
 default_scope = 'mmpose'
 
-backend_interval = 1000
+backend_interval = 1
 save_interval = 10
 
 # hooks

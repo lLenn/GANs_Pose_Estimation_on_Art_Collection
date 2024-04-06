@@ -11,7 +11,7 @@ More recently, a new dataset has emerged which will be of great help, the Human-
 \label{sec:baseline_pose_estimation}
 (dirty version)
 There are a few choice that are evident, does it have code available and is it compatible with the chosen dataset.
-Another is time of inference, how fast can it estimate the pose? This paper doesn't need real-time inference, but a algortihm can both be fast and accurate \cite{William2021}
+Another is time of inference, how fast can it estimate the pose? This paper doesn't need real-time inference, but a algorithm can both be fast and accurate \cite{William2021}
 Want to explore a diverse set of estimators. (bottom-up, top-down, ...)
 (SWAHR explain why...) \cite{SWARH} Faster network according to surveys. Uses the popular network HRNet. (Bottom-Up)
 (KAPAO explain why...) \cite{William2021} Claims to be both fast and accurate. (Single-stage; explain single stage in literature study. It means that it does away with the top-down/bottom-up paradigm which are two-stage models.)
@@ -32,6 +32,10 @@ Which is why image retrieval has been discussed previously.
 This way we can extract have more specialized datasets from the existing datasets.
 Even with the genre categorization it's still too broad.
 This has become apparent when training U-GAT-IT (This was before I realized that this model also does content transformation)
+(StyleGAN) Because I feel that the images to be trained on are not genre or artist dependent, because there is still a great variety among them.
+I think that it should be possible to train a style transfer with only a few samples.
+It was said to me that StyleGAN did this.
+I also want to research diffusion.
 
 StarGAN experiences mode collapse after 100,000 iterations. (iterations because their implementation doesn't use epochs)
 \section{Choice of Dataset}
@@ -69,6 +73,39 @@ Only found out about this when a masked image was shown in the experiments
 For ViTPose or other top-down pose estimators, the cropping of the image removes a lot of information that could potentially be relevant, like sitting on the back of an elephant or perspective.
 Can a network even look for perspective and environmental clues in the first place?
 Perhaps 2d is limited in that sense?
+We consider the tests on 2 datasets: 
+1. A set specifically made to measure style transfer.\cite{Chen2023} \cite{ioannou2024} Which contains a range of images over a different range of "measurements" 
+Our own dataset of people ...
+2. Custom dataset is create by running CIRQ on coco dataset with following query images: First query gives good results, but are dominated by outdoor images.
+The following queries were done to find more images in a different context
+While in the original paper there is only one style image used to train the network, here we compare the used content image and style image used for each transfer.
+For CycleGAN and StarGAN, we cycle through the real images to determine the style loss.
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \vspace{0.2em}
+    \caption{Performance comparison of Style Transfer measured by various metrics; Perceptual Distance (PD), Inception score (IS), Fréchet Inception Distance (FID) and Learned Perceptual Image Patch Similarity (LPIPS). }
+    \centering
+    \footnotesize
+    \label{tab:performance_style_transfer}
+    \begin{tabular}{ l|cccc|cccc|cccc }
+        \hline
+        \multirow{2}{*}{\bf{Method}}&\multicolumn{4}{c|}{\bf{Baroque}}&\multicolumn{4}{c|}{\bf{Renaissance}}&\multicolumn{4}{c}{\bf{Impressionism}}\cr
+        &\bf{PD}&\bf{IS}&\bf{FID}&\bf{LPIPS}&\bf{PD}&\bf{IS}&\bf{FID}&\bf{LPIPS}&\bf{PD}&\bf{IS}&\bf{FID}&\bf{LPIPS}\cr
+        \hline
+        \multicolumn{13}{c}{\bf{AST-IQAD Database}}\cr
+        \hline
+        CycleGAN & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        AdaIN & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        StarGAN & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline 
+        \multicolumn{13}{c}{\bf{Custom Database}}\cr
+        \hline
+        CycleGAN & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        AdaIN & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        StarGAN & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline 
+    \end{tabular}
+\end{table*}
 
 \label{sec:baseline_coco_style_transfer_results}
 
@@ -110,6 +147,113 @@ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets= 20 ] = 0.600\\
 | Arch | AP | Ap .5 | AP .75 | AP (M) | AP (L) | AR | AR .5 | AR .75 | AR (M) | AR (L) |\\
 |---|---|---|---|---|---|---|---|---|---|---|\\
 | SWAHR | 0.494 | 0.705 | 0.526 | 0.083 | 0.538 | 0.556 | 0.749 | 0.592 | 0.149 | 0.600 |\\
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{
+        Establishing a baseline for Pose Estimation on Artworks; measuring Percentage of Correct Keypoints (PCK) and Average Precision/Recall (AP/AR).
+        The first section shows the performance of the plain models on The COCO dataset measured.
+        The second shows the performance of the different models on the Human-Art dataset.
+    }
+    \centering
+    \footnotesize
+    \label{tab:baseline_pose_estimation_after_style_transfer}
+    \begin{tabular}{ l|cc|ccccc|ccccc }
+        \hline
+        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \hline
+        \multicolumn{13}{c}{\bf{COCO dataset}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Human-Art Dataset}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+    \end{tabular}
+\end{table*}
+
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{
+        Establishing a baseline for Pose Estimation on Artworks; measuring Percentage of Correct Keypoints (PCK) and Average Precision/Recall (AP/AR).
+        The COCO dataset is transformed with various Style Transfer models on which performance is measured. }
+    \centering
+    \footnotesize
+    \label{tab:baseline_pose_estimation_after_style_transfer}
+    \begin{tabular}{ l|cc|ccccc|ccccc }
+        \hline
+        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \hline
+        \multicolumn{13}{c}{\bf{CycleGAN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{AdaIN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+    \end{tabular}
+\end{table*}
 
 \section{Related Papers}
 Enhancing Human Pose Estimation in Ancient Vase Paintings via Perceptually-grounded Style Transfer Learning \cite{Madhu2020}\\

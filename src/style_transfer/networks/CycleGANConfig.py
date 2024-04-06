@@ -94,4 +94,7 @@ class CycleGANConfig:
             
             default_config.isTrain = False
             
+            default_config.G_A = ""
+            default_config.G_B = ""
+            
         return default_config

@@ -9,10 +9,114 @@ Using the same algorithms as seen in the previous chapter, they will now be used
 \section{Pose Estimation after Style Transform}
 This section will discuss (1)
 
+\subsection{Results}
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{Performance of plain Pose Estimation models after Artwork is transformed with different Style Transfer models. }
+    \centering
+    \footnotesize
+    \label{tab:experiments_pose_estimation_after_style_transfer}
+    \begin{tabular}{ l|cc|ccccc|ccccc }
+        \hline
+        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \hline
+        \multicolumn{13}{c}{\bf{CycleGAN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on Baroque dataset}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Renaissance dataset}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism dataset}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{AdaIN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on Baroque dataset}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Renaissance dataset}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism dataset}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+    \end{tabular}
+\end{table*}
+
 \section{Augmenting COCO Dataset for Pose Estimation Training}
 This section will discuss (2)
 Top-down pose estimators also require that the human detector is trained with styled images.
 with pretrained model: all except: mixed (not corrected) and impressionism
+
+\subsection{Results}
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{Performance of different Pose Estimation models trained on Style Transfered datasets on Human-Art dataset. }
+    \centering
+    \footnotesize
+    \label{tab:experiments_style_transfered_pose_estimation}
+    \begin{tabular}{ l|cc|ccccc|ccccc }
+        \hline
+        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \hline
+        \multicolumn{13}{c}{\bf{CycleGAN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{AdaIN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+    \end{tabular}
+\end{table*}
 
 \section{Discussion}
 It would be useful to train a network to learn proper 
@@ -24,12 +128,17 @@ Meaning that for every layer it branches to a subnetwork or as another entrance 
 Is this how HRNet works? (research)
 Why is dataset thrice the size as the original dataset?
 
-Discuss the flaws of mmpose: log_processor doesn't give enough info, eval code during runtime, all centered around configuration, but misses ease of programming.
-HAs train_loop, val_loop variables for extra confusion
+Discuss the flaws of mmpose: log\_processor doesn't give enough info, eval code during runtime, all centered around configuration, but misses ease of programming.
+HAs train\_loop, val\_loop variables for extra confusion
 Don't have your code add prefixes to output dirs or anything else. It only causes confusion.
 It's also difficult to add new stuff, because the hooks don't provide enough information meaning hacks need to be implemented.
 When resuming a network, the iterations continue from previous session, but if the new session has a bigger or smaller world, those iterations don't match the new world size.
 How does multiple distribution sessions work?
 
+On how to do research: would a method of research like gradient descent where one does a quick research paper of to check improvements and only proceeds in a certain direction when improvements are significant.
+Instead of researching every single variable.
+
 Use a different backend and not visdom. It's difficult to alter test results with visdom, like removing unnecessary domains.
 
+With styled datasets, while they work better for artworks?, they don't improve the results on the COCO dataset.
+My assumption was that the augmentation of the dataset would make it generalize better, but perhaps it confuses the model too much when samples are very straight forward, but it would make better predictions when used for hard cases.

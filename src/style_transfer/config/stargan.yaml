@@ -5,6 +5,7 @@ num_domains: 4  # Number of domains
 latent_dim: 16  # Latent vector dimension
 hidden_dim: 512  # Hidden dimension of mapping network
 style_dim: 64  # Style code dimension
+style_output: "impressionism"
 
 # weight for objective functions
 lambda_reg: 1  # Weight for R1 regularization

@@ -19,6 +19,7 @@ _minted-main
 .data
 .venv*
 .output
+.tmp
 bin
 lib
 __pycache__

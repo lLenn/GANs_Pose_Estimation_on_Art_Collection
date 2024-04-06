@@ -39,3 +39,6 @@ phase: test # train, val, test, etc
 # Dropout and Batchnorm has different behavioir during training and test.
 eval: True # use eval mode during test time.
 num_test: 50 # how many test images to run
+# Pretrain model
+G_A: ""
+G_B: ""

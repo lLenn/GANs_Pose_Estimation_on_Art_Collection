@@ -16,7 +16,7 @@ class CycleGAN:
         if hasattr(config, "save_no"):
             maxlen = (None if config.save_no<0 else config.save_no)
         self.savedFiles = deque(maxlen = maxlen)
-       
+        
     def save_networks(self, epoch):
         """Save all the networks to the disk.
 

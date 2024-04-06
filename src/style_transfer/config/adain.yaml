@@ -14,7 +14,7 @@ save_ext: ".jpg" # The extension name of the output image
 output: "output" # Directory to save the output image(s)
 
 # Advanced options
-preserve_color: True # If specified, preserve color of the content image
+preserve_color: False # If specified, preserve color of the content image
 alpha: 1.0 # The weight that controls the degree of stylization. Should be between 0 and 1
 style_interpolation_weights: "" # The weight for blending the style of multiple style images
 

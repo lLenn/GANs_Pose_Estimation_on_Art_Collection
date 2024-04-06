@@ -358,6 +358,37 @@ To the same extent, bottom-up models will have greater inaccuracy with grouping 
 Computationally, the top-down model's speed is limited by the number of people found.
 The higher efficiency of bottom-up models, make them more suitable for real-time applications.
 
+\subsection{Evaluation Metric}
+The evaluation of an \gls{HPE} looks to measure the accuracy of the location of predicted joints.
+Because of the different number of features and tasks across datasets, there are also several different evaluation metrics in use.
+Explained next will be the most commonly used metrics.
+
+\textbf{Percentage of Correct Parts (PCP)}, proposed by Ferrari at al. \cite{Ferrari2008} measures the detection rate of limbs.
+A limb is considered the area between 2 joints and viewed as detected when the distance between the predicted joints and the real joints is less than halve the length of the limb.
+This method penalizes shorter limbs and to address this, \gls{PDJ} was introduced which instead measures it with a fraction of the torso diameter.
+The higher, the better.
+
+\textbf{Percentage of Correct Keypoints (PCK)}, suggested by Yang et al. \cite{Yang2013} measures the accuracy of the predicted keypoints.
+The keypoints should be within a certain threshold which is a fraction of the person's bounding box size; denoted as PCK@0.2 when it should be less than 20\%.
+It can also be 50\% of the head's length; denoted as PCKh@0.5, which makes it "articulation independent".
+The higher, the better.
+
+\textbf{Average Precision/Recall (AP/AR)}, is measured by Yang et al. \cite{Yang2013} by counting a keypoint that is within a certain threshold of the ground truth as a true positive.
+For Lin et al. \cite{Lin2014}, the AP is calculated by measuring the \gls{OKS} which is similar to \gls{IoU} in Object Detection.
+The \gls{OKS} is defined as:
+\begin{equation}
+	\operatorname{OKS} = \frac{\sum_{i}\exp(-d_i^2/2s^2k_i^2)\delta(v_i > 0)}{\sum_i \delta(v_i > 0)}
+\end{equation}
+Here, $d_i$ is the distance between the predicted keypoint and the ground truth.
+The distance is run through a unnormalized Gaussian with a standard deviation of $sk_i$ which yields a similarity that ranges between 0 and 1.
+$s$ is the scale, calculated as the root of the segment area, and $k_i$ is a constant for each keypoint that controls falloff.
+\gls{OKS} is the mean of visible keypoints ($v_i > 0$).
+These can be used to calculate \gls{AP} and \gls{AR} at different thresholds.
+10 different metrics are used to calculate the performance of a model:
+$\operatorname{AP}^{0.5}$ (where the $\operatorname{OKS}$ threshold is $0.5$), $\operatorname{AP}^{0.75}$ and $\operatorname{AP}$ (the mean of 10 values from $\operatorname{OKS}=0.50$ to $0.95$ with a $0.05$ step), as well as, $\operatorname{AP}^{M}$ for medium scaled objects and $\operatorname{AP}^{L}$ for large scaled objects.
+The same are calculated for \gls{AR}.
+The higher, the better.
+
 \begin{figure}
 	\centering
 	\subcaptionbox{Content Image \label{fig:style_transfer_ulyanov_content}}{%
@@ -568,8 +599,37 @@ This image is used to train the \gls{GAN}.
 They also show that the shared-latent space assumption implies cycle-consistency, which is the final loss function of the network.
 
 \subsection{Evaluation Metric}
-(dirty version)
-Discuss how the application of style transfer can be objectively measure, if at all?
+There are several methods of evaluating the quality of a generated image. 
+A first metric was through human evaluation; a score was given based on generation quality.
+This proved to be inconsistent as a person's perception can change over time.
+Afterwards, new metrics were introduced which will be discussed here. \cite{Hoyez2022}
+
+\textbf{Perceptual Distance (PD)} is proposed by Johnson et al. \cite{Johnson2016}.
+It uses the VGG-16 network \cite{Simonyan2015} trained on ImageNet \cite{Deng2009} to define perceptual loss functions.
+These are extracted from the layers for the style and content images, and compared to the generated image.
+The lower the score, the better.
+
+\textbf{Inception score (IS)}, as described by Salimans et al. \cite{Salimans2016}, uses a pre-trained Inception model \cite{Szegedy2015} to describe the quality of the generated images.
+It describes that the entropy of the distribution of predicted labels for individual images needs to be minimized while the entropy of the distribution across all images need to be high.
+This equates to each image having generated a distinct label and the labels being equally distributed.
+The closer to 1, the better.
+
+\textbf{Fréchet Inception Distance (FID)} is the most used measurement and suggested by Heusel et al. \cite{Heusel2017} to enhance the \gls{IS}.
+\gls{IS} is only calculated on the distribution of the generated images.
+\gls{FID} uses the distribution of both real and generated images.
+It calculates the Fréchet distance \cite{Frechet1957} between the Gaussian distributions of real and generated images.
+The Gaussians are formed from the coding layer of the Inception network \cite{Szegedy2015}.
+The lower, the better.
+
+\textbf{Learned Perceptual Image Patch Similarity (LPIPS)} is a metric developed by Zhang et al. \cite{Zhang2018} and the second most popular.
+It calculates the distance between the activations of the hidden layers in an object detection model (several models are proposed).
+They show that this correlates closely to human perception.
+It can also be used to evaluate the diversity of a network by calculating the average \gls{LPIPS} score of a pair of randomly generated output.
+The higher, the better.
+
+\subsubsection{Summary}
+There are plenty of other evaluation metrics available that also try to correlate closely to human evaluation, but they are mostly just attempts to improve previously discussed metrics.
+Until this day, image similarity metrics continue to be a challenging problem.
 
 \section{Content Based Image Retrieval}
 \gls{CBIR}, a long-established research area, is the task of finding semantically matched or similar content images for a specified query image.
