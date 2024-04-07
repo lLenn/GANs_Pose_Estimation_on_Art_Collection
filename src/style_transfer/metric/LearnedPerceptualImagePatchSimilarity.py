@@ -43,7 +43,7 @@ class LearnedPerceptualImagePatchSimilarity:
                     lpips_values_similarity.append(lpips(generated_images[i], real_images[j]).cpu().detach().numpy())
                 for j in range(i+1, len(generated_images)):
                     lpips_values_variation.append(lpips(generated_images[i], generated_images[j]).cpu().detach().numpy())
-            return np.mean(lpips_values_similarity), np.mean(lpips_values_variation)
+            return np.float64(np.mean(lpips_values_similarity)), np.float64(np.mean(lpips_values_variation))
         else:
             return 0, 0
     
