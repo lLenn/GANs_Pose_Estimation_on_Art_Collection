@@ -19,6 +19,7 @@ class StarGANConfig:
         default_config.latent_dim = 16  # Latent vector dimension
         default_config.hidden_dim = 512  # Hidden dimension of mapping network
         default_config.style_dim = 64  # Style code dimension
+        default_config.style_output = "impressionism"  # Style to transform to
 
         # weight for objective functions
         default_config.lambda_reg = 1  # Weight for R1 regularization

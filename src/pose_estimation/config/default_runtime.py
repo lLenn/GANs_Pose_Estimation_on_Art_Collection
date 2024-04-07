@@ -1,7 +1,8 @@
 default_scope = 'mmpose'
 
-backend_interval = 1
+backend_interval = 600
 save_interval = 10
+no_samples = 5
 
 # hooks
 default_hooks = dict(
@@ -10,7 +11,7 @@ default_hooks = dict(
     param_scheduler=dict(type='ParamSchedulerHook'),
     checkpoint=dict(type='VisdomCheckpointHook', interval=save_interval),
     sampler_seed=dict(type='DistSamplerSeedHook'),
-    visualization=dict(type='RandomPoseVisualizationHook', no_samples=5),
+    visualization=dict(type='RandomPoseVisualizationHook', no_samples=no_samples),
     badcase=dict(
         type='BadCaseAnalysisHook',
         enable=False,

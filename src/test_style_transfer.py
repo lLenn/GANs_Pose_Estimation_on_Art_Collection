@@ -4,7 +4,6 @@ import argparse
 import torch
 import torch.multiprocessing as mp
 from tqdm import tqdm
-from torchvision.transforms import transforms
 from torch.utils.data import DataLoader
 from torch.distributed import init_process_group, destroy_process_group
 from torch.utils.data.distributed import DistributedSampler
@@ -40,7 +39,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         })
     elif model == "AdaIN":
         # "style_transfer/config/adain.yaml"
-        config = AdaINConfig.create(config_file)
+        config = AdaINConfig.create(config_file, options=options)
         network = AdaIN(config)
         network.loadModel({
             "vgg": config.vgg,
@@ -48,9 +47,11 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         })
     elif model == "StarGAN":
         # "style_transfer/config/stargan.yaml"
-        config = StarGANConfig.create(config_file)
+        config = StarGANConfig.create(config_file, options=options)
         network = StarGAN(config)
         network.loadModel(config.checkpoint_dir, "latest")
+    else:
+        raise Exception("Model not recognized") 
     
     size = 512
     
@@ -111,13 +112,14 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
             elif model == "StarGAN":
                 data_batch = data_batch.cuda()
                 data_batch = (data_batch - mean) / std
-                i = 0
                 if config.style_output == "baroque":
                     i = 1
                 elif config.style_output == "impressionism":
                     i = 2
                 elif config.style_output == "renaissance":
                     i = 3
+                else:
+                    raise Exception("Style output not recognized") 
                 style = torch.tensor([i]).cuda()
                 predictions = network.imageToStyle(data_batch, style)
                 data_batch = (data_batch * std) + mean
