@@ -44,7 +44,7 @@ class PerceptualDistance():
 
         if rank == 0:
             gathered_distances = [i.cpu().detach().numpy() for i in chain.from_iterable(gather_list)]
-            return np.mean(gathered_distances)
+            return np.float64(np.mean(gathered_distances))
         else:
             return 0
 
