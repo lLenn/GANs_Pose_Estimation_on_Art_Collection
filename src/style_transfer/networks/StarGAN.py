@@ -82,9 +82,9 @@ class StarGAN():
     def to(self, device):
         self.model.device = device
         self.model.to(device)
-        for name, module in self.nets.items():
+        for name, module in self.model.nets.items():
             module.to(device)
-        for name, module in self.nets_ema.items():
+        for name, module in self.model.nets_ema.items():
             module.to(device)
     
     def train(self, dataloader_src, dataloader_ref, dataloader_val):
