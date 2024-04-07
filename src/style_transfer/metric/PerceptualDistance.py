@@ -38,7 +38,7 @@ class PerceptualDistance():
         if world_size == 1:
             return np.mean(self.distance)
         
-        distance = torch.tensor(self.distance).to(self.device)
+        distance = torch.tensor(self.distance)
         gather_list = [None] * world_size
         torch.distributed.all_gather_object(gather_list, distance)
 

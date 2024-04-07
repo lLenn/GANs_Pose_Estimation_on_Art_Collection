@@ -13,7 +13,6 @@ class InceptionScore:
         self.probs = np.append(self.probs, probs, axis=0)
 
     def get_inception_score(self, rank, world_size):
-        device = torch.device(f"cuda:{rank}")
         scores = []
         kl = self.probs * (np.log(self.probs) - np.log(np.expand_dims(np.mean(self.probs, 0), 0)))
         kl = np.mean(np.sum(kl, 1))
@@ -22,7 +21,7 @@ class InceptionScore:
         if world_size == 1:
             return np.mean(scores), np.std(scores)
         
-        scores = torch.tensor(scores).to(device)
+        scores = torch.tensor(scores)
         gather_list = [None] * world_size
         torch.distributed.all_gather_object(gather_list, scores)
 

@@ -24,17 +24,16 @@ class FrechetInceptionDistance:
         return np.real(dist)
     
     def get_frechet_inception_distance(self, rank, world_size):
-        device = torch.device(f"cuda:{rank}")
         generated_acts = np.empty((0,2048))
         real_acts = np.empty((0,2048))
         gather_generated = [None] * world_size
         gather_real = [None] * world_size
         if world_size > 1:
-            torch.distributed.all_gather_object(gather_generated, torch.tensor(self.generated_acts).to(device))
-            torch.distributed.all_gather_object(gather_real, torch.tensor(self.real_acts).to(device))
+            torch.distributed.all_gather_object(gather_generated, torch.tensor(self.generated_acts))
+            torch.distributed.all_gather_object(gather_real, torch.tensor(self.real_acts))
         else:
-            gather_generated = [torch.tensor(self.generated_acts).to(device)]
-            gather_real = [torch.tensor(self.real_acts).to(device)]
+            gather_generated = [torch.tensor(self.generated_acts)]
+            gather_real = [torch.tensor(self.real_acts)]
         
         if rank == 0:
             for i in range(world_size):
