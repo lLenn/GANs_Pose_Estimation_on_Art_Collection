@@ -43,8 +43,8 @@ class PerceptualDistance():
         torch.distributed.all_gather_object(gather_list, distance)
 
         if rank == 0:
-            gathered_distances = torch.tensor(gather_list).view(1, -1)
-            return torch.mean(gathered_distances).item()
+            gathered_distances = [i.cpu().detach().numpy() for i in chain.from_iterable(gather_list)]
+            return np.mean(gathered_distances)
 
     def get_content_loss(self, content_images, generated_images):
         content_images = self.backbone_content(content_images)
