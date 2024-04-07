@@ -29,9 +29,13 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     
     network = None
     config = None
+    device = torch.device(f"cuda:{rank}")
     if model == "CycleGAN":
         # "style_transfer/config/cyclegan_test.yaml"
         config = CycleGANConfig.create(config_file, options=options, phase="test")
+        config.defrost()
+        config.gpu_ids = [rank]
+        config.freeze()
         network = CycleGAN(config)
         network.loadModel({
             "G_A": config.G_A,
@@ -40,6 +44,9 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     elif model == "AdaIN":
         # "style_transfer/config/adain.yaml"
         config = AdaINConfig.create(config_file, options=options)
+        config.defrost()
+        config.device = f"cuda:{rank}"
+        config.freeze()
         network = AdaIN(config)
         network.loadModel({
             "vgg": config.vgg,
@@ -49,6 +56,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         # "style_transfer/config/stargan.yaml"
         config = StarGANConfig.create(config_file, options=options)
         network = StarGAN(config)
+        network.to(device)
         network.loadModel(config.checkpoint_dir, "latest")
     else:
         raise Exception("Model not recognized") 
@@ -82,9 +90,9 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     
     with torch.no_grad():
         real_iter = iter(real_dataset)
-        perceptual_distance = PerceptualDistance()
-        inception_score = InceptionScore()
-        frechet_inception_distance = FrechetInceptionDistance()
+        perceptual_distance = PerceptualDistance(rank)
+        inception_score = InceptionScore(rank)
+        frechet_inception_distance = FrechetInceptionDistance(rank)
         lpips = LearnedPerceptualImagePatchSimilarity(size=size)
         
         pbar = tqdm(total=len(dataloader))
@@ -95,22 +103,22 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
             except:
                 real_iter = iter(real_dataset)
                 style_image = next(real_iter)
-            style_image = style_image.cuda()
+            style_image = style_image.to(device)
             
-            mean = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).cuda()
-            std = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).cuda()
+            mean = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
+            std = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
             
             if model == "CycleGAN":
-                data_batch = data_batch.cuda()
+                data_batch = data_batch.to(device)
                 data_batch = (data_batch - mean) / std
                 predictions = network.photographicToArtistic(data_batch)
                 data_batch = (data_batch * std) + mean
                 predictions = (predictions * std) + mean
             elif model == "AdaIN":
-                data_batch = data_batch.cuda()
+                data_batch = data_batch.to(device)
                 predictions = network.transformTo(data_batch, style_image)
             elif model == "StarGAN":
-                data_batch = data_batch.cuda()
+                data_batch = data_batch.to(device)
                 data_batch = (data_batch - mean) / std
                 if config.style_output == "baroque":
                     i = 1
@@ -120,7 +128,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
                     i = 3
                 else:
                     raise Exception("Style output not recognized") 
-                style = torch.tensor([i]).cuda()
+                style = torch.tensor([i]).to(device)
                 predictions = network.imageToStyle(data_batch, style)
                 data_batch = (data_batch * std) + mean
                 predictions = (predictions * std) + mean
@@ -134,7 +142,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
               
         pbar = tqdm(total=len(real_dataloader))
         for real_batch in real_dataloader:
-            real_batch = real_batch.cuda()
+            real_batch = real_batch.to(device)
             frechet_inception_distance.process_real_images(real_batch)
             lpips.process_real_images(real_batch)
             pbar.update()

@@ -8,13 +8,16 @@ from torchvision.models import vgg19
 from itertools import chain
     
 class PerceptualDistance():
-    def __init__(self):
-        backbone = self.init_backbone()
+    def __init__(self, rank):
+        
+        backbone = self.init_backbone(rank)
         self.backbone_content = backbone[0]
         self.backbone_style = backbone[1]
+        
+        self.device = torch.device(f"cuda:{rank}")
 
-        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, -1, 1, 1).cuda()
-        self.std = torch.tensor([0.229, 0.224, 0.225]).view(1, -1, 1, 1).cuda()
+        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, -1, 1, 1).to(self.device)
+        self.std = torch.tensor([0.229, 0.224, 0.225]).view(1, -1, 1, 1).to(self.device)
         
         self.distance = []
 
@@ -35,7 +38,7 @@ class PerceptualDistance():
         if world_size == 1:
             return np.mean(self.distance)
         
-        distance = torch.tensor(distance)
+        distance = torch.tensor(distance).to(self.device)
         gather_list = [None] * world_size
         torch.distributed.all_gather_object(gather_list, distance)
 
@@ -74,7 +77,7 @@ class PerceptualDistance():
         return (images - self.mean) / self.std
         
     @staticmethod
-    def init_backbone():
+    def init_backbone(rank):
         vgg = vgg19(pretrained=True)
         features = vgg.features[0:30]
 
@@ -84,8 +87,7 @@ class PerceptualDistance():
         for p in features.parameters():
             p.requires_grad = False
 
-        if torch.cuda.is_available():
-            features = features.cuda()
+        features = features.cuda(torch.device(f"cuda:{rank}"))
 
         # relu4_2
         backbone_content = features[0:23]

@@ -15,28 +15,29 @@ class LearnedPerceptualImagePatchSimilarity:
         self.real_images = np.append(self.real_images, images.cpu().detach().numpy(), axis=0)
     
     def get_lpips(self, rank, world_size):
+        device = torch.device(f"cuda:{rank}")
         generated_images = np.empty((0,3,self.size,self.size))
         real_images = np.empty((0,3,self.size,self.size))
         gather_generated = [None] * world_size
         gather_real = [None] * world_size
         if world_size > 1:
-            torch.distributed.all_gather_object(gather_generated, torch.tensor(self.generated_images))
-            torch.distributed.all_gather_object(gather_real, torch.tensor(self.real_images))
+            torch.distributed.all_gather_object(gather_generated, torch.tensor(self.generated_images).to(device))
+            torch.distributed.all_gather_object(gather_real, torch.tensor(self.real_images).to(device))
         else:
-            gather_generated = [torch.tensor(self.generated_images)]
-            gather_real = [torch.tensor(self.real_images)]
+            gather_generated = [torch.tensor(self.generated_images).to(device)]
+            gather_real = [torch.tensor(self.real_images).to(device)]
         
         if rank == 0:
             for i in range(world_size):
                 generated_images = np.append(generated_images, gather_generated[i].cpu().detach().numpy(), axis=0)
                 real_images = np.append(real_images, gather_real[i].cpu().detach().numpy(), axis=0)
 
-            lpips = LPIPS().eval().cuda()
+            lpips = LPIPS().eval().cuda(device)
             lpips_values_similarity = []
             lpips_values_variation = []
 
-            generated_images = torch.tensor(generated_images).type(torch.FloatTensor).cuda()
-            real_images = torch.tensor(real_images).type(torch.FloatTensor).cuda()
+            generated_images = torch.tensor(generated_images).type(torch.FloatTensor).cuda(device)
+            real_images = torch.tensor(real_images).type(torch.FloatTensor).cuda(device)
 
             for i in range(len(generated_images)):
                 for j in range(len(real_images)):

@@ -5,16 +5,17 @@ from scipy import linalg
 from itertools import chain
 
 class FrechetInceptionDistance:
-    def __init__(self):
+    def __init__(self, rank):
+        self.device = torch.device(f"cuda:{rank}")
         self.generated_acts = np.empty((0,2048))
         self.real_acts = np.empty((0,2048))
         
     def process_generated_images(self, images):
-        acts, = get_inception_feature(images, dims=[2048], use_torch=False)
+        acts, = get_inception_feature(images, dims=[2048], use_torch=False, device=self.device)
         self.generated_acts = np.append(self.generated_acts, acts, axis=0)
         
     def process_real_images(self, images):
-        acts, = get_inception_feature(images, dims=[2048], use_torch=False)
+        acts, = get_inception_feature(images, dims=[2048], use_torch=False, device=self.device)
         self.real_acts = np.append(self.real_acts, acts, axis=0)
 
     def frechet_distance(mu, cov, mu2, cov2):
@@ -23,16 +24,17 @@ class FrechetInceptionDistance:
         return np.real(dist)
     
     def get_frechet_inception_distance(self, rank, world_size):
+        device = torch.device(f"cuda:{rank}")
         generated_acts = np.empty((0,2048))
         real_acts = np.empty((0,2048))
         gather_generated = [None] * world_size
         gather_real = [None] * world_size
         if world_size > 1:
-            torch.distributed.all_gather_object(gather_generated, torch.tensor(self.generated_acts))
-            torch.distributed.all_gather_object(gather_real, torch.tensor(self.real_acts))
+            torch.distributed.all_gather_object(gather_generated, torch.tensor(self.generated_acts).to(device))
+            torch.distributed.all_gather_object(gather_real, torch.tensor(self.real_acts).to(device))
         else:
-            gather_generated = [torch.tensor(self.generated_acts)]
-            gather_real = [torch.tensor(self.real_acts)]
+            gather_generated = [torch.tensor(self.generated_acts).to(device)]
+            gather_real = [torch.tensor(self.real_acts).to(device)]
         
         if rank == 0:
             for i in range(world_size):
