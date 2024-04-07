@@ -26,5 +26,5 @@ class InceptionScore:
         torch.distributed.all_gather_object(gather_list, scores)
 
         if rank == 0:
-            gathered_scores = torch.stack([i for i in chain.from_iterable(gather_list)], dim=0)
-            return torch.mean(gathered_scores).item(), torch.std(gathered_scores).item()
+            gathered_scores = [i for i in chain.from_iterable(gather_list.cpu().detach().numpy())]
+            return np.mean(gathered_scores).item(), np.std(gathered_scores).item()
