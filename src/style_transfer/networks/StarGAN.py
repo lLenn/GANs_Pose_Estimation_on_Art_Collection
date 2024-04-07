@@ -75,9 +75,13 @@ class StarGAN():
     
     def imageToStyle(self, image, style):
         noise = torch.randn(1, self.config.latent_dim).to(self.model.device)
-        styleEnc = self.model.nets_ema.mapping_network(noise, style)
-        styledImage = self.model.nets_ema.generator(image, styleEnc)
+        styleEnc = self.model.mapping_network_ema(noise, style)
+        styledImage = self.model.generator_ema(image, styleEnc)
         return styledImage
+    
+    def to(self, device):
+        self.model.device = device
+        self.model.to(device)
     
     def train(self, dataloader_src, dataloader_ref, dataloader_val):
         args = self.model.args
