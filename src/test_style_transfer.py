@@ -30,6 +30,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     network = None
     config = None
     device = torch.device(f"cuda:{rank}")
+    print(device)
     if model == "CycleGAN":
         # "style_transfer/config/cyclegan_test.yaml"
         config = CycleGANConfig.create(config_file, options=options, phase="test")
