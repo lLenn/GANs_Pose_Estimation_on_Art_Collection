@@ -28,3 +28,5 @@ class InceptionScore:
         if rank == 0:
             gathered_scores = [i.cpu().detach().numpy() for i in chain.from_iterable(gather_list)]
             return np.mean(gathered_scores), np.std(gathered_scores)
+        else:
+            return 0, 0

@@ -45,6 +45,8 @@ class PerceptualDistance():
         if rank == 0:
             gathered_distances = [i.cpu().detach().numpy() for i in chain.from_iterable(gather_list)]
             return np.mean(gathered_distances)
+        else:
+            return 0
 
     def get_content_loss(self, content_images, generated_images):
         content_images = self.backbone_content(content_images)
