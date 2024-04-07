@@ -27,7 +27,6 @@ class PerceptualDistance():
         content_images = self.normalize_image(content_images)
         style_image = self.normalize_image(style_image)
         generated_images = self.normalize_image(generated_images)
-
         
         loss = []
         loss.append(self.get_content_loss(content_images, generated_images))

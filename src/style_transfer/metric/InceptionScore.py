@@ -19,11 +19,12 @@ class InceptionScore:
         scores.append(np.exp(kl))
         
         if world_size == 1:
-            return np.mean(scores), np.std(scores)
-        
-        scores = torch.tensor(scores)
-        gather_list = [None] * world_size
-        torch.distributed.all_gather_object(gather_list, scores)
+            gather_list = [torch.tensor(scores)]
+            # return np.mean(scores), np.std(scores)
+        else:
+            scores = torch.tensor(scores)
+            gather_list = [None] * world_size
+            torch.distributed.all_gather_object(gather_list, scores)
 
         if rank == 0:
             gathered_scores = [i.cpu().detach().numpy() for i in chain.from_iterable(gather_list)]
