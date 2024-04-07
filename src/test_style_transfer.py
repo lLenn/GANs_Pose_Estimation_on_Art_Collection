@@ -161,8 +161,9 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         "variation": lpips_variation
     }
     
-    with open(os.path.join(results_dir, f"{results_prefix}_metrics"), "w") as result_file:
-        result_file.write(json.dumps(metrics))
+    if rank == 0:
+        with open(os.path.join(results_dir, f"{results_prefix}_metrics"), "w") as result_file:
+            result_file.write(json.dumps(metrics))
     
     close_distributed(rank, world_size)
 
