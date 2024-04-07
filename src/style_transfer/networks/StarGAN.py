@@ -17,6 +17,12 @@ class StarGAN():
             self.model_names = ["nets", "nets_ema", "optims"]
         else:
             self.model_names = ["nets_ema"]
+            
+        for name, module in self.nets.items():
+            setattr(self, name, torch.nn.parallel.DistributedDataParallel(module.module))
+        for name, module in self.nets_ema.items():
+            setattr(self, name + '_ema', torch.nn.parallel.DistributedDataParallel(module.module))
+            
         maxlen = 1
         if hasattr(config, "save_no"):
             maxlen = (None if config.save_no<0 else config.save_no)
@@ -36,7 +42,7 @@ class StarGAN():
                 net = getattr(self.model, name)
                 outdict = {}
                 for item, module in net.items():
-                    if isinstance(module, torch.nn.DataParallel):
+                    if isinstance(module, torch.nn.parallel.DistributedDataParallel):
                         module = module.module
                     outdict[item] = module.state_dict()
                 torch.save(outdict, save_path)
