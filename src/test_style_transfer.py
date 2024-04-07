@@ -57,6 +57,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         config = StarGANConfig.create(config_file, options=options)
         network = StarGAN(config)
         network.model.to(device)
+        network.model.device = device
         network.loadModel(config.checkpoint_dir, "latest")
     else:
         raise Exception("Model not recognized") 
