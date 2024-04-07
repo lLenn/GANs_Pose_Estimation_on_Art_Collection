@@ -43,7 +43,7 @@ class LearnedPerceptualImagePatchSimilarity:
                     lpips_values_similarity.append(lpips(generated_images[i], real_images[j]))
                 for j in range(i+1, len(generated_images)):
                     lpips_values_variation.append(lpips(generated_images[i], generated_images[j]))
-            return torch.mean(torch.stack(lpips_values_similarity, dim=0)).double(), torch.mean(torch.stack(lpips_values_variation, dim=0)).double()
+            return torch.mean(torch.stack(lpips_values_similarity, dim=0)).cpu().detach().double(), torch.mean(torch.stack(lpips_values_variation, dim=0)).cpu().detach().double()
         else:
             return 0, 0
     
