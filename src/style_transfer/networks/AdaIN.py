@@ -31,9 +31,11 @@ class AdaIN:
         
         if self.config.preserve_color:
             style = coral(style, content)
-        style = style.to(device).unsqueeze(0)
         if content.ndim == 3:
+            style = style.to(device).unsqueeze(0)
             content = content.to(device).unsqueeze(0)
+        else:
+            style = style.repeat((content.shape[0], 1, 1, 1)).to(device)
         with torch.no_grad():
             content_f = self.head_vgg(content)
             style_f = self.head_vgg(style)

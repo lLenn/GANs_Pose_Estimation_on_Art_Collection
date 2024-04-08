@@ -15,7 +15,7 @@
                 "--real",
                 "../../Datasets/custom/TestStyleTransfer/4 - renaissance",
                 "--model",
-                "StarGAN",
+                "AdaIN",
                 "--batch_size",
                 "2",
                 "--num_workers",
@@ -23,13 +23,13 @@
                 "--results_dir",
                 ".output/metrics",
                 "--results_prefix",
-                "stargan_renaissance",
+                "adain_renaissance",
                 "--config",
-                "src/style_transfer/config/stargan.yaml",
-                "checkpoint_dir",
-                "../../Models/StarGAN",
-                "style_output",
-                "renaissance"
+                "src/style_transfer/config/adain.yaml",
+                "vgg",
+                "../../Models/AdaIN/vgg_normalised.pth",
+                "decoder",
+                "../../Models/AdaIN/decoder.pth"
             ],
             "console": "integratedTerminal",
             "justMyCode": false
