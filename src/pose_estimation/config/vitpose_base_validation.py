@@ -16,7 +16,7 @@ optim_wrapper = dict(
         layer_decay_rate=0.75,
         custom_keys={
             'bias': dict(decay_multi=0.0),
-            'pos_embed': dict(decay_mult=0.0),
+            # 'pos_embed': dict(decay_mult=0.0),
             'relative_position_bias_table': dict(decay_mult=0.0),
             'norm': dict(decay_mult=0.0),
         },
@@ -66,7 +66,7 @@ model = dict(
         patch_size=16,
         qkv_bias=True,
         drop_path_rate=0.3,
-        with_cls_token=True,
+        with_cls_token=False,
         out_type='featmap',
         patch_cfg=dict(padding=2),
         init_cfg=dict(
@@ -121,7 +121,7 @@ train_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_mode=data_mode,
-        ann_file='HumanArt/annotations/test_humanart_oil_painting.json',
+        ann_file='',
         pipeline=train_pipeline,
     ))
 val_dataloader = dict(
@@ -134,7 +134,7 @@ val_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         data_mode=data_mode,
-        ann_file='HumanArt/annotations/test_humanart_oil_painting.json',
+        ann_file='',
         test_mode=True,
         pipeline=val_pipeline,
     ))
@@ -143,5 +143,5 @@ test_dataloader = val_dataloader
 # evaluators
 val_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root + 'HumanArt/annotations/test_humanart_oil_painting.json')
+    ann_file=data_root + '')
 test_evaluator = val_evaluator

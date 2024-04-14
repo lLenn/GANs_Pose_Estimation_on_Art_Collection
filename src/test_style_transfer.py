@@ -163,7 +163,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     }
     
     if rank == 0:
-        with open(os.path.join(results_dir, f"{results_prefix}_metrics"), "w") as result_file:
+        with open(os.path.join(results_dir, f"{results_prefix}_metrics.json"), "w") as result_file:
             result_file.write(json.dumps(metrics))
     
     close_distributed(rank, world_size)

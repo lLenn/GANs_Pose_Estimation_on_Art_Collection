@@ -2,6 +2,7 @@ import os
 import json
 from collections import OrderedDict
 from pycocotools.cocoeval import COCOeval
+from style_transfer.datasets.HumanArtEvaluation import HumanArtEvaluation
 from torch import distributed
 
 class AveragePrecision:
@@ -37,23 +38,28 @@ class AveragePrecision:
             with open(self.result_file, "a") as file:
                 file.write("]")
             
-            coco = None
+            evaluation = None
             try:
                 coco = self.coco.loadRes(self.result_file)
+                evaluation = COCOeval(self.coco, coco, 'keypoints')
+                evaluation.evaluate()
+                evaluation.accumulate()
+                evaluation.summarize()
             except:
                 coco = self.coco.loadResults(self.result_file)
+                evaluation = HumanArtEvaluation(self.coco, coco, 'keypoints')
+                evaluation.evaluate()
+                evaluation.accumulate()
+                evaluation.summarize()
                 
-            humanArtEvaluation = COCOeval(self.coco, coco, 'keypoints')
-            humanArtEvaluation.evaluate()
-            humanArtEvaluation.accumulate()
-            humanArtEvaluation.summarize()
             stats_names = ['AP', 'Ap .5', 'AP .75', 'AP (M)', 'AP (L)', 'AR', 'AR .5', 'AR .75', 'AR (M)', 'AR (L)']
 
             info_str = {}
             for ind, name in enumerate(stats_names):
-                info_str[name] = humanArtEvaluation.stats[ind]
+                info_str[name] = evaluation.stats[ind]
 
             return info_str
+            
         else:
             return 0
         

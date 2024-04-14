@@ -121,6 +121,9 @@ For CycleGAN and StarGAN, we cycle through the real images to determine the styl
 We can't use \gls{PCP} because it requires the limbs to be detected as a rectangle.
 For the same reason we can't use \gls{PCKh} which requires the detection of the head as a rectangle.
 The only metric that feasible is which uses the bounding box as the threshold.
+But not really because it only works for top-down networks and the MPII dataset.
+Each implementation that I found asserts that the length of predicted persons should be the same as that of the ground truth
+So, no \gls{PCK}
 
 COCO evaluation for bottom-up network choses the best matching prediction for each ground truth (cocoeval - evaluateImg method).
 It's possible that a network has multiple predictions for the same person, which the evaluation takes the best off, but how do we know which is the best prediction and even what predictions are for the same instance?

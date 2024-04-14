@@ -27,16 +27,21 @@ class ViTPose:
         self.model.to(torch.device(f"cuda:{rank}"))
         data_list = []
         pipeline = Compose(self.config.val_pipeline)
-        data_info = dict(img=image, bbox=bbox[None,])
+        data_info = dict(img=image, bbox=np.array([[bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]]))
         data_info['bbox_score'] = np.ones(1, dtype=np.float32)
         data_info.update(self.dataset_meta)
         data_list.append(pipeline(data_info))
         data_samples = self.model.test_step(pseudo_collate(data_list))
         return data_samples[0].pred_instances
     
-    def infer(self, rank, world_size, image, bbox):
-        predictions = self._infer(rank, world_size, image, bbox)
-        return _, _, predictions.keypoints, predictions.keypoint_scores
+    def infer(self, rank, world_size, image, bboxes):
+        keypoints = []
+        scores = []
+        for bbox in bboxes:
+            prediction = self._infer(rank, world_size, image, bbox)
+            keypoints.append(np.concatenate((prediction.keypoints[0], prediction.keypoint_scores.T, [[0]]*prediction.keypoints[0].shape[0]), axis=1))
+            scores.append(1)
+        return None, None, keypoints, scores
     
     def validate(self, rank, world_size, data_loader, evaluator):
         pbar = tqdm(total=len(data_loader))

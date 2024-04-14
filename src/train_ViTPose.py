@@ -27,7 +27,7 @@ def main(parser_args):
         args = (world_size, parser_args.batch_size, parser_args.num_workers, parser_args.data_root, parser_args.model, parser_args.log, parser_args.config_file, parser_args.annotation_file[0])
     elif parser_args.method == "infer":   
         method = infer
-        args = (parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
+        args = (world_size, parser_args.model, parser_args.infer_file, parser_args.log, parser_args.results_dir, parser_args.config_file)
     
     if world_size > 1:
         mp.spawn(method, args, nprocs=world_size,)

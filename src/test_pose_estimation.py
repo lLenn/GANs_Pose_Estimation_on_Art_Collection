@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from torch.distributed import init_process_group, destroy_process_group
 from torch.utils.data.distributed import DistributedSampler
 from pose_estimation.datasets import COCOSubset
-from pose_estimation.metrics import AveragePrecision, PercentageCorrectKeypoints
+from pose_estimation.metrics import AveragePrecision
 from pose_estimation.networks import SWAHR, SWAHRConfig, ViTPose, ViTPoseConfig, ArtPose
 from style_transfer.datasets import HumanArtDataset
 from torchvision.transforms import transforms
@@ -85,7 +85,7 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
         pbar = tqdm(total=len(dataloader.dataset))
         for i, (images, annotations) in enumerate(dataloader):
             image = images[0].numpy()
-            _, _, final_results, scores = network.infer(rank, world_size, image)
+            _, _, final_results, scores = network.infer(rank, world_size, image, [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations])
             predictions = []
             for idx in range(len(final_results)):
                 predictions.append({
@@ -100,26 +100,12 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
 
         pbar.close()
         
-        print(average_precision.get_average_precision(rank))
-    '''
-    
-    metrics["perceptual_distance"] = perceptual_distance.get_perceptual_distance(rank, world_size)
-    inception_score_mean, inceptions_score_stddev = inception_score.get_inception_score(rank, world_size)
-    metrics["inception_score"] = {
-        "mean": inception_score_mean,
-        "standard_deviation": inceptions_score_stddev
-    }
-    metrics["frechet_inception_distance"] = frechet_inception_distance.get_frechet_inception_distance(rank, world_size)
-    lpips_similarity, lpips_variation = lpips.get_lpips(rank, world_size)
-    metrics["lpips"] = {
-        "similarity": lpips_similarity,
-        "variation": lpips_variation
-    }
+        metrics["average_precision"] = average_precision.get_average_precision(rank)
     
     if rank == 0:
-        with open(os.path.join(results_dir, f"{results_prefix}_metrics"), "w") as result_file:
+        with open(os.path.join(results_dir, f"{results_prefix}_metrics.json"), "w") as result_file:
             result_file.write(json.dumps(metrics))
-    '''
+            
     close_distributed(rank, world_size)
 
 if __name__ == "__main__":
