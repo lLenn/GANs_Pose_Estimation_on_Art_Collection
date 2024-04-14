@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Test Style Transfer",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./src/test_style_transfer.py",
             "args": [
@@ -35,8 +35,78 @@
             "justMyCode": false
         },
         {
+            "name": "Python: Test Pose Estimation on Style Images",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./src/test_pose_estimation_on_styled_image.py",
+            "args": [
+                "--action",
+                "photographicToArtistic",
+                "--data_root",
+                "../../Datasets/coco",
+                "--dataset",
+                "subset_person_keypoints_val2017",
+                "--model_pose_estimation",
+                "SWAHR",
+                "--model_style_transfer",
+                "CycleGAN",
+                "--batch_size",
+                "1",
+                "--num_workers",
+                "1",
+                "--results_dir",
+                ".output/metrics",
+                "--results_prefix",
+                "adain_renaissance",
+                "--config_pose_estimation",
+                "src/pose_estimation/config/w48_640_test.yaml",
+                "--options_pose_estimation",
+                "TEST.MODEL_FILE",
+                "../../Models/swahr/checkpoints/200_pose_higher_hrnet_coco_styled_mixed.pth",
+                "--config_style_transfer",
+                "src/style_transfer/config/cyclegan_test.yaml",
+                "--options_style_transfer",
+                "G_A",
+                "../../Models/CycleGAN/renaissance/latest_net_G_A.pth",
+                "G_B",
+                "../../Models/CycleGAN/renaissance/latest_net_G_B.pth"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Test Pose Estimation",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./src/test_pose_estimation.py",
+            "args": [
+                "--data_root",
+                "../../Datasets/coco",
+                "--dataset",
+                "test_subset_person_keypoints_val2017",
+                "--model",
+                "SWAHR",
+                "--batch_size",
+                "1",
+                "--num_workers",
+                "1",
+                "--results_dir",
+                ".output/metrics",
+                "--results_prefix",
+                "swahr_mixed",
+                "--config",
+                "src/pose_estimation/config/w48_640_test.yaml",
+                "--options",
+                "TEST.MODEL_FILE",
+                "../../Models/SWAHR/pose_higher_hrnet_w48_640.pth",
+                // "../../Models/swahr/checkpoints/200_pose_higher_hrnet_coco_styled_mixed.pth",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "Python: Augment with cyclegan",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./src/augment_dataset_cyclegan.py",
             "args": [
@@ -59,7 +129,7 @@
             "justMyCode": false
         }, {
             "name": "Python: Augment with AdaIN",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./src/augment_dataset_adain.py",
             "args": [
@@ -83,7 +153,7 @@
         },
         {
             "name": "Python: Valid SWAHR",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./lib/SWAHR/tools/dist_valid.py",
             "args": [
@@ -95,7 +165,7 @@
         },
         {
             "name": "Python: Train SWAHR",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./src/train_SWAHR.py",
             "args": [
@@ -117,7 +187,7 @@
         },
         {
             "name": "Python: Validate ViTPose",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./src/train_ViTPose.py",
             "args": [
@@ -143,7 +213,7 @@
         },
         {
             "name": "Python: Train ViTPose",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./src/train_ViTPose.py",
             "args": [
@@ -166,7 +236,7 @@
         },
         {
             "name": "Python: Infer ViTPose",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "./src/train_ViTPose.py",
             "args": [
@@ -188,7 +258,7 @@
         },
         {
             "name": "Python: Test UGATIT",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "src/test_UGATIT.py",
             "env": {
@@ -200,7 +270,7 @@
         },
         {
             "name": "Python: Correct Annotations",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "src/correct_annotations.py",
             "args": [
@@ -212,7 +282,7 @@
         },
         {
             "name": "Python: Test CycleGAN",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "cwd": "lib/CycleGAN",
             "program": "test.py",
@@ -230,7 +300,7 @@
         },
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -238,7 +308,7 @@
         },
         {
             "name": "Main",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "args": [
@@ -253,7 +323,7 @@
         },
         {
             "name": "Python: Current File w XLaunch",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "env": {

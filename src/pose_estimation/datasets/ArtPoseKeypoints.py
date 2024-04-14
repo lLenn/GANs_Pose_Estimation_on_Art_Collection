@@ -61,7 +61,6 @@ class ArtPoseKeypoints(CocoKeypoints):
             if obj['iscrowd'] == 0 or obj['num_keypoints'] > 0
         ]
 
-        # TODO(bowen): to generate scale-aware sigma, modify `get_joints` to associate a sigma to each joint
         joints = self.get_joints(anno)
 
         mask_list = [mask.copy() for _ in range(self.num_scales)]

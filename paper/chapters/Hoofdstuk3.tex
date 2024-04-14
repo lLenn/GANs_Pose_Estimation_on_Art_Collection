@@ -65,10 +65,65 @@ with pretrained model: all except: mixed (not corrected) and impressionism
 
 \begin{table*}
     \setlength\tabcolsep{4pt}
+    \caption{Performance of different Pose Estimation models trained on Style Transfered datasets on COCO dataset. }
+    \centering
+    \footnotesize
+    \label{tab:experiments_style_transfered_pose_estimation_coco}
+    \begin{tabular}{ l|cc|ccccc|ccccc }
+        \hline
+        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \hline
+        \multicolumn{13}{c}{\bf{CycleGAN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{AdaIN}}\cr
+        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        \hline
+    \end{tabular}
+\end{table*}
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
     \caption{Performance of different Pose Estimation models trained on Style Transfered datasets on Human-Art dataset. }
     \centering
     \footnotesize
-    \label{tab:experiments_style_transfered_pose_estimation}
+    \label{tab:experiments_style_transfered_pose_estimation_humanart}
     \begin{tabular}{ l|cc|ccccc|ccccc }
         \hline
         \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr

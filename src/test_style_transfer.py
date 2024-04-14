@@ -11,7 +11,7 @@ from style_transfer.datasets import ImageDirectoryDataset
 from style_transfer.networks import StarGAN, StarGANConfig
 from style_transfer.networks import AdaIN, AdaINConfig
 from style_transfer.networks import CycleGAN, CycleGANConfig
-from style_transfer.metric import PerceptualDistance, InceptionScore, FrechetInceptionDistance, LearnedPerceptualImagePatchSimilarity
+from style_transfer.metrics import PerceptualDistance, InceptionScore, FrechetInceptionDistance, LearnedPerceptualImagePatchSimilarity
 
 def init_distributed(rank, world_size):
     if world_size > 1:

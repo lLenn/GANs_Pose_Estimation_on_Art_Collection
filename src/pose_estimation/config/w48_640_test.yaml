@@ -101,7 +101,7 @@ MODEL:
   SYNC_BN: True
   NAME: pose_higher_hrnet
   NUM_JOINTS: 17
-  PRETRAINED: '../../datasets/swahr/hrnet_w48-8ef0771d.pth'
+  PRETRAINED: '../../Models/swahr/pose_higher_hrnet_w48_640.pth'
   TAG_PER_JOINT: True
 TEST:
   FLIP_TEST: False

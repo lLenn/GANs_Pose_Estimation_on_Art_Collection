@@ -15,7 +15,6 @@ from mmengine.evaluator.evaluator import Evaluator
 from mmpose.evaluation.metrics.coco_metric import CocoMetric
 from mmengine.dataset.utils import pseudo_collate
 from pose_estimation.networks import ViTPose, ViTPoseConfig
-from pose_estimation.datasets import MMArtPoseDataset
 
 def main(parser_args):
     world_size = torch.cuda.device_count()
@@ -46,7 +45,7 @@ def close_distributed(rank, world_size):
     if world_size > 1:
         destroy_process_group()
 
-def infer(gpu, model_path, image_path, log, results_dir, config_file):    
+def infer(rank, world_size, model_path, image_path, log, results_dir, config_file):    
     config = ViTPoseConfig.create(config_file)
     config.model.backbone.init_cfg = None
     model = ViTPose(config)
@@ -58,7 +57,7 @@ def infer(gpu, model_path, image_path, log, results_dir, config_file):
     h, w = image.shape[:2]
     bbox = np.array([0, 0, w, h], dtype=np.float32)
     
-    pred_instances = model.infer(gpu, image, bbox)
+    pred_instances = model._infer(rank, world_size, image, bbox)
     
     visualizer = PoseLocalVisualizer()
     prediction_image = visualizer._draw_instances_kpts(image, pred_instances, 0.3, False, 'mmpose')

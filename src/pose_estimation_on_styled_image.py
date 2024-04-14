@@ -41,7 +41,7 @@ def worker(gpuIds, dataset, indices, poseEstimator, styleTransformer, logger, fi
         sub_dataset, sampler=None, batch_size=1, shuffle=False, num_workers=0, pin_memory=False
     )
     
-    predictions = artPose.validate(gpuIds, data_loader)    
+    predictions = artPose.validate(gpuIds, 1, data_loader)    
     predictionQueue.put_nowait(predictions)
     
 def benchmark(dataset, poseEstimator, styleTransformer, logger):

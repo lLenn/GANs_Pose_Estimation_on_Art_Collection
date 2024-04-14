@@ -197,11 +197,12 @@ class SWAHR():
                 self.saveModel(epoch+1)
                 visualizer.save()
     
-    def infer(self, gpuIds, image):
-        gpuIds if isArrayLike(gpuIds) else [gpuIds]
-        
-        model = torch.nn.DataParallel(self.model, device_ids=gpuIds)
-        model = model.cuda()
+    def infer(self, rank, world_size, image):
+        model = self.model
+        if world_size == 1:
+            model = torch.nn.DataParallel(model).cuda(rank)
+        else:
+            model = DistributedDataParallel(model, device_ids=[rank])
         
         # size at scale 1.0
         base_size, center, scale = get_multi_scale_size(
@@ -253,7 +254,7 @@ class SWAHR():
         for i, (images, annotations) in enumerate(dataloader):
             image = images[0].cpu().numpy()
 
-            image_resized, final_heatmaps, final_results, scores = self.infer(gpuIds, image)
+            image_resized, final_heatmaps, final_results, scores = self.infer(gpuIds, 1, image)
 
             visual = True
             if visual:

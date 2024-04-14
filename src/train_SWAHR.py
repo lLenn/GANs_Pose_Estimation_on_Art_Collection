@@ -37,7 +37,7 @@ def main(rank, world_size, name, batch_size, num_workers, config_file, annotatio
     network = SWAHR(name, config)
 
     dataset = ArtPoseKeypoints(config, annotation_file)
-    dataloader =  DataLoader(
+    dataloader = DataLoader(
         dataset,
         batch_size=batch_size,
         shuffle=True if world_size == 1 else False,

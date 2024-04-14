@@ -23,7 +23,8 @@ class ViTPose:
         self.model.load_state_dict(json["state_dict"], strict=True)
         self.savedFiles.append(file)
         
-    def infer(self, rank, image, bbox):
+    def _infer(self, rank, world_size, image, bbox):
+        self.model.to(torch.device(f"cuda:{rank}"))
         data_list = []
         pipeline = Compose(self.config.val_pipeline)
         data_info = dict(img=image, bbox=bbox[None,])
@@ -32,6 +33,10 @@ class ViTPose:
         data_list.append(pipeline(data_info))
         data_samples = self.model.test_step(pseudo_collate(data_list))
         return data_samples[0].pred_instances
+    
+    def infer(self, rank, world_size, image, bbox):
+        predictions = self._infer(rank, world_size, image, bbox)
+        return _, _, predictions.keypoints, predictions.keypoint_scores
     
     def validate(self, rank, world_size, data_loader, evaluator):
         pbar = tqdm(total=len(data_loader))
