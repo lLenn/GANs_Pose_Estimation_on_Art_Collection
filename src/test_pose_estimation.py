@@ -14,8 +14,7 @@ from pose_estimation.networks import SWAHR, SWAHRConfig, ViTPose, ViTPoseConfig,
 from style_transfer.datasets import HumanArtDataset
 from torchvision.transforms import transforms
 
-def visualize(image, prediction, scores, directory, name):
-    pass
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 def convertListToDict(list):
    dict = {}
