@@ -197,7 +197,7 @@ class SWAHR():
                 self.saveModel(epoch+1)
                 visualizer.save()
     
-    def infer(self, rank, world_size, image):
+    def infer(self, rank, world_size, image, bbox):
         model = self.model
         if world_size == 1:
             model = torch.nn.DataParallel(model).cuda(rank)
