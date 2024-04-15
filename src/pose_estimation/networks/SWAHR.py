@@ -202,7 +202,7 @@ class SWAHR():
         if world_size == 1:
             model = torch.nn.DataParallel(model).cuda(rank)
         else:
-            model = DistributedDataParallel(model, device_ids=[rank])
+            model = DistributedDataParallel(model.cuda(rank), device_ids=[rank])
         
         # size at scale 1.0
         base_size, center, scale = get_multi_scale_size(
