@@ -10,83 +10,19 @@ from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from multiprocessing import Process, Queue
 from pose_estimation.networks.ArtPose import ArtPose
-from available_algorithms import createDatasetIterator, createPoseEstimatorIterator, createStyleTransformerIterator
+from pose_estimation.metrics import AveragePrecision
 from pose_estimation.datasets import COCOSubset
 from pose_estimation.networks import SWAHR, SWAHRConfig, ViTPose, ViTPoseConfig
 from style_transfer.networks import StarGAN, StarGANConfig, AdaIN, AdaINConfig, CycleGAN, CycleGANConfig
 from style_transfer.datasets import HumanArtDataset
 
-def printNameValue(logger, name_value, fullArchName):
-    names = name_value.keys()
-    values = name_value.values()
-    num_values = len(name_value)
-    logger.info("| Arch " + " ".join(["| {}".format(name) for name in names]) + " |")
-    logger.info("|---" * (num_values + 1) + "|")
+torch.multiprocessing.set_sharing_strategy('file_system')
 
-    if len(fullArchName) > 15:
-        fullArchName = fullArchName[:8] + "..."
-    logger.info(
-        "| "
-        + fullArchName
-        + " "
-        + " ".join(["| {:.3f}".format(value) for value in values])
-        + " |"
-    )
-
-def worker(gpuIds, dataset, indices, poseEstimator, styleTransformer, logger, finalOutputDir, predictionQueue):
-    artPose = ArtPose(poseEstimator, styleTransformer, True)
-    artPose.loadModel()
-            
-    sub_dataset = torch.utils.data.Subset(dataset, indices)
-    data_loader = torch.utils.data.DataLoader(
-        sub_dataset, sampler=None, batch_size=1, shuffle=False, num_workers=0, pin_memory=False
-    )
-    
-    predictions = artPose.validate(gpuIds, data_loader)    
-    predictionQueue.put_nowait(predictions)
-    
-def benchmark(dataset, poseEstimator, styleTransformer, logger):
-    datasetSize = len(dataset)
-    predictionQueue = Queue(100)
-    workers = []
-    if NO_WORKERS > 1:
-        for i in range(NO_WORKERS):
-            index_groups = list(range(i, datasetSize, NO_WORKERS))
-            process = Process(
-                target = worker,
-                args = (
-                    0, dataset, index_groups, copy.deepcopy(poseEstimator), copy.deepcopy(styleTransformer), logger, "./.output", predictionQueue
-                )
-            )
-            process.start()
-            workers.append(process)
-            logger.info("==>" + " Worker {} Started, responsible for {} images".format(i, len(index_groups)))
-        
-        allPredictions = []
-        for _ in range(NO_WORKERS):
-            allPredictions += predictionQueue.get()
-        
-        for process in workers:
-            process.join()
-    else:
-        worker(0, dataset, range(datasetSize), copy.deepcopy(poseEstimator), copy.deepcopy(styleTransformer), logger, "./.output", predictionQueue)
-        allPredictions = predictionQueue.get()
-        
-    resultFolder = ".output/results"
-    if not os.path.exists(resultFolder):
-        os.makedirs(resultFolder)
-    resultFile = os.path.join(resultFolder, f"keypoints_SWAHR_results.json")
-
-    json.dump(allPredictions, open(resultFile, 'w'))
-
-    info_str = dataset.keypointEvaluation(resultFile)
-    name_values = OrderedDict(info_str)
-    
-    if isinstance(name_values, list):
-        for name_value in name_values:
-            printNameValue(logger, name_value, "SWAHR")
-    else:
-        printNameValue(logger, name_values, "SWAHR")
+def convertListToDict(list):
+   dict = {}
+   for i in range(0, len(list), 2):
+       dict[list[i]] = list[i + 1]
+   return dict
 
 def init_distributed(rank, world_size):
     if world_size > 1:
@@ -106,6 +42,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
     style_transfer = None
     pose_estimation_config = None
     style_transfer_config = None
+    average_precision = None
     device = torch.device(f"cuda:{rank}")
     print(device)
     if model_pose_estimation == "SWAHR":
@@ -113,8 +50,9 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
         pose_estimation = SWAHR(results_prefix, pose_estimation_config)
         pose_estimation.loadModel(pose_estimation_config.TEST.MODEL_FILE)
     elif model_pose_estimation == "ViTPose":
-        pose_estimation_config = ViTPoseConfig.create(config_file_pose_estimation, options_pose_estimation)
+        pose_estimation_config = ViTPoseConfig.create(config_file_pose_estimation, convertListToDict(options_pose_estimation))
         pose_estimation = ViTPose(pose_estimation_config)
+        pose_estimation.loadModel(pose_estimation_config.model_file)
     else:
         raise Exception("Model pose estimation not recognized")
     
@@ -151,6 +89,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
  
     if action == ArtPose.PHOTOGRAPHIC_TO_ARTISTIC:
         dataset = COCOSubset(data_root, dataset, "jpg")
+        average_precision = AveragePrecision(dataset.coco, results_dir, results_prefix)
         dataloader = DataLoader(
             dataset,
             batch_size=batch_size,
@@ -161,8 +100,9 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
             drop_last=False,
             sampler=None if world_size == 1 else DistributedSampler(dataset)
         )
-    elif action == ArtPose.PHOTOGRAPHIC_TO_ARTISTIC:
+    elif action == ArtPose.ARTISTIC_TO_PHOTOGRAPHIC:
         dataset = HumanArtDataset(data_root, dataset, "test", False)
+        average_precision = AveragePrecision(dataset.humanArt, results_dir, results_prefix)
         dataloader = DataLoader(
             dataset,
             batch_size=batch_size,
@@ -176,8 +116,18 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
     else:
         raise Exception("Action not recognized")
     
+    metrics = {}
+    def hook(predictions):
+        average_precision.process_predictions(rank, world_size, predictions)
+        
     artPose = ArtPose(pose_estimation, style_transfer, True)
-    predictions = artPose.validate(rank, world_size, dataloader, action) 
+    artPose.validate(rank, world_size, dataloader, action, os.path.join(results_dir, results_prefix), hook)
+    
+    metrics["average_precision"] = average_precision.get_average_precision(rank)
+    
+    if rank == 0:
+        with open(os.path.join(results_dir, f"{results_prefix}_metrics.json"), "w") as result_file:
+            result_file.write(json.dumps(metrics))
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -213,6 +163,10 @@ if __name__ == "__main__":
         parserargs.config_style_transfer,
         parserargs.options_style_transfer
     ]
+        
+    image_path = os.path.join(parserargs.results_dir, parserargs.results_prefix)
+    if not os.path.exists(image_path):
+        os.makedirs(image_path)
         
     if world_size > 1:
         mp.spawn(measure, args, nprocs=world_size)
