@@ -29,7 +29,6 @@ class ArtPose:
         predictions = []
         pbar = tqdm(total=len(data_loader.dataset)) if self.verbose else None
         for i, (images, annotations) in enumerate(data_loader):
-            image_s = images[0].numpy()
             image = images[0].float() / 255
             image = torch.permute(image, (2, 0, 1))
             # image = transforms.Resize((256, 256))(image)
@@ -47,12 +46,13 @@ class ArtPose:
             
             # add bbox for ViTPose
             
-            if self.verbose:
+            if self.verbose and i%100 == 0:
                 ArtPose.visualizeStyleTransfer(image, directory, f"style_transfer_{int(annotations[0]['image_id'])}")
             image_resized, final_heatmaps, final_results, scores = self.poseEstimator.infer(rank, world_size, image, [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations])
                 
             if self.verbose:
-                ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, directory, annotations[0]["image_id"].item())
+                if i%100 == 0:
+                    ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, directory, annotations[0]["image_id"].item())
                 pbar.update()
 
             for idx in range(len(final_results)):
