@@ -31,7 +31,7 @@ class ArtPose:
         for i, (images, annotations) in enumerate(data_loader):
             image = images[0].float() / 255
             image = torch.permute(image, (2, 0, 1))
-            # image = transforms.Resize((256, 256))(image)
+            image = transforms.Resize((256, 256))(image)
             image = transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))(image)
             image = torch.stack((image,))
             image = image.to("cuda")
