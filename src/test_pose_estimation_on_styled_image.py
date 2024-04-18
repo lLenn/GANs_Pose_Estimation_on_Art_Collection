@@ -95,7 +95,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
             batch_size=batch_size,
             shuffle=False,
             num_workers=num_workers,
-            persistent_workers=True,
+            persistent_workers=True if num_workers > 0 else False,
             pin_memory=True,    
             drop_last=False,
             sampler=None if world_size == 1 else DistributedSampler(dataset)
@@ -108,7 +108,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
             batch_size=batch_size,
             shuffle=False,
             num_workers=num_workers,
-            persistent_workers=True,
+            persistent_workers=True if num_workers > 0 else False,
             pin_memory=True,    
             drop_last=False,
             sampler=None if world_size == 1 else DistributedSampler(dataset),
