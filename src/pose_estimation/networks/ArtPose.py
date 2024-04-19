@@ -25,13 +25,19 @@ class ArtPose:
     def train():
         pass
     
-    def validate(self, rank, world_size, data_loader, direction, directory, metric_hook = None):
+    def validate(self, rank, world_size, data_loader, direction, directory, metric_hook = None, resize = False):
         predictions = []
         pbar = tqdm(total=len(data_loader.dataset)) if self.verbose else None
         for i, (images, annotations) in enumerate(data_loader):
             image = images[0].float() / 255
             image = torch.permute(image, (2, 0, 1))
-            image = transforms.Resize((256, 256))(image)
+            bbox = [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations]
+            _, h, w = image.shape
+            rh = h
+            if not resize == False and (w > resize or h > resize):
+                image = transforms.Resize(resize)(image)
+                _, rh, _ = image.shape
+                bbox = [torch.tensor([coor*rh/h for coor in annotation["bbox"]]).numpy() for annotation in annotations]
             image = transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))(image)
             image = torch.stack((image,))
             image = image.to("cuda")
@@ -48,7 +54,7 @@ class ArtPose:
             
             if self.verbose and i%100 == 0:
                 ArtPose.visualizeStyleTransfer(image, directory, f"style_transfer_{int(annotations[0]['image_id'])}")
-            image_resized, final_heatmaps, final_results, scores = self.poseEstimator.infer(rank, world_size, image, [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations])
+            image_resized, final_heatmaps, final_results, scores = self.poseEstimator.infer(rank, world_size, image, bbox)
                 
             if self.verbose:
                 if i%100 == 0:
@@ -56,8 +62,12 @@ class ArtPose:
                 pbar.update()
 
             for idx in range(len(final_results)):
+                keypoints = final_results[idx][:,:3].reshape(-1,).astype(float).tolist()
+                for i, keypoint in enumerate(keypoints):
+                    if i % 3 < 2:
+                        keypoints[i] = keypoints[i]*h/rh
                 predictions.append({
-                    "keypoints": final_results[idx][:,:3].reshape(-1,).astype(float).tolist(),
+                    "keypoints": keypoints,
                     "image_id": int(annotations[0]["image_id"]),
                     "score": float(scores[idx]),
                     "category_id": 1
