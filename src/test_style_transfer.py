@@ -2,6 +2,7 @@ import json
 import os
 import argparse
 import torch
+import cv2
 import torch.multiprocessing as mp
 from tqdm import tqdm
 from torch.utils.data import DataLoader
@@ -97,30 +98,30 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         lpips = LearnedPerceptualImagePatchSimilarity(size=size)
         
         pbar = tqdm(total=len(dataloader))
-        for data_batch in dataloader:
+        for images, metadata  in dataloader:
             style_image = None
             try:
-                style_image = next(real_iter)
+                style_image, _ = next(real_iter)
             except:
                 real_iter = iter(real_dataset)
-                style_image = next(real_iter)
+                style_image, _ = next(real_iter)
             style_image = style_image.to(device)
             
             mean = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
             std = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
             
             if model == "CycleGAN":
-                data_batch = data_batch.to(device)
-                data_batch = (data_batch - mean) / std
-                predictions = network.photographicToArtistic(data_batch)
-                data_batch = (data_batch * std) + mean
+                images = images.to(device)
+                images = (images - mean) / std
+                predictions = network.photographicToArtistic(images)
+                images = (images * std) + mean
                 predictions = (predictions * std) + mean
             elif model == "AdaIN":
-                data_batch = data_batch.to(device)
-                predictions = network.transformTo(data_batch, style_image)
+                images = images.to(device)
+                predictions = network.transformTo(images, style_image)
             elif model == "StarGAN":
-                data_batch = data_batch.to(device)
-                data_batch = (data_batch - mean) / std
+                images = images.to(device)
+                images = (images - mean) / std
                 if config.style_output == "baroque":
                     i = 1
                 elif config.style_output == "impressionism":
@@ -130,11 +131,16 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
                 else:
                     raise Exception("Style output not recognized") 
                 style = torch.tensor([i]).to(device)
-                predictions = network.imageToStyle(data_batch, style)
-                data_batch = (data_batch * std) + mean
+                predictions = network.imageToStyle(images, style)
+                images = (images * std) + mean
                 predictions = (predictions * std) + mean
-            
-            perceptual_distance.process_images(data_batch, style_image, predictions)
+                
+            for i, prediction in enumerate(predictions):
+                prediction = prediction.detach().cpu().numpy()
+                prediction = prediction.transpose(1,2,0) * 255
+                cv2.imwrite(os.path.join(results_dir, results_prefix, metadata["filename"][i]), cv2.cvtColor(prediction, cv2.COLOR_RGB2BGR))
+        
+            perceptual_distance.process_images(images, style_image, predictions)
             inception_score.process_generated_images(predictions)
             frechet_inception_distance.process_generated_images(predictions)
             lpips.process_generated_images(predictions)
@@ -142,7 +148,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         pbar.close()
               
         pbar = tqdm(total=len(real_dataloader))
-        for real_batch in real_dataloader:
+        for real_batch, _ in real_dataloader:
             real_batch = real_batch.to(device)
             frechet_inception_distance.process_real_images(real_batch)
             lpips.process_real_images(real_batch)
@@ -182,6 +188,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
             
     world_size = torch.cuda.device_count()
+        
+    image_path = os.path.join(args.results_dir, args.results_prefix)
+    if not os.path.exists(image_path):
+        os.makedirs(image_path)
         
     if world_size > 1:
         mp.spawn(measure, [world_size, args.num_workers, args.batch_size, args.dataset, args.real, args.model, args.results_dir, args.results_prefix, args.config, args.opts], nprocs=world_size)

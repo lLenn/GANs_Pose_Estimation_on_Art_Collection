@@ -21,7 +21,7 @@ class ImageDirectoryDataset(Dataset):
             transforms.Resize((self.size, self.size)),
         ])
         
-        return composite(image)
+        return composite(image), { "filename": file_name }
           
     def __len__(self):
         return len(self.files)
