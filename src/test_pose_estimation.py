@@ -83,18 +83,20 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
     with torch.no_grad():
         pbar = tqdm(total=len(dataloader.dataset))
         for i, (images, annotations) in enumerate(dataloader):
+            image_id = int(dataset.coco.loadImgs(dataset.ids[i])[0]["id"])
             image = images[0].numpy()
             _, _, final_results, scores = network.infer(rank, world_size, image, [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations])
             predictions = []
             for idx in range(len(final_results)):
                 predictions.append({
                     "keypoints": final_results[idx][:,:3].reshape(-1,).astype(float).tolist(),
-                    "image_id": int(annotations[0]["image_id"]),
+                    "image_id": image_id,
                     "score": float(scores[idx]),
                     "category_id": 1
                 })
             average_precision.process_predictions(rank, world_size, predictions)
-            ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, os.path.join(results_dir, results_prefix), annotations[0]["image_id"].item())
+            if len(final_results) > 0 and i%100 == 0:
+                ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, os.path.join(results_dir, results_prefix), image_id)
             pbar.update()
 
         pbar.close()

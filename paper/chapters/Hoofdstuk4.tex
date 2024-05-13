@@ -23,3 +23,46 @@ It could be that the mood of the artist changed that caused him to choose a diff
 Like with Claude Monet, who has many different paintings of the same subject.
 
 Talk a bit about HD pictures and models
+
+
+Discuss code:
+
+Discuss the code and discussions during implementation.
+Also, what could be done differently (own implementation)
+Discuss how there are many different ways to "choose" the style (change model (cyclegan), choose number (stargan), use style image)
+This could be solved by creating a new interface for the styles with each their own options, etc 
+Make everything highly configurable
+
+Transformation interesting for future research.
+
+
+Suppose you take a \gls{CNN}: it will do convolutions, max pooling until you get as output a vector which you can use for cross-entropy, softmax loss.
+This has the entire image as perceptive field, with every layer the perceptive field grows bigger (check if this is true) until the last layer has the entire image in its field.
+Suppose that you want to know the coordinates of the object found, all you would need to know is what point in the neural network the perceptive field can see the object.
+From that point in the network it would be convenient to have the coordinates marked somewhere so that the object can be found at different scales.
+Meaning that for every layer it branches to a subnetwork or as another entrance for backpropogation (as with RNN).
+Is this how HRNet works? (research)
+Why is dataset thrice the size as the original dataset?
+
+
+
+
+Discuss the flaws of mmpose: log\_processor doesn't give enough info, eval code during runtime, all centered around configuration, but misses ease of programming.
+HAs train\_loop, val\_loop variables for extra confusion
+Don't have your code add prefixes to output dirs or anything else. It only causes confusion.
+It's also difficult to add new stuff, because the hooks don't provide enough information meaning hacks need to be implemented.
+When resuming a network, the iterations continue from previous session, but if the new session has a bigger or smaller world, those iterations don't match the new world size.
+How does multiple distribution sessions work?
+
+
+
+On how to do research: would a method of research like gradient descent where one does a quick research paper of to check improvements and only proceeds in a certain direction when improvements are significant.
+Instead of researching every single variable.
+
+
+
+Use a different backend and not visdom. It's difficult to alter test results with visdom, like removing unnecessary domains.
+
+float16 for quicker warmup
+
+When comparing ViTPose and SWAHR we should note that there is a HRNet version with vision transformers and maybe even do some tests.

@@ -4,16 +4,14 @@ import copy
 import torch
 import torch.multiprocessing as mp
 import argparse
-from collections import OrderedDict
 from torch.distributed import init_process_group, destroy_process_group
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
-from multiprocessing import Process, Queue
 from pose_estimation.networks.ArtPose import ArtPose
 from pose_estimation.metrics import AveragePrecision
 from pose_estimation.datasets import COCOSubset
 from pose_estimation.networks import SWAHR, SWAHRConfig, ViTPose, ViTPoseConfig
-from style_transfer.networks import StarGAN, StarGANConfig, AdaIN, AdaINConfig, CycleGAN, CycleGANConfig
+from style_transfer.networks import AdaIN, AdaINConfig, CycleGAN, CycleGANConfig
 from style_transfer.datasets import HumanArtDataset
 
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -78,12 +76,6 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
             "vgg": style_transfer_config.vgg,
             "decoder": style_transfer_config.decoder
         })
-    elif model_style_transfer == "StarGAN":
-        # "style_transfer/config/stargan.yaml"
-        style_transfer_config = StarGANConfig.create(config_file_style_transfer, options=options_style_transfer)
-        style_transfer = StarGAN(style_transfer_config)
-        style_transfer.to(device)
-        style_transfer.loadModel(style_transfer_config.checkpoint_dir, "latest")
     else:
         raise Exception("Model not recognized") 
  

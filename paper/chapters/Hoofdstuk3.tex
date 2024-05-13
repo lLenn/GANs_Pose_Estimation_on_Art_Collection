@@ -2,14 +2,28 @@
 \label{chap:improvements}
 Having established a baseline, it is now possible to search for improvements.
 In this chapter, 2 techniques will be explored to see if they can improve \gls{HPE}.
-Using the same algorithms as seen in the previous chapter, they will now be used to
+Using the same algorithms as seen in the previous chapter, they will now be used to:
 (1) transform an input artistic image to a photographic image to estimate poses on or
 (2) be trained with a dataset that is augmented with images that are transformed to different styles.
 
 \section{Pose Estimation after Style Transform}
-This section will discuss (1)
+\label{chap:improvements_style_transfer}
+One option to predict poses on an artwork is to transform it first to photographic realism and let the plain model run on it.
+As previously seen in section \ref{baseline_human_art_results}, the results on photographs are dramatically better.
+If artworks are successfully transformed to that style, there is no need to train a new model and the extensive amount of datasets created for this task are available.
+To validate this, SWAHR and ViTPose are run on the Human-Art dataset after it was transformed using AdaIN and CycleGAN.
+For CycleGAN, 3 styles are used to perform this task, namely baroque, impressionism and renaissance.
+AdaIN uses 3 style images for each style previously mentioned.
+Fig. \ref{fig:baseline_pose_estimation_evalutaion} shows the selection made for this.
+Before transforming the artwork, the size is checked and resized to 1024 if either of the sides is bigger than that, and only then.
+This is done because some artworks in the dataset are quite large and cause Out-Of-Memory errors.
+Otherwise, no other distortions are applied.
+This adds the total number of tests to be up to 24.
 
 \subsection{Results}
+\label{chap:improvements_results_style_transfer}
+As seen in section \ref{baseline_results_coco_style_transfer}, here as well, style transfer is only more detrimental to the results.
+As seen in Table \ref{tab:experiments_pose_estimation_after_style_transfer}, the same observations can be made: Only ViTPose scores, but with very low precision and high recall.
 
 \begin{table*}
     \setlength\tabcolsep{4pt}
@@ -17,183 +31,350 @@ This section will discuss (1)
     \centering
     \footnotesize
     \label{tab:experiments_pose_estimation_after_style_transfer}
-    \begin{tabular}{ l|cc|ccccc|ccccc }
+    \begin{tabular}{ l|ccccc|ccccc }
         \hline
-        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \bf{Method}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
         \hline
-        \multicolumn{13}{c}{\bf{CycleGAN}}\cr
-        \multicolumn{13}{c}{\bf{Trained on Baroque dataset}}\cr
+        \multicolumn{11}{c}{\bf{AdaIN}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Baroque dataset}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \cr
+        ViTPose & 0.056 & 0.109 & 0.052 & 0.002 & 0.064 & 0.463 & 0.700 & 0.486 & 0.058 & 0.501 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Renaissance dataset}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Impressionism dataset}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0.044 & 0.089 & 0.043 & 0.002 & 0.051 & 0.406 & 0.648 & 0.427 & 0.051 & 0.439 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Impressionism dataset}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Renaissance dataset}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0.052 & 0.100 & 0.047 & 0.001 & 0.058 & 0.441 & 0.0679 & 0.457 & 0.045 & 0.477 \cr
         \hline
-        \multicolumn{13}{c}{\bf{AdaIN}}\cr
-        \multicolumn{13}{c}{\bf{Trained on Baroque dataset}}\cr
+        \multicolumn{11}{c}{\bf{CycleGAN}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Baroque dataset}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0.068 & 0.128 & 0.066 & 0.014 & 0.075 & 0.520 & 0.768 & 0.555 & 0.195 & 0.551 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Renaissance dataset}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Impressionism dataset}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0.059 & 0.113 & 0.055 & 0.020 & 0.064 & 0.470 & 0.717 & 0.488 & 0.227 & 0.493 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Impressionism dataset}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Renaissance dataset}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        ViTPose & 0.057 & 0.107 & 0.052 & 0.012 & 0.062 & 0.458 & 0.694 & 0.471 & 0.183 & 0.485 \cr
         \hline
     \end{tabular}
 \end{table*}
 
 \section{Augmenting COCO Dataset for Pose Estimation Training}
-This section will discuss (2)
-Top-down pose estimators also require that the human detector is trained with styled images.
-with pretrained model: all except: mixed (not corrected) and impressionism
+\label{chap:improvements_augmentation}
+The second option that's been explored is the augmentation of the dataset with styled images.
+The chosen pose estimation algorithms, SWAHR and ViTPose, will be trained on several different stylized datasets.
+A combination of the COCO dataset and the stylized dataset is used, and one with only the stylized dataset.
+The stylized datasets are created by applying both CycleGAN and AdaIN to the COCO dataset.
+One with a mixture of the baroque, impressionism and renaissance models, and one with only the impressionism model.
+This results in a combination of 18 models.
+The experiments will be conducted on the COCO-dataset as well as the Human-Art dataset.
+While the problem specifically tries to improve the performance on artworks, it's still interesting to also validate the results on the COCO-dataset.
+
+
+\subsection{Creation of datasets}
+\label{sec:improvements_dataset_pose_estimation}
+For each augmented dataset, the coco annotations file was used as template.
+All metadata of the file was kept while only changing the id and file name.
+To each id a number of several hundred billions was added depending on the style transfer model.
+The file name points to the new location of the stylized image.
+A stylized version of COCO was created from each style transfer model that CycleGAN was trained for discussed in section \ref{baseline_training_style_transfer}, except impressionism for 2000 epochs.
+Other versions were created for AdaIN.
+Since AdaIN requires a style image, the images used for training the CycleGAN models were used for this purpose.
+The style dataset was cycled through to transform the COCO dataset with AdaIN.
+The decision to not use one image as a representation for each style was made so that the dataset is more generalized.
+Afterwards, a new annotation file was created from a mixture of baroque, impressionism and renaissance stylized images, and one of only the impressionism style.
+For each, a version was made which is appended to the COCO dataset and one that stand on its own.
+During training it was noticed that the stylized images were inverted, resulting in 2 models being trained on the inverted dataset.
+These were the COCO + mixed and mixed models.
+
+\subsection{Training}
+\label{sec:improvements_training_pose_estimation}
+All models are trained with the default parameters initiating the weights with the pre-trained model.
+They're trained for 200 epochs and the models are saved from 100th epoch every 20 epochs.
+As a control, 2 models are trained from nought, which are the inverted mixed model and the COCO + impressionism model.
+These were trained for the default 300 epochs and were also saved from 100th epoch every 20 epochs.
 
 \subsection{Results}
+\label{sec:improvements_results_pose_estimation}
+For the SWAHR network, shown in table \ref{tab:experiments_style_transfered_pose_estimation_coco}, the best results are found with the model trained on the COCO + AdaIN mixed style transfer dataset.
+The second best network was trained on the COCO + CycleGAN mixed style transfer dataset.
+For the ViTPose network, the best results are with COCO + CycleGAN mixed and COCO + CycleGAN impressionism being the second best.
+For AdaIN, there's a falloff of 7 to 10\% AP between the datasets with COCO and the ones without.
+For CycleGAN, this falloff is less; between 0.2 and 4\% AP.
+The best precision is found using the SWAHR model, while ViTPose has the honor of having the best recall.
+Table \ref{tab:experiments_style_transfered_pose_estimation_coco} compares the best models with the baseline.
+It shows that the pre-trained SWAHR model has the best precision of all of the models and trained on the COCO + AdaIN Mixed style transfer dataset, SWAHR also has the second best precision.
+ViTPose trained on COCO + CycleGAN mixed style transfer dataset has the best recall.
+The networks trained from the ground up don't have any significant difference between the other networks.
+
+The results on the Human-Art dataset are shown in table \ref{tab:experiments_style_transfered_pose_estimation_humanart}.
+Here, one dataset takes the crown.
+Both SWAHR as well as ViTPose have the best results for the models trained on the COCO + CycleGAN mixed style transfer dataset.
+The second best model for SWAHR is trained on the COCO + AdaIN mixed dataset and for ViTPose this is the one trained on COCO + CycleGAN impressionism.
+The falloff between the COCO and non-COCO datasets is between 5 to 9\% AP for AdaIN, and 2 to 3\% AP for CycleGAN.
+The best precision and recall belongs to the SWAHR models.
+Comparing the best models to the baseline, they still remain the best models overall with an increase of 3 to 5\% AP.
+There's no significant difference between the non-initialized and bootstrapped networks.
 
 \begin{table*}
     \setlength\tabcolsep{4pt}
-    \caption{Performance of different Pose Estimation models trained on Style Transfered datasets on COCO dataset. }
-    \centering
+    \vspace{0.2em}
+    \caption{Performance of different Pose Estimation models trained on Style Transformed datasets on COCO dataset. }
+    \begin{center}
     \footnotesize
     \label{tab:experiments_style_transfered_pose_estimation_coco}
-    \begin{tabular}{ l|cc|ccccc|ccccc }
+    \begin{tabular}{ l|ccccc|ccccc }
         \hline
-        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \bf{Method}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
         \hline
-        \multicolumn{13}{c}{\bf{CycleGAN}}\cr
-        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{AdaIN}}\cr
+        \multicolumn{11}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & \bf{0.679*} & \bf{0.874*} & 0.735 & \bf{0.628*} & 0.751 & \bf{0.732} & \bf{0.902} & 0.782 & 0.651 & 0.824 \cr
+        ViTPose & 0.618 & 0.859 & 0.685 & 0.599 & 0.661 & 0.748 & 0.924 & 0.816 & 0.709 & 0.805 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0.669 & 0.862 & 0.733 & 0.607 & \bf{0.755*} & 0.729 & \bf{0.902} & 0.782 & 0.651 & \bf{0.834} \cr
+        ViTPose & 0.609 & 0.843 & 0.664 & 0.590 & 0.654 & 0.742 & 0.916 & 0.801 & 0.702 & 0.799 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Mixed Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0.603 & 0.843 & 0.661 & 0.535 & 0.704 & 0.676 & 0.882 & 0.726 & 0.586 & 0.794 \cr
+        ViTPose & 0.518 & 0.783 & 0.557 & 0.492 & 0.573 & 0.669 & 0.880 & 0.726 & 0.617 & 0.739 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0.591 & 0.830 & 0.654 & 0.527 & 0.688 & 0.663 & 0.873 & 0.716 & 0.574 & 0.780 \cr
+        ViTPose & 0.497 & 0.784 & 0.531 & 0.463 & 0.564 & 0.650 & 0.874 & 0.710 & 0.594 & 0.728 \cr
         \hline
-        \multicolumn{13}{c}{\bf{AdaIN}}\cr
-        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{CycleGAN}}\cr
+        \multicolumn{11}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0.672 & 0.863 & \bf{0.737*} & 0.618 & 0.747 & \bf{0.732} & \bf{0.902} & \bf{0.787} & \bf{0.660} & 0.827 \cr
+        ViTPose & \bf{0.635} & \bf{0.861} & 0.697 & 0.616 & \bf{0.681} & \bf{0.763*} & \bf{0.925*} & \bf{0.825*} & 0.723 & \bf{0.820} \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0.663 & 0.862 & 0.724 & 0.606 & 0.743 & 0.714 & 0.889 & 0.764 & 0.637 & 0.815 \cr
+        ViTPose & 0.633 & 0.859 & \bf{0.701} & \bf{0.618} & 0.670 & 0.761 & 0.922 & 0.828 & \bf{0.725*} & 0.812 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Mixed Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0.653 & 0.858 & 0.711 & 0.609 & 0.714 & 0.716 & 0.898 & 0.764 & 0.647 & 0.807 \cr
+        ViTPose & 0.595 & 0.844 & 0.654 & 0.586 & 0.628 & 0.731 & 0.912 & 0.795 & 0.698 & 0.780 \cr
         \hline
-        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \multicolumn{11}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
         \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        SWAHR & 0.661 & 0.864 & 0.717 & 0.621 & 0.719 & 0.718 & 0.896 & 0.765 & 0.656 & 0.802 \cr
+        ViTPose & 0.591 & 0.841 & 0.643 & 0.582 & 0.619 & 0.727 & 0.910 & 0.790 & 0.695 & 0.773 \cr
         \hline
     \end{tabular}
+    \end{center}
+    \leavevmode
+    \footnotesize
+    * the best result overall.
 \end{table*}
 
 \begin{table*}
     \setlength\tabcolsep{4pt}
-    \caption{Performance of different Pose Estimation models trained on Style Transfered datasets on Human-Art dataset. }
-    \centering
+    \caption{Comparing the best models from \ref{tab:experiments_style_transfered_pose_estimation_coco} with the baseline metrics found in table \ref{tab:baseline_pose_estimation_after_style_transfer}. }
+    \begin{center}
     \footnotesize
-    \label{tab:experiments_style_transfered_pose_estimation_humanart}
-    \begin{tabular}{ l|cc|ccccc|ccccc }
+    \label{tab:difference_style_transfered_pose_estimation_coco}
+    \begin{tabular}{ l|ccccc|ccccc }
         \hline
-        \bf{Method}&\bf{PCK@0.2}&\bf{PCKh@0.5}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \bf{Method}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
         \hline
-        \multicolumn{13}{c}{\bf{CycleGAN}}\cr
-        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        \hline
-        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        \hline
-        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        \hline
-        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        \hline
-        \multicolumn{13}{c}{\bf{AdaIN}}\cr
-        \multicolumn{13}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        \hline
-        \multicolumn{13}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        \hline
-        \multicolumn{13}{c}{\bf{Trained on Mixed Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        \hline
-        \multicolumn{13}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
+        Pre-trained SWAHR & \bf{0.687*} & \bf{0.881*} & \bf{0.748*} & \bf{0.639*} & \bf{0.757*} & 0.737 & 0.904 & 0.788 & 0.670 & \bf{0.828*} \cr
+        Pre-trained ViTPose & 0.588 & 0.832 & 0.641 & 0.573 & 0.629 & 0.723 & 0.906 & 0.782 & 0.682 & 0.7863 \cr
+        SWAHR & 0.620 & 0.830 & 0.684 & 0.604 & 0.653 & 0.710 & 0.891 & 0.765 & 0.640 & 0.803 \cr
+        ViTPose & 0.609 & 0.847 & 0.680 & 0.597 & 0.644 & 0.740 & 0.918 & 0.810 & 0.703 & 0.795 \cr
+        SWAHR COCO + AdaIN Mixed & \bf{0.679**} & \bf{0.874**} & \bf{0.735**} & \bf{0.628**} & \bf{0.751**} & 0.732 & 0.902 & 0.782 & 0.651 & \bf{0.824**} \cr
+        ViTPose COCO + CycleGAN Mixed & 0.635 & 0.861 & 0.697 & 0.616 & 0.681 & \bf{0.763*} & \bf{0.925*} & \bf{0.825*} & \bf{0.723*} & 0.820 \cr
         \hline
     \end{tabular}
+    \end{center}
+    \leavevmode
+    \footnotesize
+    * the best result overall.\\
+    ** the best result without pre-trained models.
+\end{table*}
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{Performance of different Pose Estimation models trained on Style Transferred datasets on Human-Art dataset. }
+    \begin{center}
+    \footnotesize
+    \label{tab:experiments_style_transfered_pose_estimation_humanart}
+    \begin{tabular}{ l|ccccc|ccccc }
+        \hline
+        \bf{Method}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \hline
+        \multicolumn{11}{c}{\bf{AdaIN}}\cr
+        \multicolumn{11}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0.549 & \bf{0.791*} & 0.600 & 0.065 & \bf{0.602*} & 0.622 & 0.834 & 0.668 & 0.141 & 0.667 \cr
+        ViTPose & 0.420 & 0.724 & 0.440 & \bf{0.151*} & 0.460 & 0.600 & 0.843 & 0.650 & 0.300 & 0.630 \cr
+        \hline
+        \multicolumn{11}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0.540 & 0.779 & 0.576 & 0.071 & 0.591 & 0.612 & 0.822 & 0.646 & 0.156 & 0.655 \cr
+        ViTPose & 0.421 & 0.706 & 0.430 & 0.149 & 0.458 & 0.600 & 0.831 & 0.641 & 0.303 & 0.629 \cr
+        \hline
+        \multicolumn{11}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0.492 & 0.750 & 0.525 & 0.048 & 0.547 & 0.581 & 0.811 & 0.625 & 0.142 & 0.622 \cr
+        ViTPose & 0.332 & 0.627 & 0.316 & 0.079 & 0.372 & 0.522 & 0.784 & 0.559 & 0.223 & 0.551 \cr
+        \hline
+        \multicolumn{11}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0.488 & 0.738 & 0.524 & 0.058 & 0.543 & 0.581 & 0.804 & 0.624 & 0.153 & 0.621 \cr
+        ViTPose & 0.321 & 0.600 & 0.302 & 0.094 & 0.355 & 0.514 & 0.765 & 0.539 & 0.232 & 0.542 \cr
+        \hline
+        \multicolumn{11}{c}{\bf{CycleGAN}}\cr
+        \multicolumn{11}{c}{\bf{Trained on COCO + Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & \bf{0.553*} & 0.789 & \bf{0.604*} & \bf{0.122} & 0.598 & \bf{0.629*} & 0.839 & \bf{0.677*} & \bf{0.208} & \bf{0.669*} \cr
+        ViTPose & \bf{0.439} & \bf{0.726} & \bf{0.458} & 0.140 & \bf{0.481} & 0.617 & 0.844 & 0.661 & 0.324 & \bf{0.646} \cr
+        \hline
+        \multicolumn{11}{c}{\bf{Trained on COCO + Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0.522 & 0.778 & 0.556 & 0.113 & 0.565 & 0.590 & 0.819 & 0.628 & 0.173 & 0.630 \cr
+        ViTPose & 0.438 & 0.724 & 0.448 & 0.147 & 0.479 & \bf{0.619} & \bf{0.846*} & \bf{0.664} & \bf{0.358*} & 0.645 \cr
+        \hline
+        \multicolumn{11}{c}{\bf{Trained on Mixed Style Transfer}}\cr
+        \hline
+        SWAHR & 0.524 & 0.779 & 0.559 & 0.102 & 0.569 & 0.613 & \bf{0.843} & 0.645 & 0.200 & 0.652 \cr
+        ViTPose & 0.405 & 0.696 & 0.419 & 0.148 & 0.442 & 0.590 & 0.829 & 0.639 & 0.338 & 0.615 \cr
+        \hline
+        \multicolumn{11}{c}{\bf{Trained on Impressionism Style Transfer}}\cr
+        \hline
+        SWAHR & 0.505 & 0.761 & 0.539 & 0.116 & 0.546 & 0.587 & 0.822 & 0.622 & \bf{0.208} & 0.623 \cr
+        ViTPose & 0.407 & 0.694 & 0.412 & \bf{0.151*} & 0.444 & 0.590 & 0.828 & 0.631 & 0.341 & 0.615 \cr
+        \hline
+    \end{tabular}
+    \end{center}
+    \leavevmode
+    \footnotesize
+    * the best result overall.
+\end{table*}
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{Comparing the best models from \ref{tab:experiments_style_transfered_pose_estimation_humanart} with the baseline metrics found in table \ref{tab:baseline_pose_estimation_after_style_transfer}. }
+    \begin{center}
+    \footnotesize
+    \label{tab:difference_style_transfered_pose_estimation_humanart}
+    \begin{tabular}{ l|ccccc|ccccc }
+        \hline
+        \bf{Method}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
+        \hline
+        Pre-trained SWAHR & 0.528 & 0.759 & 0.565 & 0.099 & 0.573 & 0.593 & 0.635 & 0.629 & 0.177 & 0.635 \cr
+        Pre-trained ViTPose & 0.380 & 0.656 & 0.385 & 0.108 & 0.420 & 0.571 & 0.803 & 0.620 & 0.279 & 0.599 \cr
+        SWAHR & 0.492 & 0.742 & 0.536 & 0.058 & 0.539 & 0.563 & 0.784 & 0.606 & 0.109 & 0.605 \cr
+        ViTPose & 0.406 & 0.682 & 0.415 & 0.130 & 0.445 & 0.591 & 0.818 & 0.632 & 0.306 & 0.619 \cr
+        SWAHR COCO + CycleGAN Mixed & \bf{0.553*} &\bf{0.789*} & \bf{0.604*} & 0.122 & \bf{0.598*} & \bf{0.629*} & 0.839 & \bf{0.677*} & 0.208 & \bf{0.669*} \cr
+        ViTPose COCO + CycleGAN Mixed & 0.439 & 0.726 & 0.458 & \bf{0.140*} & 0.481 & 0.617 & \bf{0.844*} & 0.661 & \bf{0.324*} & 0.646 \cr
+        \hline
+    \end{tabular}
+    \end{center}
+    \leavevmode
+    \footnotesize
+    * the best result overall.\\
+    ** the best result without pre-trained models.
 \end{table*}
 
 \section{Discussion}
-It would be useful to train a network to learn proper 
-Suppose you take a \gls{CNN}: it will do convolutions, max pooling until you get as output a vector which you can use for cross-entropy, softmax loss.
-This has the entire image as perceptive field, with every layer the perceptive field grows bigger (check if this is true) until the last layer has the entire image in its field.
-Suppose that you want to know the coordinates of the object found, all you would need to know is what point in the neural network the perceptive field can see the object.
-From that point in the network it would be convenient to have the coordinates marked somewhere so that the object can be found at different scales.
-Meaning that for every layer it branches to a subnetwork or as another entrance for backpropogation (as with RNN).
-Is this how HRNet works? (research)
-Why is dataset thrice the size as the original dataset?
+\label{improvements_discussion}
+It is overwhelmingly obvious that trying to use style transfer to transform images to try to use pre-trained networks on is a catastrophic failure.
+Style transfer, or at least the models used in this thesis, does not have the capacities to convincingly transform a photograph to an artwork.
+It's difficult to believe that any of the styled images can be confused with an artwork by any reasonable person.
+There are several studies that confirm this: Chen et al. \cite{Chen2021} and Wang et al. \cite{wang2022} calculate a deception score, which measure the believability of the fake images against the real images.
+Images from a set of stylized images and real artworks are shown to participants who need to determine whether it is real or fake.
+Table \ref{tab:improvements_discussion_deception_score} shows that older networks have extremely bad performance on this with a meager 40\% at best.
+While the newer models show a considerable improvement, they're still 20\% below the real images.
+Other models, like Huang et al. \cite{huang2023} and Zhang et al. \cite{zhang2023} ask participant to select the fake(s) from a group of images.
+They find that their models were able to confuse participants; participants were not able to distinct between fake and real images, while for older models this was not achieved.
+This confirms the observation that the used models are inadequate, but gives hopeful results for future research with state-of-the-art style transfer models.
 
-Discuss the flaws of mmpose: log\_processor doesn't give enough info, eval code during runtime, all centered around configuration, but misses ease of programming.
-HAs train\_loop, val\_loop variables for extra confusion
-Don't have your code add prefixes to output dirs or anything else. It only causes confusion.
-It's also difficult to add new stuff, because the hooks don't provide enough information meaning hacks need to be implemented.
-When resuming a network, the iterations continue from previous session, but if the new session has a bigger or smaller world, those iterations don't match the new world size.
-How does multiple distribution sessions work?
+During training, a plain model was trained as a control for the fidelity of the reverse-engineered implementation.
+On the COCO-dataset, ViTPose improved on both the control and pre-trained models.
+The results for CycleGAN don't seem to be an improvement when comparing with the pre-trained model, but there are improvements compared to the control.
+This could mean that if the difference in training can be pin-pointed, the performance on the COCO-dataset for pre-trained models could potentially be increased.
+However, this is not a guarantee.
+On the other hand, the performances on the Human-Art dataset have increased compared to both baselines for both architectures.
+The models with the best results are those that combine the COCO dataset with a mixture of different styles and SWAHR shows the best performance of the pose estimation algorithms.
 
-On how to do research: would a method of research like gradient descent where one does a quick research paper of to check improvements and only proceeds in a certain direction when improvements are significant.
-Instead of researching every single variable.
+(Todo: check results of both these models on the entire COCO dataset and entire Human-Art dataset)
 
-Use a different backend and not visdom. It's difficult to alter test results with visdom, like removing unnecessary domains.
+During the training, for every 20 epochs the networks were evaluated after 100 epochs.
+Table \ref{todo} show that after 100 iterations for both SWAHR and ViTPose the network only marginally increased; around 2\%.
+While this is great for fine-tuning the network, for comparing architectures this does not seem necessary.
+The same conclusions would have been drawn when keeping to only 100 epochs.
+In Table \ref{todo}, the metrics are shown after 100 epochs to illustrate this point for CycleGAN, as well as Fig. \ref{todo} for ViTPose.
 
-With styled datasets, while they work better for artworks?, they don't improve the results on the COCO dataset.
-My assumption was that the augmentation of the dataset would make it generalize better, but perhaps it confuses the model too much when samples are very straight forward, but it would make better predictions when used for hard cases.
+Despite being state-of-the-art, ViTPose has a lower performance than SWAHR here.
+The evaluation is only on a subset of the COCO-dataset, which might explain it.
+According to Dosovitskiy et al., \cite{Dosovitskiy2020} Vision Transformers do not benefit from the inductive biases inherent to CNNs.
+To make up for that they need to be trained on a bigger dataset.
+With the augmentation of the COCO-dataset, the training size was doubled.
+The increased performance might just only be because of a larger dataset.
+
+According to several surveys, bottom-up architectures are less precise then top-down architectures.
+Is this because top-down architectures are trained to only find one pose per ground truth in the found bounding box while bottom-up algorithms can find more poses per ground truth?
+This can skew the precision as there are now more false negatives.
+The cropping of the image also removes a lot of information that could potentially be relevant, like sitting on a horse or perspective.
+These could be clues that can help the algorithm more accurately do predictions, but how well can a network train for this? Perhaps 2d is limited in that sense.
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{The deception score of different models calculated by Chen et al. \cite{Chen2021} and Wang et al. \cite{wang2022}. }
+    \begin{center}
+    \footnotesize
+    \label{tab:improvements_discussion_deception_score}
+    \begin{tabular}{ l|c|ccccc }
+        \hline
+        \bf{Paper}&\bf{WikiArt}&\bf{Theirs}&\bf{AdaIN}&\bf{WCT} \cite{Li2017}&\bf{LST} \cite{LiXueting2018}&\bf{SANet} \cite{Park2018}\cr
+        \hline
+        Chen et al. & 0.875 & 0.624 & 0.363 & 0.099 & 0.125 & 0.161 \cr
+        Wang et al. & 0.784 & 0.568 & 0.241 & 0.172 & 0.408 & 0.346 \cr
+        \hline
+    \end{tabular}
+    \end{center}
+\end{table*}
+
+\begin{table*}
+    \setlength\tabcolsep{4pt}
+    \caption{The deception score of different models calculated by Chen et al. \cite{Chen2021} and Wang et al. \cite{wang2022}. }
+    \begin{center}
+    \footnotesize
+    \label{tab:improvements_discussion_deception_score}
+    \begin{tabular}{ l|c|ccccc }
+        \hline
+        \bf{Paper}&\bf{WikiArt}&\bf{Theirs}&\bf{AdaIN}&\bf{WCT} \cite{Li2017}&\bf{LST} \cite{LiXueting2018}&\bf{SANet} \cite{Park2018}\cr
+        \hline
+        Chen et al. & 0.875 & 0.624 & 0.363 & 0.099 & 0.125 & 0.161 \cr
+        Wang et al. & 0.784 & 0.568 & 0.241 & 0.172 & 0.408 & 0.346 \cr
+        \hline
+    \end{tabular}
+    \end{center}
+\end{table*}
+
+\section{Related Papers}
+\label{sec:baseline_related_papers}
+Enhancing Human Pose Estimation in Ancient Vase Paintings via Perceptually-grounded Style Transfer Learning \cite{Madhu2020}\\
+\subsection{Results}
+\label{sec:baseline_related_papers_results}
+Compare results with related paper

@@ -1,3 +1,5 @@
+\graphicspath{{images/chapter1/}}
+
 \chapter{Literature study}
 \label{chap:rel_work}
 In order to correctly implement a solution, we need to understand the fundamentals.
@@ -348,7 +350,7 @@ Continuing on the idea of associative embedding, Cheng et al. \cite{Cheng2019} u
 Their method focuses on the scale-variance problem; a problem which hasn't been studied much, so it can localize keypoints for small persons better.
 Lou et al. \cite{Lou2020} introduce \gls{SAHR} and \gls{WAHR} to the scale-variance problem.
 \gls{SAHR} adaptively adjusts the standard deviation of each heatmap corresponding with the scale of the person.
-\gls{WAHR} rebalances the foreground and background samples, so \gls{SAHR} can work to its fullest extent.
+\gls{WAHR} rebalance the foreground and background samples, so \gls{SAHR} can work to its fullest extent.
 
 \subsubsection{Summary}
 An important challenge for \gls{HPE} is making predictions in scenes with hight occlusions.
@@ -427,11 +429,13 @@ Due to a lack of benchmark datasets, multiple papers will mix and match from dif
 
 \textbf{Edges2handbags Dataset \cite{Zhu2016}} consists of 137,000 paired images between edges and photos of handbags.
 
-\textbf{Season transfer Dataset \cite{Zhu2017}} consists of 2127 images of Yosemite during summer and winter downloaded from Flickr.
+\textbf{Horse $\leftrightarrow$ Zebra \cite{Zhu2017}} consists of 2,500 images of 512x512 horses and zebras, that were sampled from ImageNet \cite{Deng2009}.
+
+\textbf{Animal Face High Quality \cite{Choi2019}} consists of 15,000 high quality images of 512x512 animal faces, including cat, dog and wildlife.
 
 \textbf{Night2Day Dataset \cite{Laffont2014}} consists of 20,000 images taken from time-lapse datasets and annotated through crowdsourcing.
 
-\textbf{WikiArt Dataset \cite{Tan2018}} consists of 80,000 fine-art paintings.
+\textbf{WikiArt Dataset \cite{Saleh2015}} consists of 80,000 fine-art paintings.
 All are annotated for 27 styles, 60,000 are annotated for 20 genres and 20,000 for 23 artists.
 
 \subsection{Optimization-based Networks}
@@ -586,7 +590,7 @@ In addition to this there's a cycle-consistency loss, which is the \gls{MSE} bet
 The goal is to minimize the adversarial and cycle-consistency losses, while maximizing the discriminators' accuracy.
 Zhu et al. \cite{Zhu2017} also introduce an identity loss.
 
-Liu et al. \cite{Liu2017} introduce the latent space assumption which assumes that paired images from different domains can be mapped to a shared latent space with the same latent representation.
+Liu et al. \cite{Liu2017} introduce the latent space concept which assumes that paired images from different domains can be mapped to a shared latent space with the same latent representation.
 The network consists of 2 domain image encoders $E\textsubscript{$1$}$ and $E\textsubscript{$2$}$, 2 domain image generators $G\textsubscript{$1$}$ and $G\textsubscript{$2$}$, and 2 domain discriminators $D\textsubscript{$1$}$ and $D\textsubscript{$2$}$.
 As can be seen in \ref{fig:style_transfer_algorithm_unit}.
 The encoders and generators are paired and form a \gls{VAE} \cite{kingma2022}.
@@ -599,6 +603,7 @@ This image is used to train the \gls{GAN}.
 They also show that the shared-latent space assumption implies cycle-consistency, which is the final loss function of the network.
 
 \subsection{Evaluation Metric}
+\label{sec:style_transfer_metrics}
 There are several methods of evaluating the quality of a generated image. 
 A first metric was through human evaluation; a score was given based on generation quality.
 This proved to be inconsistent as a person's perception can change over time.
@@ -610,7 +615,7 @@ These are extracted from the layers for the style and content images, and compar
 The lower the score, the better.
 
 \textbf{Inception score (IS)}, as described by Salimans et al. \cite{Salimans2016}, uses a pre-trained Inception model \cite{Szegedy2015} to describe the quality of the generated images.
-It describes that the entropy of the distribution of predicted labels for individual images needs to be minimized while the entropy of the distribution across all images need to be high.
+It prescribes that the entropy of the distribution of predicted labels for individual images needs to be minimized while the entropy of the distribution across all images need to be high.
 This equates to each image having generated a distinct label and the labels being equally distributed.
 The closer to 1, the better.
 
@@ -638,8 +643,7 @@ specifically, \gls{CBIR} has been used for person re-identification, remote sens
 Image retrieval can be categorized into 2 different groups: \gls{CIR} and \gls{IIR}.
 \gls{CIR}'s goal is to find images within the same category as the query, while \gls{IIR} tries to find images with a particular instance given in the query image.
 The general workflow of \gls{CBIR} is illustrated in \ref{fig:image_retrieval_flowchart}.
-This paper will only discuss query formation, image representation, image scoring, and search reranking.
-
+This paper will only discuss query formation, image representation, image scoring, and search re-ranking.
 
 \begin{figure}
 	\centering
