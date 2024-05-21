@@ -3,14 +3,14 @@
 \chapter{Literature study}
 \label{chap:rel_work}
 In order to correctly implement a solution, we need to understand the fundamentals.
-These consist of 2 research fields: \gls{HPE} and \gls{NST}.
+These consist of two research fields: \gls{HPE} and \gls{NST}.
 The former will be used to detect poses in the art collections, but not before the latter has tried to make an improvement.
 Following will be an overview of the available research in these domains.
 Discussing what the goals of them are, how they achieve it, what their challenges are and their limitations.
 
 \begin{figure}
 	\centering
-	\captionbox{The various challenges HPE solutions face. Images from \gls{MPII} dataset. \cite{Andriluka2014}\cite{Chen2000}}[0.49\textwidth]{
+	\captionbox{The various challenges HPE solutions face. Images from \gls{MPII} dataset. \cite{Andriluka2014, Chen2000}}[0.49\textwidth]{
 		\includegraphics[width=0.49\textwidth]{hpe_problem_complexity}
 		\label{fig:hpe_problem_complexity}
 	}
@@ -30,34 +30,37 @@ Discussing what the goals of them are, how they achieve it, what their challenge
 
 \section{Human Pose estimation}
 \label{sec:hpe}
-
+Here, \gls{HPE} will be explored.
+The purpose and task is going to be explained with a compilation of the history of the major architectures.
+The different datasets used for training and evaluation metrics will be carefully analyzed.
+\\
 \gls{HPE} aims to detect human features from input data such as images and videos.
 It's an elementary part of computer vision with many applications among which are human action recognition (sign language), human tracking (surveillance), and human-computer interaction (video games).
 This is an extensively researched area with a diverse range of different techniques.
 This chapter will try to give an overview of all the many challenges and proposed solutions.
 The focus will be on deep learning models, which have surpassed classical solutions significantly.
-Specifically, around 2D monocular \gls{HPE} eg., \cite{Munea2020}\cite{Zheng2012}\cite{Liu2104}\cite{chen2022}.
-
+Specifically, around 2D monocular \gls{HPE} eg., \cite{Munea2020, Zheng2012, Liu2104, chen2022}.
+\\
 The human body has a high degree-of-freedom due to all the limbs, self-similar parts and body types, which may cause self-occlusion or rare/complex poses.
-The variations in configuration are made even larger due to clothing, lighting, foreground occlusion, as well as viewing angles and truncation, among others, as shown in fig. \ref{fig:hpe_problem_complexity}.
-This makes \gls{HPE} one of the most difficult tasks in computer vision \cite{jain2014}\cite{Chen2000}.
+The variations in configuration are made even larger due to clothing, lighting, foreground occlusion, as well as viewing angles and truncation, among others, as shown in Fig. \ref{fig:hpe_problem_complexity}.
+This makes \gls{HPE} one of the most difficult tasks in computer vision \cite{jain2014, Chen2000}.
 
 \subsection{Representation}
 \label{section:representation}
 
 An important factor in \gls{HPE} is how the pose will be represented.
-Depending on the needs of the problem you can have a skeleton-base, contour-base, or volume-base solution \cite{Chen2000} as seen in Fig. \ref{fig:pose_representation}.
+Depending on the needs of the problem you can have a skeleton-based, contour-based, or volume-based solution \cite{Chen2000} as seen in Fig. \ref{fig:pose_representation}.
 
 \subsubsection{Skeleton-based model}
 The skeleton is build of a tree-structured set of keypoints that represent the joints of the human body.
 These can be explicitly described by their coordinates in 2D or 3D space \cite{Toshev2014}.
-More suitable for a \gls{CNN} however is a heatmap which constructs a 2D Gaussian kernel around a keypoint \cite{Liu2104}\cite{SWARH}.
+More suitable for a \gls{CNN} however is a heatmap which constructs a 2D Gaussian kernel around a keypoint \cite{Liu2104, SWARH}.
 They are easily implemented and became the dominant representation.
 While the skeleton-based model is a compact and flexible representation it suffers in this aspect by not being able to hold texture or shape information \cite{Zheng2012}.
 
 \subsubsection{Contour representation}
 To capture the shape of the body parts, contour representation uses rectangles to estimate the body contours.
-These methods include cardboard models \cite{Ju96} and \gls{ASMs} \cite{COOTES95} and were mainly in use in earlier \gls{HPE} methods \cite{Chen2000}.
+These methods include cardboard models \cite{Ju96}, which assumes people can be represented as a group of planar patches, and \gls{ASMs} \cite{COOTES95}, which tries to fit body part shapes to an image, were mainly in use in earlier \gls{HPE} methods \cite{Chen2000}.
 
 \subsubsection{Volume representation}
 Volumetric geometric shapes can also be used as a method of representation.
@@ -74,51 +77,45 @@ This makes the skeleton-based model the ideal representation to work with and wi
 There are several publicly available datasets.
 There are some that are outdated and we will leave those out, focusing only on datasets used for deep learning.
 
-\textbf{\gls{LSP} Dataset \cite{Johnson2010}} contains 2,000 images found on Flickr using 8 different tags looking for sport activities (athletics, badminton, baseball, gymnastics, parkour, soccer, tennis, and volleyball).
-Each person has 14 keypoints.
-An extended version was later introduced \cite{Johnson2011}, now consisting of 10,000 images. 
-For this set they only focused on the more challenging tags (parkour, gymnastics, and athletics).
-
-\textbf{\gls{MPII} Human Pose Dataset \cite{Andriluka2014}} contains 24,290 images with 40,522 labeled people.
-They were extracted from YouTube videos found by querying for physical activities.
-Each person has 16 keypoints and also includes occlusion labels.
-
-\textbf{\gls{COCO} Dataset \cite{Lin2014}} is a large-scale dataset for a wide range of computer vision algorithms.
-For \gls{HPE}, the set contains more than 200,000 images in which 250,000 persons are annotated.
-Each person has 17 keypoints, a bounding-box and visibility labels.
-This dataset has become the most popular for benchmarking.
-
-\textbf{\gls{FLIC} Dataset \cite{Sap2013}} contains 5,003 images extracted from Hollywood movies.
-They ran a person detector which collected 20,000 images from 30 movies.
-Occluded and difficult poses were then removed leaving only 5,000 images to be annotated.
-Only the upper body received 10 keypoints.
-
-\textbf{\gls{AIC-HKD} Dataset \cite{Sap2013}} contains 300,000 images found using Internet search engines.
-In these, over 700,000 humans are annotated.
-Each person has 14 keypoints, a bounding-box, as well as visibility and left/right labels.
-
-\textbf{CrowdPose Dataset \cite{Li2018}} puts an emphasis on crowded images.
-30,000 images from \gls{MPII}, gls{COCO} and gls{AIC-HKD} were measured with a Crowd Index, which evaluates the crowdedness.
-Finally, 20,000 images are selected and 80,000 persons annotated.
-Each person has 14 keypoints and a full-body bounding box.
-
-\textbf{Human-Art Dataset \cite{Ju2023}} bridges the gap between natural and artificial images.
-The set contains 50,000 high-quality images with 123,000 annotated humans.
-Each person has 17 keypoints, bounding boxes, self-contact points, and text information.
+\begin{enumerate}
+	\item \textbf{\gls{LSP} Dataset \cite{Johnson2010}} contains 2,000 images found on Flickr using 8 different tags looking for sport activities (athletics, badminton, baseball, gymnastics, parkour, soccer, tennis, and volleyball).
+	Each person has 14 keypoints.
+	An extended version was later introduced \cite{Johnson2011}, now consisting of 10,000 images. 
+	For this set they only focused on the more challenging tags (parkour, gymnastics, and athletics).
+	\item \textbf{\gls{MPII} Human Pose Dataset \cite{Andriluka2014}} contains 24,290 images with 40,522 labeled people.
+	They were extracted from YouTube videos found by querying for physical activities.
+	Each person has 16 keypoints and also includes occlusion labels.
+	\item \textbf{\gls{COCO} Dataset \cite{Lin2014}} is a large-scale dataset for a wide range of computer vision algorithms.
+	For \gls{HPE}, the set contains more than 200,000 images in which 250,000 persons are annotated.
+	Each person has 17 keypoints, a bounding-box and visibility labels.
+	This dataset has become the most popular for benchmarking.
+	\item \textbf{\gls{FLIC} Dataset \cite{Sap2013}} contains 5,003 images extracted from Hollywood movies.
+	They ran a person detector which collected 20,000 images from 30 movies.
+	Occluded and difficult poses were then removed leaving only 5,000 images to be annotated.
+	Only the upper body received 10 keypoints.
+	\item \textbf{\gls{AIC-HKD} Dataset \cite{Sap2013}} contains 300,000 images found using Internet search engines.
+	In these, over 700,000 humans are annotated.
+	Each person has 14 keypoints, a bounding-box, as well as visibility and left/right labels.
+	\item \textbf{CrowdPose Dataset \cite{Li2018}} puts an emphasis on crowded images.
+	30,000 images from \gls{MPII}, gls{COCO} and gls{AIC-HKD} were measured with a Crowd Index, which evaluates the crowdedness.
+	Finally, 20,000 images are selected and 80,000 persons annotated.
+	Each person has 14 keypoints and a full-body bounding box.
+	\item \textbf{Human-Art Dataset \cite{Ju2023}} bridges the gap between natural and artificial images.
+	The set contains 50,000 high-quality images with 123,000 annotated humans.
+	Each person has 17 keypoints, bounding boxes, self-contact points, and text information.
+\end{enumerate}
 
 \subsection{Discriminative Methods and Generative Methods}
 Before deep learning became prominent in \gls{HPE} there were already a number of different methods in use.
 Some of these methods are compatible with the deep learning methods and were thus adopted.
 An early distinction is between generative and discriminative methods.
 
-\subsubsection{Generative Model}
-A generative method will work with prior beliefs about the pose.
+\textbf{Generative Models} work with prior beliefs about the pose.
 More information about this can be found in the section about representation \ref{section:representation}.
 It will project the pose on the image and verify it with the image data.
 If they don't comply, the pose is adjusted using the descent direction found by minimizing an error function \cite{Pons-Moll2011}.
 
-\subsubsection{Discriminative Model}
-Discriminative methods on the other hand, try to map the pose on the image data with learned models.
+\textbf{Discriminative Models} on the other hand, try to map the pose on the image data with learned models.
 There are several methods in this category, among which are the deep learning-based methods.
 The deep-learning methods are further categorized by the following sections.
 
@@ -137,8 +134,8 @@ There are 2 major methods that are in use: regression methods and detection-base
 	\caption{The different methods of single-person human pose estimation.\cite{Zheng2012}}
 	\label{fig:single_pose_estimation}
 \end{figure}
-\subsubsection{Regression-based Methods}
-The regression-based methods learn a network that maps all the body keypoints to the image-data directly as show in \ref{fig:single_pose_estimation_regression_methods}.
+
+\textbf{Regression-based Methods} learn a network that maps all the body keypoints to the image-data directly as shown in Fig. \ref{fig:single_pose_estimation_regression_methods}.
 
 \begin{figure}
 	\centering
@@ -169,11 +166,10 @@ With each iteration it converges towards the solution instead of making the pred
 Regression-based methods map the keypoints directly on the image, making it a non-linear problem.
 This will cause less robust generalization however \cite{Liu2104}.
 
-\subsubsection{Heatmap/Detection-based Methods}
-The detection-based methods will first estimate the individual body parts using heatmaps, which leads to an easier optimization and a more robust generalization \cite{chen2022}.
+\textbf{Heatmap and Detection-based Methods} will first estimate the individual body parts using heatmaps, which leads to an easier optimization and a more robust generalization \cite{chen2022}.
 Most of the latest \gls{HPE} methods use heatmaps because of this.
 After the joints are found they are then assembled to fit a human skeleton.
-This process is shown in \ref{fig:single_pose_estimation_heatmap-based_methods}.
+This process is shown in Fig. \ref{fig:single_pose_estimation_heatmap-based_methods}.
 
 Tompson et al. \cite{TompsonJLB14} proposed a hybrid architecture where the detection of body parts is handled by a \gls{CNN} and a Spatial-Model to bring those together.
 The first step produces many false-positives and these are removed in the second step by restricting joint inter-connectivity to enforce correct anatomy.
@@ -183,8 +179,8 @@ They build on this in \cite{Tompson2015}, where they used a cascade to refine pr
 	\centering
 	\includegraphics[width=\textwidth]{single_pose_estimation_convolutional_pose_machines}%
 	\caption{
-		Architecture and receptive fields of \gls{CPMs}. (a) and (b) represent the pose machine architecture.\cite{Ramakrishna2014}
-		(c) and (d) show the corresponding convolutional networks used by \gls{CPMs}.\cite{Wei2016}
+		Architecture and receptive fields of \gls{CPMs}. (a) and (b) represent the pose machine architecture \cite{Ramakrishna2014}.
+		(c) and (d) show the corresponding convolutional networks used by \gls{CPMs} \cite{Wei2016}.
 	}
 	\label{fig:convolutional_pose_machines}
 \end{figure}
@@ -193,7 +189,7 @@ A fundamental work written by Wei et al. \cite{Wei2016} combines convolution net
 Pose Machines is an iterative architecture which consists of 2 models: the first is used for stage 1 where it extracts potential heatmaps for the joints.
 The second model is used for subsequent stages where the result of the previous stage is fed in together with the results of its own convolution network on the input image. 
 This gradually refines the predictions for the joints and their positioning.
-\ref{fig:convolutional_pose_machines} shows this process.
+Figure \ref{fig:convolutional_pose_machines} shows this process.
 
 \begin{figure}
 	\centering
@@ -211,14 +207,15 @@ This gradually refines the predictions for the joints and their positioning.
 
 Another influential work was being written at the same time by Newell et al. \cite{Newell2016}.
 Similar to \gls{CPMs}, this is also an iterative architecture.
-They suggest what they call a "stacked hourglass" network, where "hourglass" modules are repeated \ref{fig:single_pose_estimation_stacked_hourglass}.
-In an "hourglass" module, first, the features are downsampled and afterwards upsampled again \ref{fig:single_pose_estimation_hourglass_module}.
+They suggest what they call a "stacked hourglass" network, where "hourglass" modules are repeated.
+In an "hourglass" module, first, the features are downsampled and, afterwards, upsampled again.
+Figure \ref{fig:stacked_hourglass} shows an illustration of this architecture.
 This network captures different spatial relationships between joints at different resolutions.
-Several other works \cite{Yang2017}\cite{Yu2017}\cite{Chou17} have since improved on the network design.
+Several other works \cite{Yang2017, Yu2017, Chou17} have since improved on the network design.
 
 Both these use intermediate supervision to tackle the problem of vanishing gradients.
 This still doesn't build a deep sub-network for feature extraction which limits the estimations.
-This has become less of a problem with the emergence of \gls{ResNet}\cite{He2015} which allows better back-propagation at deeper levels through shortcuts.
+This has become less of a problem with the emergence of \gls{ResNet} \cite{He2015} which allows better back-propagation at deeper levels through shortcuts.
 
 \begin{figure}
 	\centering
@@ -237,26 +234,23 @@ This has become less of a problem with the emergence of \gls{ResNet}\cite{He2015
 A more recent work by Sun et al. \cite{Sun2019} maintains the high-resolution representations instead of working the high-resolution from the low-to-high sub-network.
 After a first high-resolution sub-network, it gradually adds high-to-low sub-networks in parallel to predict multi-resolution features.
 Before each branch, they apply multi-scale fusion, which joins the predicted features from each scale on each scale.
-Both are shown in \ref{fig:HRNet}.
-This network has proven very effective and inspired several variations \cite{Cheng2019}\cite{Yu2021}\cite{Yuan2021}.
+Both are shown in Fig. \ref{fig:HRNet}.
+This network has proven very effective and inspired several variations \cite{Cheng2019, Yu2021, Yuan2021}.
 
 With the emergence of neural networks also came \glspl{GAN} \cite{Goodfellow2014}, which proved useful for \gls{HPE}.
 They are employed to improve constraints of joint inter-connectivity and infer occluded body parts.
-
 Chen et al. \cite{Chen2017} propose a structure-aware convolution network using a stacked hourglass as generator which generates heatmaps for each joint.
 They use 2 discriminators, one to discriminate between low- and high-confidence predictions, another for real and fake poses.
 The network is designed as a \gls{cGAN} \cite{Mirza2014}, which allows it to generate pose heatmaps as well as occlusion heatmaps.
-
 A more classic \gls{GAN} is used by Chou et al. \cite{Chou2017}, where they use a stacked hourglass network for both the generator as the discriminator.
 The generator predicts the heatmaps for each joint and the discriminator distinguished between the real and fake ones.
 
 \subsection{Multi-Person Methods}
 With multi-person methods comes an extra layer of difficulty: they need to be able to detect each person separately.
 To solve this problem multi-person methods propose several solutions. 
-The 2 most popular are top-down and bottom-up methods.
+The two most popular are top-down and bottom-up methods.
 
-\subsubsection{Top-Down Methods}
-This method will first try to detect all persons in the image with a human detector.
+\textbf{Top-Down Methods} will first try to detect all persons in the image with a human detector.
 Each person is cropped by the bounding box and a single-person estimator predicts a pose for each person.
 
 Occlusion and truncation are a regular occurrence in multi-person scenes and inevitable problem.
@@ -267,11 +261,11 @@ This technique is similar to \cite{Pishchulin2015}, but instead of working on al
 It can also handle any kind of occlusion or truncation.
 
 The use of a human detector comes with its own sort of problems.
-Fang et al. \cite{Fang2016}, with \gls{RPME}, try to remedy these with 2 components:
+Fang et al. \cite{Fang2016}, with \gls{RPME}, try to remedy these with two components:
 They try to tackle inaccurate bounding boxes with Symmetric Spatial Transformer Network, redundant detections with Parametric Pose Non-Maximum-Suppresion.
 They also propose a 3rd component, Pose-Guided Proposals Generator, which can augment training samples.
 
-Papandreou et al. \cite{Papandreou2017} use a 2 stage pipeline.
+Papandreou et al. \cite{Papandreou2017} use a two stage pipeline.
 In the first stage, they employ the Faster RCNN detector \cite{Ren2015}.
 In the second stage, they estimate the pose in each found bounding box using their own network.
 It predicts heatmaps using a fully convolutional \gls{ResNet} and use their own novel aggregation procedure.
@@ -281,7 +275,7 @@ Afterwards, they do post-processing using keypoint-based \gls{NMS} a method of t
 	\centering
 	\includegraphics[width=\textwidth]{multi_pose_estimation_cascade_pyramid_network}%
 	\caption{
-		Cascaded Pyramid Network. “L2 loss*” means L2 loss with online hard keypoints mining.\cite{Chen2017}
+		Cascaded Pyramid Network. “L2 loss*” refers to L2 loss with online hard keypoints mining.\cite{Chen2017}
 	}
 	\label{fig:cascade_pyramid_network}
 \end{figure}
@@ -290,11 +284,14 @@ A continuous effort is taken by Chen et al. \cite{Chen2017} to deal with occlusi
 They suggest a 2 stage architecture, a \gls{CPN} as seen in \ref{fig:cascade_pyramid_network},
 where first the "simple" keypoints are captured with GlobalNet, a feature pyramid network based on \cite{Lin2016},
 and the "hard" keypoints are handled by their RefineNet, based on the upsampling and concatenating of HyperNet \cite{Kong2016} and using an adapted stacked hourglass.
-They achieved great results and several others improved on their work \cite{Su2019}\cite{Li2019}.
+They achieved great results and several others improved on their work \cite{Su2019, Li2019}.
 
-In more recent research, a new method was become more powerful than \glspl{CNN}.
-The Transformer \cite{Vaswani2017}, based on attention mechanisms which are used to optimize recurrent networks \cite{Kim2017}, eliminates the use of recurrent layers, keeping only the attention mechanisms.
-Yang et al. \cite{Yang2020} use this architecture because allows for better understanding of the spatial dependencies and learns at a higher rate.
+In more recent research, a new method was become competitive with \glspl{CNN}.
+Based on work in language modeling, attention mechanisms, an optimization of recurrent networks, allow the modeling of dependencies without regard of the distance in the input or output sequences.
+The Transformer, introduced by Vaswani et al., \cite{Vaswani2017} eliminates recurrence and relies solely on attention mechanisms.
+This enables is to work better in parallel and it still maintains state-of-the-art performance.
+Based on this new architecture, Dosovitskiy et al. \cite{Dosovitskiy2020} converted this to a useful model that can work with images; the \gls{ViT}.
+Xu et al. \cite{xu2022} use the vision transformer to apply it to the pose estimation task.
 
 \begin{figure}
 	\centering
@@ -321,8 +318,7 @@ Yang et al. \cite{Yang2020} use this architecture because allows for better unde
 	}
 \end{figure}
 
-\subsubsection{Bottom-Up Methods}
-A different approach is taken with bottom-up methods.
+\textbf{Bottom-Up Methods} are a different approach.
 They first locate all joints in the image and then assemble them in potential humans.
 
 DeepCut by Pishchulin et al. \cite{Pishchulin2015}, one of the first multi-person models using \glspl{CNN}.
@@ -333,7 +329,7 @@ Insafutdinov et al. \cite{Insafutdinov2016} therefor introduce a stronger part d
 
 \gls{CPMs} make a return with OpenPose by Cao et al. \cite{Cao2018}, they're used to predict the joints with heatmaps and \glspl{PAFs}.
 A part affinity field also encodes the position and orientation of the limb which makes the assembly of joints into different poses possible.
-They can achieve real-time results with this method, and several others have improved on their design \cite{Zhu2017}\cite{Hidalgo2019}\cite{Li2019}.
+They can achieve real-time results with this method, and several others have improved on their design \cite{Zhu2017, Hidalgo2019, Li2019}.
 The high performance is only applicable to high-resolution images.
 Low-resolution images or images with occlusions perform poorly.
 
@@ -365,32 +361,31 @@ The evaluation of an \gls{HPE} looks to measure the accuracy of the location of 
 Because of the different number of features and tasks across datasets, there are also several different evaluation metrics in use.
 Explained next will be the most commonly used metrics.
 
-\textbf{Percentage of Correct Parts (PCP)}, proposed by Ferrari at al. \cite{Ferrari2008} measures the detection rate of limbs.
-A limb is considered the area between 2 joints and viewed as detected when the distance between the predicted joints and the real joints is less than halve the length of the limb.
-This method penalizes shorter limbs and to address this, \gls{PDJ} was introduced which instead measures it with a fraction of the torso diameter.
-The higher, the better.
-
-\textbf{Percentage of Correct Keypoints (PCK)}, suggested by Yang et al. \cite{Yang2013} measures the accuracy of the predicted keypoints.
-The keypoints should be within a certain threshold which is a fraction of the person's bounding box size; denoted as PCK@0.2 when it should be less than 20\%.
-It can also be 50\% of the head's length; denoted as PCKh@0.5, which makes it "articulation independent".
-The higher, the better.
-
-\textbf{Average Precision/Recall (AP/AR)}, is measured by Yang et al. \cite{Yang2013} by counting a keypoint that is within a certain threshold of the ground truth as a true positive.
-For Lin et al. \cite{Lin2014}, the AP is calculated by measuring the \gls{OKS} which is similar to \gls{IoU} in Object Detection.
-The \gls{OKS} is defined as:
-\begin{equation}
-	\operatorname{OKS} = \frac{\sum_{i}\exp(-d_i^2/2s^2k_i^2)\delta(v_i > 0)}{\sum_i \delta(v_i > 0)}
-\end{equation}
-Here, $d_i$ is the distance between the predicted keypoint and the ground truth.
-The distance is run through a unnormalized Gaussian with a standard deviation of $sk_i$ which yields a similarity that ranges between 0 and 1.
-$s$ is the scale, calculated as the root of the segment area, and $k_i$ is a constant for each keypoint that controls falloff.
-\gls{OKS} is the mean of visible keypoints ($v_i > 0$).
-These can be used to calculate \gls{AP} and \gls{AR} at different thresholds.
-10 different metrics are used to calculate the performance of a model:
-$\operatorname{AP}^{0.5}$ (where the $\operatorname{OKS}$ threshold is $0.5$), $\operatorname{AP}^{0.75}$ and $\operatorname{AP}$ (the mean of 10 values from $\operatorname{OKS}=0.50$ to $0.95$ with a $0.05$ step), as well as, $\operatorname{AP}^{M}$ for medium scaled objects and $\operatorname{AP}^{L}$ for large scaled objects.
-The same are calculated for \gls{AR}.
-The higher, the better.
-
+\begin{enumerate}
+	\item \textbf{Percentage of Correct Parts (PCP)}, proposed by Ferrari at al. \cite{Ferrari2008} measures the detection rate of limbs.
+	A limb is considered the area between 2 joints and viewed as detected when the distance between the predicted joints and the real joints is less than halve the length of the limb.
+	This method penalizes shorter limbs and to address this, \gls{PDJ} was introduced which instead measures it with a fraction of the torso diameter.
+	The higher, the better.
+	\item \textbf{Percentage of Correct Keypoints (PCK)}, suggested by Yang et al. \cite{Yang2013} measures the accuracy of the predicted keypoints.
+	The keypoints should be within a certain threshold which is a fraction of the person's bounding box size; denoted as PCK@0.2 when it should be less than 20\%.
+	It can also be 50\% of the head's length; denoted as PCKh@0.5, which makes it "articulation independent".
+	The higher, the better.
+	\item \textbf{Average Precision/Recall (AP/AR)}, is measured by Yang et al. \cite{Yang2013} by counting a keypoint that is within a certain threshold of the ground truth as a true positive.
+	For Lin et al. \cite{Lin2014}, the AP is calculated by measuring the \gls{OKS} which is similar to \gls{IoU} in Object Detection.
+	The \gls{OKS} is defined as:
+	\begin{equation}
+		\operatorname{OKS} = \frac{\sum_{i}\exp(-d_i^2/2s^2k_i^2)\delta(v_i > 0)}{\sum_i \delta(v_i > 0)}
+	\end{equation}
+	Here, $d_i$ is the distance between the predicted keypoint and the ground truth.
+	The distance is run through a unnormalized Gaussian with a standard deviation of $sk_i$ which yields a similarity that ranges between 0 and 1.
+	$s$ is the scale, calculated as the root of the segment area, and $k_i$ is a constant for each keypoint that controls falloff.
+	\gls{OKS} is the mean of visible keypoints ($v_i > 0$).
+	These can be used to calculate \gls{AP} and \gls{AR} at different thresholds.
+	10 different metrics are used to calculate the performance of a model:
+	$\operatorname{AP}^{0.5}$ (where the $\operatorname{OKS}$ threshold is $0.5$), $\operatorname{AP}^{0.75}$ and $\operatorname{AP}$ (the mean of 10 values from $\operatorname{OKS}=0.50$ to $0.95$ with a $0.05$ step), as well as, $\operatorname{AP}^{M}$ for medium scaled objects and $\operatorname{AP}^{L}$ for large scaled objects.
+	The same are calculated for \gls{AR}.
+	The higher, the better.
+\end{enumerate}
 \begin{figure}
 	\centering
 	\subcaptionbox{Content Image \label{fig:style_transfer_ulyanov_content}}{%
@@ -419,24 +414,18 @@ An overview of all the different challenges and solutions will be given in this 
 \subsection{Datasets}
 Due to a lack of benchmark datasets, multiple papers will mix and match from different datasets, like \gls{COCO} or ImageNet \cite{Deng2009}.
 
-\textbf{Cityscape Dataset \cite{Cordts2016}} consists of 2975 images of cityscapes with semantic annotations.
-
-\textbf{Facades Dataset \cite{Tylecek2013}} consists of 400 images of building facades with architectural annotations.
-
-\textbf{Maps Dataset \cite{Isola2016}} consists of 1096 images of maps and areal photos gathered from Google Maps around New York City.
-
-\textbf{Edges2shoes Dataset \cite{Yu2014}} consists of 50,000 paired images between edges and photos of shoes.
-
-\textbf{Edges2handbags Dataset \cite{Zhu2016}} consists of 137,000 paired images between edges and photos of handbags.
-
-\textbf{Horse $\leftrightarrow$ Zebra \cite{Zhu2017}} consists of 2,500 images of 512x512 horses and zebras, that were sampled from ImageNet \cite{Deng2009}.
-
-\textbf{Animal Face High Quality \cite{Choi2019}} consists of 15,000 high quality images of 512x512 animal faces, including cat, dog and wildlife.
-
-\textbf{Night2Day Dataset \cite{Laffont2014}} consists of 20,000 images taken from time-lapse datasets and annotated through crowdsourcing.
-
-\textbf{WikiArt Dataset \cite{Saleh2015}} consists of 80,000 fine-art paintings.
-All are annotated for 27 styles, 60,000 are annotated for 20 genres and 20,000 for 23 artists.
+\begin{enumerate}
+	\item \textbf{Cityscape Dataset \cite{Cordts2016}} consists of 2975 images of cityscapes with semantic annotations.
+	\item \textbf{Facades Dataset \cite{Tylecek2013}} consists of 400 images of building facades with architectural annotations.
+	\item \textbf{Maps Dataset \cite{Isola2016}} consists of 1096 images of maps and areal photos gathered from Google Maps around New York City.
+	\item \textbf{Edges2shoes Dataset \cite{Yu2014}} consists of 50,000 paired images between edges and photos of shoes.
+	\item \textbf{Edges2handbags Dataset \cite{Zhu2016}} consists of 137,000 paired images between edges and photos of handbags.
+	\item \textbf{Horse $\leftrightarrow$ Zebra \cite{Zhu2017}} consists of 2,500 images of 512x512 horses and zebras, that were sampled from ImageNet \cite{Deng2009}.
+	\item \textbf{Animal Face High Quality \cite{Choi2019}} consists of 15,000 high quality images of 512x512 animal faces, including cat, dog and wildlife.
+	\item \textbf{Night2Day Dataset \cite{Laffont2014}} consists of 20,000 images taken from time-lapse datasets and annotated through crowdsourcing.
+	\item \textbf{WikiArt Dataset \cite{Saleh2015}} consists of 80,000 fine-art paintings.
+	All are annotated for 27 styles, 60,000 are annotated for 20 genres and 20,000 for 23 artists.
+\end{enumerate}
 
 \subsection{Optimization-based Networks}
 Gatys et al. \cite{Gatys2016} introduce deep neural networks to image style transfer.
@@ -609,28 +598,27 @@ A first metric was through human evaluation; a score was given based on generati
 This proved to be inconsistent as a person's perception can change over time.
 Afterwards, new metrics were introduced which will be discussed here. \cite{Hoyez2022}
 
-\textbf{Perceptual Distance (PD)} is proposed by Johnson et al. \cite{Johnson2016}.
-It uses the VGG-16 network \cite{Simonyan2015} trained on ImageNet \cite{Deng2009} to define perceptual loss functions.
-These are extracted from the layers for the style and content images, and compared to the generated image.
-The lower the score, the better.
-
-\textbf{Inception score (IS)}, as described by Salimans et al. \cite{Salimans2016}, uses a pre-trained Inception model \cite{Szegedy2015} to describe the quality of the generated images.
-It prescribes that the entropy of the distribution of predicted labels for individual images needs to be minimized while the entropy of the distribution across all images need to be high.
-This equates to each image having generated a distinct label and the labels being equally distributed.
-The closer to 1, the better.
-
-\textbf{Fréchet Inception Distance (FID)} is the most used measurement and suggested by Heusel et al. \cite{Heusel2017} to enhance the \gls{IS}.
-\gls{IS} is only calculated on the distribution of the generated images.
-\gls{FID} uses the distribution of both real and generated images.
-It calculates the Fréchet distance \cite{Frechet1957} between the Gaussian distributions of real and generated images.
-The Gaussians are formed from the coding layer of the Inception network \cite{Szegedy2015}.
-The lower, the better.
-
-\textbf{Learned Perceptual Image Patch Similarity (LPIPS)} is a metric developed by Zhang et al. \cite{Zhang2018} and the second most popular.
-It calculates the distance between the activations of the hidden layers in an object detection model (several models are proposed).
-They show that this correlates closely to human perception.
-It can also be used to evaluate the diversity of a network by calculating the average \gls{LPIPS} score of a pair of randomly generated output.
-The higher, the better.
+\begin{enumerate}
+	\item \textbf{Perceptual Distance (PD)} is proposed by Johnson et al. \cite{Johnson2016}.
+	It uses the VGG-16 network \cite{Simonyan2015} trained on ImageNet \cite{Deng2009} to define perceptual loss functions.
+	These are extracted from the layers for the style and content images, and compared to the generated image.
+	The lower the score, the better.
+	\item \textbf{Inception score (IS)}, as described by Salimans et al. \cite{Salimans2016}, uses a pre-trained Inception model \cite{Szegedy2015} to describe the quality of the generated images.
+	It prescribes that the entropy of the distribution of predicted labels for individual images needs to be minimized while the entropy of the distribution across all images need to be high.
+	This equates to each image having generated a distinct label and the labels being equally distributed.
+	The closer to 1, the better.
+	\item \textbf{Fréchet Inception Distance (FID)} is the most used measurement and suggested by Heusel et al. \cite{Heusel2017} to enhance the \gls{IS}.
+	\gls{IS} is only calculated on the distribution of the generated images.
+	\gls{FID} uses the distribution of both real and generated images.
+	It calculates the Fréchet distance \cite{Frechet1957} between the Gaussian distributions of real and generated images.
+	The Gaussians are formed from the coding layer of the Inception network \cite{Szegedy2015}.
+	The lower, the better.
+	\item \textbf{Learned Perceptual Image Patch Similarity (LPIPS)} is a metric developed by Zhang et al. \cite{Zhang2018} and the second most popular.
+	It calculates the distance between the activations of the hidden layers in an object detection model (several models are proposed).
+	They show that this correlates closely to human perception.
+	It can also be used to evaluate the diversity of a network by calculating the average \gls{LPIPS} score of a pair of randomly generated output.
+	The higher, the better.
+\end{enumerate}
 
 \subsubsection{Summary}
 There are plenty of other evaluation metrics available that also try to correlate closely to human evaluation, but they are mostly just attempts to improve previously discussed metrics.
@@ -643,26 +631,25 @@ specifically, \gls{CBIR} has been used for person re-identification, remote sens
 Image retrieval can be categorized into 2 different groups: \gls{CIR} and \gls{IIR}.
 \gls{CIR}'s goal is to find images within the same category as the query, while \gls{IIR} tries to find images with a particular instance given in the query image.
 The general workflow of \gls{CBIR} is illustrated in \ref{fig:image_retrieval_flowchart}.
-This paper will only discuss query formation, image representation, image scoring, and search re-ranking.
+This thesis will only discuss query formation, image representation, image scoring, and search re-ranking.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\textwidth]{image_retrieval_flowchart}%
 	\label{fig:image_retrieval_flowchart}
 	\caption{
-		The general workflow of \gls{CBIR}. \cite{Zhou2017}
+		The general workflow of Content Based Image Retrieval. \cite{Zhou2017}
 	}
 \end{figure}
 
-\subsection{Query Formation}
-There are several ways that a query can be formatted.
+\textbf{Query Formation} can be done several ways.
 A user might want to find images based on keywords which is your standard classification task.
 Instead of just giving a series of keywords, these can also be arranged in a layout.
 A query by concept layout will then search for an image with the same arrangement \cite{Xu2010}.
 Similarly, a query by color layout will search for that arrangement of colors in the images \cite{Wang2011}.
 It's also possible that a user wants to find images similar to a sketch (query by sketch) \cite{Cao2010} or another image (query by example) \cite{Radenovic2017}.
-An overview can be found in fig. \ref{fig:image_retrieval_query_formation}.
-This paper will focus on query by example.
+An overview can be found in Fig. \ref{fig:image_retrieval_query_formation}.
+This dissertation will use query by example.
 
 \begin{figure}
 	\centering
@@ -673,15 +660,30 @@ This paper will focus on query by example.
 	\label{fig:image_retrieval_query_formation}
 \end{figure}
 
-\subsection{Image Representation}
-A major challenge with image retrieval is how to proficiently measure similarity between images.
+\textbf{Image Representation} is a major challenge with image retrieval.
+ is how to proficiently measure similarity between images.
 Clearly, directly comparing pixels values is impracticable, so methods that extract visual features from images are used.
 They are transformed into a fixed-sized vector which form a representation of the image.
 Before deep learning, hand crafted feature algorithms were used.
 From these, \gls{SIFT} \cite{Lowe1999} was the most popular.
-This is still not enough for an efficient query response and visual features need to be further compressed for indexing.
-(Talk about codebooks some more)
-(See \ref{sec:baseline_style_transfer} for reason of inclusion)
+Thousands of features can be extracted this way, which is too much for an efficient query response.
+These features are further compressed for which various methods exist, called feature aggregation.
+
+\textbf{Image scoring} gives the results during a search a relevance score for ranking.
+This score is determined by one of two ways:
+During feature aggregation, the image is represented with a fixed-sized vector.
+The relevance can be calculated with the $L_p$-normalized distance between the feature aggregation vectors.
+Scoring can also be quantified based on voting.
+This can be achieved by counting each similar feature to the vote \cite{Zhou2011}, or through the calculation of \gls{TF-IDF} \cite{Zhang2011}.
+
+\textbf{Search Reranking} are post-processing techniques that improve the accuracy of the query.
+Among them is geometric context verification, which will try to eliminate false similarities by looking at geometric context, like rotation, scale and the relations between local features.
+Another is to reuse the highest ranked results to create new queries which can expand on the original.
+Missed features in the original query can be found this way to improve recall performance.
+As a last improvement, different retrieval techniques can be merged together to give better results with retrieval fusion.
+
+The model used in this work, by Radenovic et al. \cite{Radenovic2017}, trains a VGG network from reconstructed 3D models obtained by retrieval and structure-from-motion methods.
+This allows them to use the geometry and camera positions to enhance the feature extraction along with several other optimization techniques.
 
 \section{Related Papers}
 (dirty version)
