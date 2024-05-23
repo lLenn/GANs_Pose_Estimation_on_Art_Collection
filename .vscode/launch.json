@@ -331,7 +331,16 @@
             },
             "console": "integratedTerminal",
             "justMyCode": false
-        }
+        },
+        {
+            "name": "Python: Unittest FID",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "unittest",
+            "args": ["src/tests/FrechetInceptionDistanceTestCase.py"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
     ],
     "inputs": [{
         "id": "xlaunch_ip",

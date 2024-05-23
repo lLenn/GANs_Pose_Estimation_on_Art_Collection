@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from scipy import linalg
 from itertools import chain
+import tensorflow 
 
 class FrechetInceptionDistance:
     def __init__(self, rank):
@@ -19,8 +20,9 @@ class FrechetInceptionDistance:
         self.real_acts = np.append(self.real_acts, acts, axis=0)
 
     def frechet_distance(mu, cov, mu2, cov2):
-        cc, _ = linalg.sqrtm(np.dot(cov, cov2), disp=False)
-        dist = np.sum((mu -mu2)**2) + np.trace(cov + cov2 - 2*cc)
+        evalues, evectors = np.linalg.eig(cov.dot(cov2))
+        covmean = evectors * np.sqrt(evalues) @ np.linalg.inv(evectors)
+        dist = np.sum((mu -mu2)**2) + np.trace(cov + cov2 - 2*covmean)
         return np.real(dist)
     
     def get_frechet_inception_distance(self, rank, world_size):
@@ -39,7 +41,7 @@ class FrechetInceptionDistance:
             for i in range(world_size):
                 generated_acts = np.append(generated_acts, gather_generated[i].cpu().detach().numpy(), axis=0)
                 real_acts = np.append(real_acts, gather_real[i].cpu().detach().numpy(), axis=0)
-
+        
             mu_generated = np.mean(generated_acts, axis=0)
             cov_generated = np.cov(generated_acts, rowvar=False)
             
