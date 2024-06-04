@@ -1,29 +1,68 @@
-\chapter{Future stuff}
-Look at algorithms that focus more on object detection while doing style transfer for the found objects.
-Are a better way to detect feature maps.
-Either way a 2 step algorithm that first detects objects and maps the style for each object.
-Iets dat zoekt naar gelijkaarde objecten in 2 afbeeldingen en daarop de stijl toepast.
-Dit algorithme heeft dan gelijkaarde objecten in beide afbeeldingen nodig om goed te werken.
-Je ziet dat dit bij de meest recente unsupervised algoritmes al the geval is, waar ze enkel close-ups in de dataset gaan steken.
+\chapter{Evaluation in the Wild}
+This chapter will run the algorithms on the Art Collection from \gls{RMFAB}
+as well as some that didn't qualify, but of which the results on a small dataset is still interesting.
+From the Art Collection a set of images is chosen that have the highest rate of failure.
+These include images with overlapping persons, occlusion, deformation, ...
+
+\section{RMFAB Dataset}
+What choices were made to establish the RMFAB dataset
+
+\section{Tests}
+
+Explanation of what tests were run
+UGATIT was adapted to randomize the B image in the dataset.
+We use the unaligned dataset from CycleGAN to do this
+
+\section{Results}
+What are the results from the tests
+
+\section{Discussion}
+Is it even possible to encode the information in an image correctly.
+When you look at several painting from monet where he draws the same "content" at different times but in the same season there's still a significant difference between them.
+It could be that the mood of the artist changed that caused him to choose a different color, or that some lighting or other influences outside the frame change its "style".
+Like with Claude Monet, who has many different paintings of the same subject.
+
+Talk a bit about HD pictures and models
 
 
-(dirty version)
-(StyleGAN) Because I feel that the images to be trained on are not genre or artist dependent, because there is still a high variety among them.
-I think that it should be possible to train a style transfer with only a few samples.
-It was said to me that StyleGAN did this.
-I also want to research diffusion.
+Discuss code:
 
-Augmentatie aan de hand van 3d modellen die met verschillende shaders worden gerenderd, of worden vervormd door gekend algorithme om zo de transformatie te achterhalen.
+Discuss the code and discussions during implementation.
+Also, what could be done differently (own implementation)
+Discuss how there are many different ways to "choose" the style (change model (cyclegan), choose number (stargan), use style image)
+This could be solved by creating a new interface for the styles with each their own options, etc 
+Make everything highly configurable
 
-Should train model on Human-Art or see if there can be found one somewhere.
-
-When training a top-down estimator, then how does it make a destinction between people in a bounding box that are in the background?
-How many people will it find that way?
-
-A object detection model should be able to tell when two objects are similar without having labels.
-It should categorize purely on the attributes.
-You know, like a cluster algorithm or something.
+Transformation interesting for future research.
 
 
+Suppose you take a \gls{CNN}: it will do convolutions, max pooling until you get as output a vector which you can use for cross-entropy, softmax loss.
+This has the entire image as perceptive field, with every layer the perceptive field grows bigger (check if this is true) until the last layer has the entire image in its field.
+Suppose that you want to know the coordinates of the object found, all you would need to know is what point in the neural network the perceptive field can see the object.
+From that point in the network it would be convenient to have the coordinates marked somewhere so that the object can be found at different scales.
+Meaning that for every layer it branches to a subnetwork or as another entrance for backpropogation (as with RNN).
+Is this how HRNet works? (research)
+Why is dataset thrice the size as the original dataset?
 
-Discuss Tuiring completeness of transformers
+
+
+
+Discuss the flaws of mmpose: log\_processor doesn't give enough info, eval code during runtime, all centered around configuration, but misses ease of programming.
+HAs train\_loop, val\_loop variables for extra confusion
+Don't have your code add prefixes to output dirs or anything else. It only causes confusion.
+It's also difficult to add new stuff, because the hooks don't provide enough information meaning hacks need to be implemented.
+When resuming a network, the iterations continue from previous session, but if the new session has a bigger or smaller world, those iterations don't match the new world size.
+How does multiple distribution sessions work?
+
+
+
+On how to do research: would a method of research like gradient descent where one does a quick research paper of to check improvements and only proceeds in a certain direction when improvements are significant.
+Instead of researching every single variable.
+
+
+
+Use a different backend and not visdom. It's difficult to alter test results with visdom, like removing unnecessary domains.
+
+float16 for quicker warmup
+
+When comparing ViTPose and SWAHR we should note that there is a HRNet version with vision transformers and maybe even do some tests.

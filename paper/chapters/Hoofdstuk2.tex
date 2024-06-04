@@ -1,28 +1,20 @@
 \graphicspath{{images/chapter2/}}
 
-\chapter{Establishing a Baseline}
-\label{chap:baseline}
-This chapter will establish the baseline that will be used to compare the results of the experiments with.
-For this, 3 algorithms for style transfer and 2 algorithms from both pose estimation will be explored.
-The motivation for the choices of the algorithms will be explained in full detail.
-The focus will be on quality instead of speed.
-For style transfer, the different models will be trained on 3 datasets of different art movements and evaluated based on different metrics.
-The precision of pre-trained pose estimation models will be measured on the COCO dataset to establish a ground truth.
-Afterwards, the pre-trained models will be validated on the Human-Art dataset and the stylized COCO dataset.
-The results of that will give an indication of how well pose estimation will work on art collections and where there's room for improvement.
-\\
+\chapter{Style Transfer Model Selection and Building}
+\label{chap:style_transfer}
 
+The goal is to improve pose estimation on art collections.
+For this effort, two methods will be investigated: 
+First, the input to existing models will be transformed from artworks to photographs.
+Second, the models will be fine-tuned on an COCO dataset which is augmented with synthetic COCO images.
+Both these methods need a style transfer model that is trained to do a transformation between an art movement and realistic images.
+Therefor, three algorithms for style transfer will be explored.
+The motivation for the choices of the algorithms will be explained in full detail.
+The different models will be trained on three datasets of different art movements and evaluated based on different metrics.
 There are several considerations to be made when choosing the right model.
-For the purpose of this thesis, the focus will be mainly on papers that have code readily available.
-The model must also be compatible with the preferred dataset.
-For style transfer, this is not a problem as the input for all models is only an image.
-On the other hand, pose estimation has several datasets with different amounts of keypoints, bounding boxes or other metadata.
-The most popular dataset and supported by most models will be uses, which is the COCO dataset.
-The main aspect of the the problem is quality and speed.
-When setting up a database for querying, there needs to be qualitative results to search through.
-The search itself should be fast, but this is not the subject of this thesis.
-At the same time, there should be a wide variation in architecture.
-It makes little sense to analyze two similar architectures here as that has already been explored in the corresponding papers and is not threading new ground.
+The focus will mainly be on methods that have code readily available.
+At the same time, there should be a wide variation in architectures.
+It makes little sense to analyze two similar architectures here, as the improvements between them has already been well documented in their corresponding papers and is not threading new ground.
 All these criteria are considered in the next sections as well as those uniquely for each section.
 
 \section{Training Style Transfer}
@@ -31,179 +23,34 @@ All these criteria are considered in the next sections as well as those uniquely
 \subsection{Choice of Model}
 \label{sec:baseline_choice_style_transfer}
 The most important criteria for style transfer is the quality.
-For the baseline, the photographs need to be inseparable of any artworks for the measurements to be useful.
-Pose estimation is trained on photographs, so style transfer needs to create accurate photographs for it to live up to its claimed performance.
+For the baseline, the photographs need to be inseparable from any artworks for the measurements to be useful.
+Pose estimation is trained on photographs, so style transfer needs to create accurate photographs.
 However, measuring the quality of an image is a difficult task.
-There are numerous metrics each based on different criteria due to the absence of a universally agreed-upon metric. \cite{ioannou2024}
-There is a general consensus that it should closely resemble human evaluation.
-Of all the different models, the more recent models aim more on finding a transformation mapping rather than merely doing a texture transfer.
-To keep the complexity low, this thesis will only focus on the latter, while keeping to the main advancements.
-As previously mentioned, a wide variation of architectures should be selected.
-
-For this reason, \gls{AdaIN} \cite{Huang2017} was selected from the feed-forward generation networks.
+Numerous metrics each based on different criteria exist due to the absence of a universally agreed-upon metric \cite{ioannou2024}, but there is a general consensus that it should closely resemble human evaluation.
+Of all the different models, the younger models aim more on finding a transformation mapping rather than merely doing texture transfer.
+To keep the complexity low, the focus will only be on the latter, while keeping to the main advancements.
+As previously mentioned, a diverse range of architectures should be selected.
+For these reasons, \gls{AdaIN} \cite{Huang2017} was selected from the feed-forward generation networks.
 It's also one of the networks which can transform from an arbitrary style unlike the other selected networks.
-CycleGAN \cite{Zhu2017} is a major breakthrough in the training scheme of \glspl{GAN} and cycle loss has since been incorporated in most new models.
-It also has several pre-trained networks in the styles of several important artists.
-Another interesting concept, is that of latent space where the assumption is that there exists a common space that can encode information from several domains. \cite{Liu2017}
+CycleGAN \cite{Zhu2017b} is a major breakthrough in the training scheme of \glspl{GAN} and cycle-consistency loss has since been incorporated in most new models.
+It also has several pre-trained networks in the styles of several important artists, which makes it an easy second choice.
+Another interesting concept is that of latent space, where the assumption is that there exists a common space that can encode information from several domains \cite{Liu2017}.
 This is used in StarGANv2 \cite{Choi2019} to implement a model that can transform images between several different domains using the same network.
-StarGANv2 will be described as StarGAN in the future.
-It is these models that will be analyzed.
-Each representing a significant contribution to the field of image-to-image translation.
+In the future, StarGANv2 will be described as StarGAN.
+Each of these models represent a significant contribution to the field of image-to-image translation and will be analyzed thusly.
 \\
 
 \subsection{Creation of datasets}
 \label{sec:baseline_dataset_style_transfer}
-For training, there seems to be only one good dataset that can be used and that is the WikiArt dataset.
-It categorized the artworks into several art movements, but also multiple genres as seen in Table \ref{tab:wikiart_genres_and_styles}.
-Since the transformation between styles should be as little as possible, the only useful styles here are those with high realism, however, they should not be hyperrealistic.
+None of the selected models has any pre-trained weights for certain art movements, so new models need to be made.
+The most popular and most used dataset for this seems to be the WikiArt dataset.
+It categorizes the artworks into several art movements, but also multiple genres as summarized in Table \ref{tab:wikiart_genres_and_styles}.
+To keep complexity low, the transformation between styles should be as small as possible, which eliminates the abstract styles as a potential choice, however they should not be hyper realistic either as then they would be so similar to photographs that the benefits of the improvements are meaningless.
 There are plenty of styles that are compatible with these criteria and also have plenty of images to create a well sized subset.
 The choice of style beyond that point is completely the result of the bias of the author.
-This results in the selection being: Baroque, Renaissance and Impressionism.
-The impressionist style is chosen because it is more colorful and abstract than the others.
-Baroque and Renaissance are both very dark and very similar in style, but renaissance artworks are just a bit more stylized.
-This was a deliberate choice to see if there's possibly a difference between these attributes.
-The Cezanne2photo dataset \cite{Zhu2017} was used to get an idea of how big these should at least be above 500 images.
-A bigger dataset is better, but there are only so many artworks available.
-This means that the size for all except one are around 800 images.
-More details are given in Table \ref{tab:style_transfer_training_sets}.
-When looking at the datasets mainly used by the unsupervised image-to-image models, there is a very specific focus on certain domains.
-\gls{AFHQ} used for StarGANv2 or Horse$\leftrightarrow$Zebra show that the training images put the subject central in the image.
-This means that for each movement, a subset needs to be created with images that contain full body poses as well as crowded images, as this is what the pose estimation models are trained on.
-While there's a high variation of genres in the WikiArt dataset, they do not adequately subdivide the dataset for this problem.
-At first glaze, it seems that the genres "nude painting" and "portrait" would give a good set of images to use, however, there are still multiple problems.
-The portraits are mostly zoomed in from the chest up.
-There should be a higher variation in poses than that.
-Like with the nude paintings, but those don't have as many images to create a dataset from.
-Another genre that might be promising, is "genre painting", but those don't always have the model central to the image.
-Overall, there is still a high variety of style even within the different art movements.
-There is also the presence of sketches or graphite drawings.
-Various examples of these shortcomings are illustrated in figures \ref{fig:wikiart_shortcomings_portraits}, \ref{fig:wikiart_shortcomings_nudes}, \ref{fig:wikiart_shortcomings_genre} and \ref{fig:wikiart_shortcomings_style}.
+This results of the selection being: Baroque, Renaissance and Impressionism.
 
-As discussed previously, the art movements were deliberately chosen to see if certain attributes, e.g. color and abstraction, have an influence on the performance of style transfer.
-It is important then to have a consistent style in each dataset which is not possible to create with just splitting the genres provided by WikiArt.
-At the same time, there is also a need for a subset from the COCO dataset with a consistent style and the human central to the image.
-To achieve this, an algorithm was sought to find similar images.
-
-
-\begin{figure}
-	\centering
-    \includegraphics[width=0.32\textwidth]{edouard-manet_berthe-morisot-with-a-bouquet-of-violets-1872}
-    \includegraphics[width=0.32\textwidth]{johannes-vermeer_the-girl-with-a-pearl-earring}
-    \includegraphics[width=0.32\textwidth]{raphael_portrait-of-the-young-pietro-bembo-1504}
-	\caption{
-        Portraits are mainly from the chest up.
-	}
-    \label{fig:wikiart_shortcomings_portraits}
-\end{figure}
-\begin{figure}
-    \centering
-    \captionsetup{justification=centering}
-    \includegraphics[width=0.32\textwidth]{artemisia-gentileschi_lucretia-1620}
-    \includegraphics[width=0.32\textwidth]{michelangelo_ignudo-16}
-    \includegraphics[width=0.32\textwidth]{pierre-auguste-renoir_bathers-1917}
-	\caption{
-        Nudes have a better variation of poses, but a small number of images. \\
-        23 for baroque, 247 for impressionism and 21 for renaissance.
-	}
-    \label{fig:wikiart_shortcomings_nudes}
-\end{figure}
-\begin{figure}
-    \centering
-    {
-        \includegraphics[width=0.32\textwidth]{edgar-degas_dancers-at-the-old-opera-house}%
-        \includegraphics[width=0.32\textwidth]{jan-siberechts_the-market-garden-1664}%
-        \includegraphics[width=0.32\textwidth]{raphael_the-fire-in-the-borgo-1514}%
-    }
-    {%
-        \includegraphics[width=0.32\textwidth]{rembrandt_a-man-in-a-room-1630}%
-        \includegraphics[width=0.32\textwidth]{vittore-carpaccio_hunting-on-the-lagoon}%
-        \includegraphics[width=0.32\textwidth]{william-merritt-chase_an-early-stroll-in-the-park}%
-    }
-	\caption{
-        In genre paintings humans are less central to the painting.
-	}
-    \label{fig:wikiart_shortcomings_genre}
-\end{figure}
-\begin{figure}
-    \centering
-    {
-        \includegraphics[width=0.32\textwidth]{adriaen-van-de-venne_a-man-carrying-a-sack}%
-        \includegraphics[width=0.32\textwidth]{andrea-mantegna_trumpeters-carrying-flags-and-banners-1500}%
-        \includegraphics[width=0.32\textwidth]{auguste-rodin_untitled(5)}%
-    }
-    {%
-        \includegraphics[width=0.32\textwidth]{berthe-morisot_at-the-exposition-palace}%
-        \includegraphics[width=0.32\textwidth]{claude-lorrain_harbour-scene}%
-        \includegraphics[width=0.32\textwidth]{rembrandt_seated-naked-woman-woman-bathing-her-feet-at-a-brook-1658}%
-    }
-    \caption{
-        The variation in style withing the different art movements.
-    }
-    \label{fig:wikiart_shortcomings_style}
-\end{figure}
-
-
-\textbf{Feature extraction}
-First, an algorithm that extracts features using the VGG16 from the images was used \cite{Roman2023}.
-It calculates the cosine distance between the image features, and groups them using DBSCAN \cite{Ester1996}.
-This did not yield any promising result.
-Instead of VGG16, YOLOv8 \cite{Jocher_Ultralytics_YOLO_2023} was substituted for feature extraction, but this did also not provide satisfactory results.
-
-\textbf{Content Based Image Retrieval}
-Another way to find similar images is with \gls{CBIR}.
-Using a query image it can find similar looking images.
-Because this algorithm is trained to recognize similar instances and not a specific style or genre, the query image needs to be carefully selected.
-When there's another recognizable instance besides a person in the image it will also score images with that instance highly.
-Figures \ref{fig:cbir_failed_query_kitchen}, \ref{fig:cbir_failed_query_flower} and \ref{fig:cbir_failed_query_car} show how a car, a flower pattern or even just a kitchen is enough to find different instances.
-On the other hand, some activities are so distinct that only instances of that activity are found.
-The figures \ref{fig:photograph_style_transfer_dataset}, \ref{fig:baroque_style_transfer_dataset}, \ref{fig:impressionism_style_transfer_dataset} and \ref{fig:renaissance_style_transfer_dataset} shows the query images used to construct the different datasets along with a selection of the dataset.
-
-\begin{figure}
-    \centering
-    {
-        \includegraphics[width=0.19\textwidth]{000000001988}%
-        \includegraphics[width=0.19\textwidth]{21_2_000000299309}%
-        \includegraphics[width=0.19\textwidth]{22_1_000000090429}%
-        \includegraphics[width=0.19\textwidth]{22_2_000000396743}%
-        \includegraphics[width=0.19\textwidth]{25_1_000000376731}%
-    }
-    \caption{
-        Example of failed query for \gls{CBIR} where the flower pattern is isolated. The left image is the query image.
-    }
-    \label{fig:cbir_failed_query_flower}
-\end{figure}
-
-\begin{figure}
-    \centering
-    {
-        \includegraphics[width=0.19\textwidth]{99_1_000000428718}%
-        \includegraphics[width=0.19\textwidth]{22_1_000000402051}%
-        \includegraphics[width=0.19\textwidth]{22_4_000000557686}%
-        \includegraphics[width=0.19\textwidth]{22_5_000000547246}%
-        \includegraphics[width=0.19\textwidth]{26_1_000000466981}%
-    }
-    \caption{
-        Example of failed query for \gls{CBIR} where the car and concrete are isolated. The left image is the query image.
-    }
-    \label{fig:cbir_failed_query_car}
-\end{figure}
-
-\begin{figure}
-    \centering
-    {
-        \includegraphics[width=0.19\textwidth]{99_1_000000332607}%
-        \includegraphics[width=0.19\textwidth]{44_1_000000163234}%
-        \includegraphics[width=0.19\textwidth]{44_2_000000118625}%
-        \includegraphics[width=0.19\textwidth]{44_3_000000378461}%
-        \includegraphics[width=0.19\textwidth]{44_4_000000426133}%
-    }
-    \caption{
-        Example of failed query for \gls{CBIR} where the kitchen is isolated. The left image is the query image.
-    }
-    \label{fig:cbir_failed_query_kitchen}
-\end{figure}
-
-\begin{table*}
+\begin{table}[h]
     \setlength\tabcolsep{4pt}
     \vspace{0.2em}
     \caption{List of the selected genres and names of the styles in the WikiArt dataset. \cite{Saleh2015} }
@@ -219,82 +66,234 @@ The figures \ref{fig:photograph_style_transfer_dataset}, \ref{fig:baroque_style_
         Style & Abstract Expressionism, Action Painting, Analytical Cubism, Art Nouveau-Modern Art, Baroque, Color Field Painting, Contemporary Realism, Cubism, Early Renaissance, Expressionism, Fauvism, High Renaissance, Impressionism, Mannerism- Late-renaissance, Minimalism, Primitivism- Naive Art, New Realism, Northern Renaissance, Pointillism, Pop Art, Post Impressionism, Realism, Rococo, Romanticism, Symbolism, Synthetic Cubism, Ukiyo-e \cr
         \hline 
     \end{tabular}
-\end{table*}
+\end{table}
+
+The impressionist style is chosen because it is more colorful and abstract than the others.
+Baroque and Renaissance are both very dark and very similar in style, but renaissance artworks are just a bit more stylized.
+This was a deliberate choice to see if there's possibly a difference between these attributes.
+The Cezanne2photo dataset \cite{Zhu2017b} was looked at to get an idea of what an adequate sized dataset should be.
+The conclusion is that it should at least be above 500 images.
+A bigger dataset is better, but there are only so many artworks available.
+In the end, the size for all except one are around 800 images.
+More details about this can be found in the Figures \ref{fig:photograph_style_transfer_dataset}, \ref{fig:baroque_style_transfer_dataset}, \ref{fig:renaissance_style_transfer_dataset}, and \ref{fig:impressionism_style_transfer_dataset}.
+When looking at the datasets mainly used by the unsupervised image-to-image models, there is a very specific focus on certain domains.
+\gls{AFHQ} used for StarGANv2 or Horse$\leftrightarrow$Zebra show that the training images put the subject central in the image.
+This means that for each art movement, a subset needs to be created with images that contain full body poses as well as crowded images, as this is what the pose estimation models are trained on.
+While there's a high variation of genres in the WikiArt dataset, they do not adequately subdivide the dataset for this problem.
+At first glance, it seems that the genres "nude painting" and "portrait" would give a good set of images to use, however there are still multiple problems.
+The portraits are mostly zoomed in from the chest up (Figure \ref{fig:wikiart_shortcomings_portraits}).
+There should be a higher variation in poses than that.
+Like with the nude paintings, but those don't have as many images to create a dataset from (Figure \ref{fig:wikiart_shortcomings_nudes}).
+Another genre that might be promising, is "genre painting", but those don't always have the model central to the image (Figure \ref{fig:wikiart_shortcomings_genre}).
+Overall, there is still a high variety of style even within the different art movements.
+There is also the presence of sketches or graphite drawings (Figure \ref{fig:wikiart_shortcomings_style}).
+As discussed previously, the art movements were deliberately chosen to see if certain attributes, e.g. color and abstraction, have an influence on the performance of style transfer.
+It is important then to have a consistent style in each dataset which is not possible to create by just splitting the genres provided by WikiArt.
+To achieve this, an algorithm was sought to find similar images.
+
+\textbf{Feature extraction}
+First, an algorithm that extracts features using VGG16-features from the images was used \cite{Roman2023}.
+It calculates the cosine distance between the image features, and groups them using DBSCAN \cite{Ester1996}.
+This did not yield any promising results.
+Instead of VGG16, YOLOv8 \cite{Jocher_Ultralytics_YOLO_2023} was substituted for feature extraction, but this also didn't provide satisfactory results.
+
+\textbf{Content Based Image Retrieval}
+Another way to find similar images is with \gls{CBIR}.
+Using a query image it can find similar looking images.
+Because this algorithm is trained to recognize similar instances and not a specific style or genre, the query image needs to be carefully selected.
+When there's another recognizable instance besides a person in the image it will also score images with that instance highly.
+Figure \ref{fig:cbir_failed_query} shows how a car or a flower pattern is enough to find different instances.
+On the other hand, some activities are so distinct that only instances of that activity are found, like tennis.
+
+A photograph dataset is also needed to do proper training, therefore the same procedure is also applied to the COCO dataset to create a human central COCO subset.
+The figures \ref{fig:photograph_style_transfer_dataset}, \ref{fig:baroque_style_transfer_dataset}, \ref{fig:impressionism_style_transfer_dataset} and \ref{fig:renaissance_style_transfer_dataset} shows the query images used to construct the different datasets along with a selection of the dataset.
 
 \begin{figure}
 	\centering
-	\subcaptionbox{Query images}{%
-        \includegraphics[width=0.19\textwidth]{100_1_000000122135 - kopie}%
-        \includegraphics[width=0.19\textwidth]{100_1_000000352073}%
-        \includegraphics[width=0.19\textwidth]{100_1_000000545793}%
-        \includegraphics[width=0.19\textwidth]{99_1}%
+    \includegraphics[height=2in]{edouard-manet_berthe-morisot-with-a-bouquet-of-violets-1872}
+    \hspace{0.1in}
+    \includegraphics[height=2in]{johannes-vermeer_the-girl-with-a-pearl-earring}
+    \hspace{0.1in}
+    \includegraphics[height=2in]{raphael_portrait-of-the-young-pietro-bembo-1504}
+	\caption{
+        Portraits are mainly from the chest up.
 	}
-	\subcaptionbox{Resulting dataset}{%
-        \includegraphics[width=0.19\textwidth]{22_21_000000084015 - kopie}%
-        \includegraphics[width=0.19\textwidth]{21_84_000000409291}%
-        \includegraphics[width=0.19\textwidth]{22_6_000000242745}%
-        \includegraphics[width=0.19\textwidth]{22_38_000000036051}%
-        \includegraphics[width=0.19\textwidth]{28_1_000000032850}%
+    \label{fig:wikiart_shortcomings_portraits}
+\end{figure}
+\begin{figure}
+    \centering
+    \captionsetup{justification=centering}
+    \includegraphics[height=2in]{artemisia-gentileschi_lucretia-1620}
+    \hspace{0.1in}
+    \includegraphics[height=2in]{michelangelo_ignudo-16}
+    \hspace{0.1in}
+    \includegraphics[height=2in]{pierre-auguste-renoir_bathers-1917}
+	\caption{
+        Nudes have a better variation of poses, but a small number of images. \\
+        23 for baroque, 247 for impressionism and 21 for renaissance.
+	}
+    \label{fig:wikiart_shortcomings_nudes}
+\end{figure}
+\begin{figure}
+    \centering
+    {
+        \includegraphics[height=1.6in]{edgar-degas_dancers-at-the-old-opera-house}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{jan-siberechts_the-market-garden-1664}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{raphael_the-fire-in-the-borgo-1514}%
+        \vspace{0.1in}
+    }
+    {%
+        \includegraphics[height=1.6in]{rembrandt_a-man-in-a-room-1630}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{vittore-carpaccio_hunting-on-the-lagoon}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{william-merritt-chase_an-early-stroll-in-the-park}%
+    }
+	\caption{
+        In genre paintings, humans are less central to the painting.
+	}
+    \label{fig:wikiart_shortcomings_genre}
+\end{figure}
+\begin{figure}
+    \centering
+    {
+        \includegraphics[height=1.6in]{adriaen-van-de-venne_a-man-carrying-a-sack}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{andrea-mantegna_trumpeters-carrying-flags-and-banners-1500}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{auguste-rodin_untitled(5)}%
+        \vspace{0.1in}
+    }
+    {%
+        \includegraphics[height=1.6in]{berthe-morisot_at-the-exposition-palace}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{claude-lorrain_harbour-scene}%
+        \hspace{0.1in}
+        \includegraphics[height=1.6in]{rembrandt_seated-naked-woman-woman-bathing-her-feet-at-a-brook-1658}%
+    }
+    \caption{
+        The variation in style within the different art movements.
+    }
+    \label{fig:wikiart_shortcomings_style}
+\end{figure}
+\begin{figure}
+    \centering
+	\subcaptionbox{The flower pattern is isolated}{%
+        \includegraphics[height=1.5in]{000000001988}%
+        \hspace{0.1in}
+        \includegraphics[height=1.25in]{21_2_000000299309}%
+        \includegraphics[height=1.25in]{22_1_000000090429}%
+        \includegraphics[height=1.25in]{22_2_000000396743}%
+        \includegraphics[height=1.25in]{25_1_000000376731}%
+    }
+	\subcaptionbox{The car and concrete are isolated}{%
+        \includegraphics[height=1.5in]{99_1_000000428718}%
+        \hspace{0.1in}
+        \includegraphics[height=0.85in]{22_1_000000402051}%
+        \includegraphics[height=0.85in]{22_4_000000557686}%
+        \includegraphics[height=0.85in]{22_5_000000547246}%
+        \includegraphics[height=0.85in]{26_1_000000466981}%
+    }
+    \caption{
+        Examples of failed queries for CBIR. The left image is the query image.
+    }
+    \label{fig:cbir_failed_query}
+\end{figure}
+\begin{figure}
+	\centering
+    {
+        \includegraphics[height=2in]{100_1_000000122135 - kopie}
+        \includegraphics[height=2in]{100_1_000000352073}\\
+    }
+	\subcaptionbox{Query images}{%
+        \includegraphics[height=2in]{100_1_000000545793}
+        \includegraphics[height=2in]{99_1}
+	}
+    {
+        \\
+        \includegraphics[height=2in]{22_38_000000036051}
+        \includegraphics[height=2in]{28_1_000000032850}
+    }
+	\subcaptionbox{Resulting dataset}{
+        \includegraphics[height=2in]{22_21_000000084015 - kopie}
+        \includegraphics[height=2in]{21_84_000000409291}
+        \includegraphics[height=2in]{22_6_000000242745}
 	}
 	\caption{The photograph dataset consists of 825 images.}
 	\label{fig:photograph_style_transfer_dataset}
 \end{figure}
-
 \begin{figure}
 	\centering
-	\subcaptionbox{Query images}{%
-        \includegraphics[width=0.19\textwidth]{99_1_alonzo-cano_st-john-the-evangelist-and-the-poisoned-cup}%
-        \includegraphics[width=0.19\textwidth]{100_1_peter-paul-rubens_venus-cupid-bacchus-and-ceres-1613}%
+	\subcaptionbox{Query images}{
+        \includegraphics[height=2in]{99_1_alonzo-cano_st-john-the-evangelist-and-the-poisoned-cup}
+        \includegraphics[height=2in]{100_1_peter-paul-rubens_venus-cupid-bacchus-and-ceres-1613}
 	}
-	\subcaptionbox{Resulting dataset}{%
-        \includegraphics[width=0.19\textwidth]{15_96_peter-paul-rubens_st-sebastian}%
-        \includegraphics[width=0.19\textwidth]{21_11_le-nain-brothers_the-family-meal-1642}%
-        \includegraphics[width=0.19\textwidth]{22_12_jusepe-de-ribera_st-john-the-baptist-in-the-wilderness}%
-        \includegraphics[width=0.19\textwidth]{24_10_alonzo-cano_the-virgin-and-child-1643}%
-        \includegraphics[width=0.19\textwidth]{32_3_peter-paul-rubens_the-three-graces}%
-	}
+	{
+        \\
+        \includegraphics[height=2in]{22_12_jusepe-de-ribera_st-john-the-baptist-in-the-wilderness}
+        \includegraphics[height=2in]{24_10_alonzo-cano_the-virgin-and-child-1643}\\
+    }
+    {
+        \includegraphics[height=2in]{21_11_le-nain-brothers_the-family-meal-1642}
+        \includegraphics[height=2in]{15_96_peter-paul-rubens_st-sebastian}\\
+    }
+	\subcaptionbox{Resulting dataset}{
+        \includegraphics[height=2in]{32_3_peter-paul-rubens_the-three-graces}
+    }
 	\caption{The baroque dataset consists of 518 images.}
 	\label{fig:baroque_style_transfer_dataset}
 \end{figure}
-
 \begin{figure}
 	\centering
-	\subcaptionbox{Query images}{%
-        \includegraphics[width=0.19\textwidth]{100_1_titian_venus-anadyomene}%
-        \includegraphics[width=0.19\textwidth]{100_1_raphael_madonna-of-the-goldfinch}%
+	\subcaptionbox{Query images}{
+        \includegraphics[height=2in]{100_1_valentin-serov_portrait-of-maria-akimova-1908 - kopie}
+        \includegraphics[height=2in]{99_1_pierre-auguste-renoir_the-large-bathers-1887}
+	}
+	{
+        \includegraphics[height=2in]{30_18_pierre-auguste-renoir_the-judgment-of-paris-1914}
+        \includegraphics[height=2in]{36_65_federico-zandomeneghi_the-reader}
+    }
+    {
+        \includegraphics[height=2in]{23_44_edgar-degas_racehorses-at-longchamp-1875 - kopie}
+        \includegraphics[height=2in]{29_13_henri-martin_young-women-in-garden-in-marquayrol}
+    }
+    \subcaptionbox{Resulting dataset}{
+        \includegraphics[height=2in]{37_79_edgar-degas_jeantaud-linet-and-laine-1871}
+	}
+	\caption{The impressionism dataset consists of 780 images.}
+	\label{fig:impressionism_style_transfer_dataset}
+\end{figure}
+\begin{figure}
+	\centering
+	\subcaptionbox{Query images}{
+        \includegraphics[height=2in]{100_1_titian_venus-anadyomene}
+        \includegraphics[height=2in]{100_1_raphael_madonna-of-the-goldfinch}
+    }
+    {
+        \\
+        \includegraphics[height=2in]{16_10_leonardo-da-vinci_the-lady-with-the-ermine-cecilia-gallerani-1496}
+        \includegraphics[height=2in]{19_4_pieter-bruegel-the-elder_peasant-and-birdnester-1568}
+    }
+    {
+        \\
+        \includegraphics[height=2in]{26_4_raphael_the-three-graces-1505}
+        \includegraphics[height=2in]{33_1_raphael_the-deposition-1507}
+        \\
 	}
 	\subcaptionbox{Resulting dataset}{%
-        \includegraphics[width=0.19\textwidth]{16_10_leonardo-da-vinci_the-lady-with-the-ermine-cecilia-gallerani-1496}%
-        \includegraphics[width=0.19\textwidth]{19_4_pieter-bruegel-the-elder_peasant-and-birdnester-1568}%
-        \includegraphics[width=0.19\textwidth]{25_2_pietro-perugino_madonna-with-child}%
-        \includegraphics[width=0.19\textwidth]{26_4_raphael_the-three-graces-1505}%
-        \includegraphics[width=0.19\textwidth]{33_1_raphael_the-deposition-1507}%
+        \includegraphics[height=2in]{25_2_pietro-perugino_madonna-with-child}
 	}
 	\caption{The renaissance dataset consists of 790 images.}
 	\label{fig:renaissance_style_transfer_dataset}
 \end{figure}
 
-\begin{figure}
-	\centering
-	\subcaptionbox{Query images}{%
-        \includegraphics[width=0.19\textwidth]{100_1_valentin-serov_portrait-of-maria-akimova-1908 - kopie}%
-        \includegraphics[width=0.19\textwidth]{99_1_pierre-auguste-renoir_the-large-bathers-1887}%
-	}
-	\subcaptionbox{Resulting dataset}{%
-        \includegraphics[width=0.19\textwidth]{23_44_edgar-degas_racehorses-at-longchamp-1875 - kopie}%
-        \includegraphics[width=0.19\textwidth]{29_13_henri-martin_young-women-in-garden-in-marquayrol}%
-        \includegraphics[width=0.19\textwidth]{30_18_pierre-auguste-renoir_the-judgment-of-paris-1914}%
-        \includegraphics[width=0.19\textwidth]{36_65_federico-zandomeneghi_the-reader}%
-        \includegraphics[width=0.19\textwidth]{37_79_edgar-degas_jeantaud-linet-and-laine-1871}%
-	}
-	\caption{The impressionism dataset consists of 780 images.}
-	\label{fig:impressionism_style_transfer_dataset}
-\end{figure}
-
+\newpage
 \subsection{Training}
 \label{sec:baseline_training_style_transfer}
-From the selected models there are only 2 that require training, CycleGAN and StarGAN.
-AdaIN alleges that it can use any arbitrary style from a content image to do style transfer.
+From the selected models there are only two that require training, CycleGAN and StarGAN.
+AdaIN can use any arbitrary style from a content image to do style transfer.
 This eliminates the need to train a new model for it and the pre-trained model can be used for the experiments.
 The other models will be trained with the provided default parameters.
 No hyperparameter tuning will be done as the goal is to measure the performance between different approaches and not optimize a single model.
@@ -305,91 +304,81 @@ Baroque was trained for 200 and 2000 epochs, renaissance for 500 epochs and impr
 \textbf{StarGAN} does not use epochs to determine the training progression, or, at least, the pytorch implementation doesn't.
 The model was trained to find a mapping between all different datasets for 100,000 iterations.
 
+\newpage
 \subsection{Results}
 \label{sec:baseline_results_style_transfer}
 \subsubsection{Qualitative Evaluation}
-As shown in Fig. \ref{fig:difference_AdaIN_CycleGAN}, AdaIN removes more of the details of the content than CycleGAN does, but as expected the style transfer is completely dependent on the style image used.
+As shown in Figure \ref{fig:difference_AdaIN_CycleGAN}, AdaIN removes more of the details of the content than CycleGAN does, but as expected the style transfer is completely dependent on the style image used.
 CycleGAN does look like it is able to capture the general style of the learned art movements, e.g. baroque and renaissance are dark, and impressionism is colorful.
 StarGAN unfortunately experiences modal collapse.
 In the examples, either the images become complete random splatter, or it is not able to find a correct mapping between the content of different images, e.g. in one image the face is mapped to the back.
 Looking at the different epochs, it seems that after more epochs the stylization is stronger.
 All in all, the results are very disappointing as none of the images look like they're a painting from a different time.
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	{%
-        \includegraphics[width=0.24\textwidth]{000000000036}%
-        \includegraphics[width=0.24\textwidth]{000000000036_adain_renaissance_a}%
-        \includegraphics[width=0.24\textwidth]{000000000036_baroque_200}%
-        \includegraphics[width=0.24\textwidth]{000000000036_stargan_impressionism}%
+        \includegraphics[width=0.23\textwidth,height=1.5in]{000000564404}
+        \includegraphics[width=0.23\textwidth,height=1.5in]{000000564404_adain_renaissance_c}
+        \includegraphics[width=0.23\textwidth,height=1.5in]{000000564404_baroque_200}
+        \includegraphics[width=0.23\textwidth,height=1.5in]{000000564404_stargan_impressionism}
 	}
 	{%
-        \includegraphics[width=0.24\textwidth]{000000564404}%
-        \includegraphics[width=0.24\textwidth]{000000564404_adain_renaissance_c}%
-        \includegraphics[width=0.24\textwidth]{000000564404_baroque_200}%
-        \includegraphics[width=0.24\textwidth]{000000564404_stargan_impressionism}%
+        \includegraphics[width=0.23\textwidth,height=1in]{000000566054}
+        \includegraphics[width=0.23\textwidth,height=1in]{000000566054_adain_renaissance_c}
+        \includegraphics[width=0.23\textwidth,height=1in]{000000566054_baroque_200}
+        \includegraphics[width=0.23\textwidth,height=1in]{000000566054_stargan_impressionism}
 	}
 	{%
-        \includegraphics[width=0.24\textwidth]{000000566054}%
-        \includegraphics[width=0.24\textwidth]{000000566054_adain_renaissance_c}%
-        \includegraphics[width=0.24\textwidth]{000000566054_baroque_200}%
-        \includegraphics[width=0.24\textwidth]{000000566054_stargan_impressionism}%
+        \includegraphics[width=0.23\textwidth,height=2.2in]{000000568462}
+        \includegraphics[width=0.23\textwidth,height=2.2in]{000000568462_adain_renaissance_a}
+        \includegraphics[width=0.23\textwidth,height=2.2in]{000000568462_baroque_200}
+        \includegraphics[width=0.23\textwidth,height=2.2in]{000000568462_stargan_impressionism}
 	}
-	{%
-        \includegraphics[width=0.24\textwidth]{000000568462}%
-        \includegraphics[width=0.24\textwidth]{000000568462_adain_renaissance_a}%
-        \includegraphics[width=0.24\textwidth]{000000568462_baroque_200}%
-        \includegraphics[width=0.24\textwidth]{000000568462_stargan_impressionism}%
-	}
-	\caption{AdaIN abstracts the features more than CycleGAN, while StarGAN experiences modal collapse. Left is the content image. The middle-left is AdaIN using a renaissance style image. The middle-right is CycleGAN using the baroque style. The right is StarGAN impressionism.}
+	\caption{Left is the content image. The middle-left is AdaIN using a renaissance style image. The middle-right is CycleGAN using the baroque style. The right is StarGAN impressionism. AdaIN abstracts the features more than CycleGAN, while StarGAN experiences modal collapse.}
 	\label{fig:difference_AdaIN_CycleGAN}
 \end{figure}
 
+\begin{figure}[h]
+	\centering
+	{%
+        \includegraphics[width=0.23\textwidth,height=2in]{000000000036}
+        \includegraphics[width=0.23\textwidth,height=2in]{000000000036_adain_renaissance_a}
+        \includegraphics[width=0.23\textwidth,height=2in]{000000000036_baroque_200}
+        \includegraphics[width=0.23\textwidth,height=2in]{000000000036_stargan_impressionism}
+    }
+	\caption{Left is the content image. The middle-left is AdaIN using a renaissance style image. The middle-right is CycleGAN using the baroque style. The right is StarGAN impressionism. AdaIN abstracts the features more than CycleGAN, while StarGAN experiences modal collapse.}
+	\label{fig:difference_AdaIN_CycleGAN_2}
+\end{figure}
+
 \subsubsection{Quantitative Evaluation}
-To evaluate the trained models, there exist several metrics to do this with, as discussed in sec. \ref{sec:style_transfer_metrics}.
-Before applying the evaluation metrics there needs to be an adequate dataset to do meaningful measurements on.
+To evaluate the trained models, there exist several metrics, which are discussed in section \ref{sec:style_transfer_metrics}.
+Before applying the evaluation metrics there needs to be an adequate dataset to do meaningful measurements on first.
 Two datasets are considered for this purpose:
 \begin{enumerate}
-    \item \gls{AST-IQAD} is a set specifically made to measure style transfer. \cite{Chen2023}
-    It constructs the set around a several inter-subjective characteristics and categories.
+    \item \gls{AST-IQAD} is a set specifically made to measure style transfer \cite{Chen2023}.
+    It constructs the set around several inter-subjective characteristics and categories.
     This means that these criteria of subjective evaluation are mostly agreed upon across a group of people.
     Among those are: color tone, brush stroke, distribution of objects, and contents.
     While it also declares a set of style images, those will not be used.
     \item Since the content of the problem of this thesis only focuses around persons and the \gls{AST-IQAD} dataset works with different kinds of content, a custom dataset is created that focuses around persons.
     This is created the same way the style transfer datasets were created.
-    The query images and results are shown in Fig. \ref{fig:custom_style_transfer_evaluation}
 \end{enumerate}
-For the evaluation, AdaIN cycles through the style images that it was trained on to use as input style images.
+For the evaluation, AdaIN cycles through the style images which it was trained on to use as input style images.
 The perceptual distance needs a content and style image to be able to make an evaluation.
 For AdaIN, it is clear what needs to be used here, but for the other models this metric seems useless.
-However, the dataset that CycleGAN and StarGAN were trained can be used as style image for this.
+However, the dataset that CycleGAN and StarGAN were trained on can be used as style images for this.
 The style features of the generated images should still be similar as the ones it was trained on.
 These same datasets are also used for the real image distribution needed for \gls{FID} and \gls{LPIPS}.
 
 In Table \ref{tab:performance_style_transfer_by_dataset}, the results of the evaluation are available.
-One model does not clearly seem to outperform the others.
-In fact, a pattern arises where AdaIN does well with \gls{PD}, CycleGAN does well with \gls{FID}, StarGAN does well with \gls{IS} and \gls{LPIPS} have similar results for all.
+No model seems to distinct itself from the others.
+In fact, a pattern arises where AdaIN clearly does well with \gls{PD} and {FID}, StarGAN does well with \gls{IS}, CycleGAN does not do well in any, and \gls{LPIPS} has similar results for all.
 Impressionism does the best out of all of the styles.
-Table \ref{tab:performance_style_transfer_by_dataset} shows the same result, but grouped by model.
-This shows the dataset used to evaluate the models, does not seem to have an influence on the evaluation.
+Table \ref{tab:performance_style_transfer_by_dataset} shows the same results, but grouped by model.
+This shows that the custom dataset has a slightly better evaluation.
 
-\begin{figure}
-	\centering
-	\subcaptionbox{Query images}{%
-        \includegraphics[width=0.19\textwidth]{99_1_000000084674}%
-	}
-	\subcaptionbox{Resulting dataset}{%
-        \includegraphics[width=0.19\textwidth]{11_38_000000412362}%
-        \includegraphics[width=0.19\textwidth]{11_171_000000131444}%
-        \includegraphics[width=0.19\textwidth]{18_3_000000163118}%
-        \includegraphics[width=0.19\textwidth]{18_10_000000179487}%
-        \includegraphics[width=0.19\textwidth]{25_1_000000215259}%
-	}
-	\caption{The custom dataset used for style transfer evaluation consisting of 200 images.}
-	\label{fig:custom_style_transfer_evaluation}
-\end{figure}
-
-\begin{table*}
+\begin{table}[h]
     \setlength\tabcolsep{4pt}
     \vspace{0.2em}
     \caption{Performance comparison of Style Transfer measured by various metrics grouped by dataset; Perceptual Distance (PD), Inception score (IS), Fréchet Inception Distance (FID) and Learned Perceptual Image Patch Similarity (LPIPS).}
@@ -403,15 +392,15 @@ This shows the dataset used to evaluate the models, does not seem to have an inf
         \hline
         \multicolumn{13}{c}{\bf{AST-IQAD Dataset}}\cr
         \hline
-        AdaIN & 10.734 & 8.975 & 7.95E+88 & 0.626 & \textbf{10.671} & 8.453 & 4.89E+91 & 0.710 & \textbf{10.746**} & 6.717 & 1.11E+89 & \textbf{0.696**} \cr
-        CycleGAN & \textbf{10.514**} & 10.850 & \textbf{-9.11E+83} & 0.633 & 18.128 & 10.046 & \textbf{2.31E+89} & \textbf{0.721} & 12.258 & 9.878 & \textbf{-2.07E+80} & 0.689 \cr
-        StarGAN & 15.767 & \textbf{1.272**} & 3.93E+98 & \textbf{0.651} & 19.821 & \textbf{1.223*} & 3.47E+96 & 0.713 & 17.665 & \textbf{1.452**} & 1.21E+99 & 0.680 \cr
+        AdaIN & \textbf{10.734} & \textbf{8.975} & \textbf{265.036} & 0.626 & \textbf{10.671**} & 8.453 & \textbf{246.736} & 0.710 & \textbf{10.746**} & 6.717 & \textbf{255.062} & \textbf{0.696**} \cr
+        CycleGAN & 14.670 & 10.850 & 272.652 & 0.633 & 14.160 & 10.046 & 247.468 & \textbf{0.721} & 13.453 & 9.878 & 263.348 & 0.689 \cr
+        StarGAN & 13.453 & 9.878 & 263.348 & \textbf{0.689**} & 17.920 & \textbf{1.310*} & 399.215 & 0.712 & 18.467 & \textbf{1.477} & 412.430 & 0.687 \cr
         \hline 
         \multicolumn{13}{c}{\bf{Custom Dataset}}\cr
         \hline
-        AdaIN & \textbf{10.570} & 6.639 & 2.72E+85 & \textbf{0.654**} & \textbf{10.122*} & 4.974 & -8.70E+86 & \textbf{0.737*} & \textbf{11.472} & 5.156 & \textbf{2.89E+77**} & \textbf{0.693} \cr
-        CycleGAN & 14.316 & 7.137 & \textbf{-1.52E+83**} & 0.635 & 14.263 & 6.047 & \textbf{-3.95E+64*} & 0.711 & 12.933 & 7.825 & 1.06E+87 & 0.678 \cr
-        StarGAN & 19.178 & \textbf{1.316} & -2.40E+95 & 0.648 & 17.728 & \textbf{1.350} & 1.85E+85 & 0.709 & 19.380 & \textbf{1.456} & -4.17E+94 & 0.680 \cr
+        AdaIN & \textbf{10.507*} & 6.639 & \textbf{195.487**} & \textbf{0.654} & 13.435 & 4.974 & \textbf{177.581*} &\textbf{0.737*} & \textbf{11.472} & 5.156 & \textbf{197.560**} & \textbf{0.693} \cr
+        CycleGAN & 13.435 & 7.137 & 200.299 & 0.635 & \textbf{12.456} & 6.047 & 190.658 & 0.711 & 12.962 & 7.825 & 200.920 & 0.678 \cr
+        StarGAN & 19.302 & \textbf{1.340**} & 434.779 & 0.646 & 18.028 & \textbf{1.362} & 376.450 & 0.715 & 19.608 & \textbf{1.402**} & 380.034 & 0.683 \cr
         \hline
     \end{tabular}
     \end{center}
@@ -419,9 +408,9 @@ This shows the dataset used to evaluate the models, does not seem to have an inf
     \footnotesize
     * the best result overall. \\
     ** the best result for the style.
-\end{table*}
+\end{table}
 
-\begin{table*}
+\begin{table}
     \setlength\tabcolsep{4pt}
     \vspace{0.2em}
     \caption{Performance comparison of Style Transfer measured by various metrics grouped by model; Perceptual Distance (PD), Inception score (IS), Fréchet Inception Distance (FID) and Learned Perceptual Image Patch Similarity (LPIPS).}
@@ -435,37 +424,54 @@ This shows the dataset used to evaluate the models, does not seem to have an inf
         \hline
         \multicolumn{13}{c}{\bf{AdaIN}}\cr
         \hline
-        AST-IQAD Dataset & 10.734 & 8.975 & 7.95E+88 & 0.626 & 10.671 & 8.453 & 4.89E+91 & 0.710 & \textbf{10.746} & 6.717 & 1.11E+89 & \textbf{0.696} \cr
-        Custom Dataset & \textbf{10.570} & \textbf{6.639} & \textbf{2.72E+85} & \textbf{0.654} & \textbf{10.122} & \textbf{4.974} & \textbf{-8.70E+86} & \textbf{0.737} & 11.472 & \textbf{5.156} & \textbf{2.89E+77} & 0.693 \cr
+        AST-IQAD Dataset & 10.734 & 8.975 & 265.036 & 0.626 & \textbf{10.671} & 8.453 & 246.736 & 0.710 & \textbf{10.746} & 6.717 & 255.062 & \textbf{0.696} \cr
+        Custom Dataset & \textbf{10.507} & \textbf{6.639} & \textbf{195.487} & \textbf{0.654} & 13.435 & \textbf{4.974} & \textbf{177.581} & \textbf{0.737} & 11.472 & \textbf{5.156} & \textbf{197.560} & 0.693 \cr
         \hline
         \multicolumn{13}{c}{\bf{CycleGAN}}\cr
         \hline
-        AST-IQAD Dataset & \textbf{10.514} & 10.850 & -9.11E+83 & 0.633 & 18.128 & 10.046 & 2.31E+89 & \textbf{0.721} & \textbf{12.258} & 9.878 & \textbf{-2.07E+80} & \textbf{0.689} \cr
-        Custom Dataset & 14.316 & \textbf{7.137} & \textbf{-1.52E+83} & \textbf{0.635} & \textbf{14.263} & \textbf{6.047} & \textbf{-3.95E+64} & 0.711 & 12.933 & \textbf{7.825} & 1.06E+87 & 0.678 \cr
+        AST-IQAD Dataset & 14.670 & 10.850 & 272.652 & 0.633 & 14.160 & 10.046 & 247.468 & \textbf{0.721} & 13.453 & 9.878 & 263.348 & \textbf{0.689} \cr
+        Custom Dataset & \textbf{13.435} & \textbf{7.137} & \textbf{200.299} & \textbf{0.635} & \textbf{12.456} & \textbf{6.047} & \textbf{190.658*} & 0.711 & \textbf{12.962} & \textbf{7.825} & \textbf{200.920} & 0.678 \cr
         \hline
         \multicolumn{13}{c}{\bf{StarGAN}}\cr
         \hline
-        AST-IQAD Dataset & \textbf{15.767} & \textbf{1.272} & 3.93E+98 & \textbf{0.651} & 19.821 & \textbf{1.223} & 3.47E+96 & \textbf{0.713} & \textbf{17.665} & \textbf{1.452} & 1.21E+99 & \textbf{0.680} \cr
-        Custom Dataset & 19.178 & 1.316 & \textbf{-2.40E+95} & 0.648 & \textbf{17.728} & 1.350 & \textbf{1.85E+85} & 0.709 & 19.380 & 1.456 & \textbf{-4.17E+94} & \textbf{0.680} \cr
+        AST-IQAD Dataset & \textbf{13.453} & 9.878 & \textbf{263.348} & \textbf{0.689} & \textbf{17.920} & \textbf{1.310} & 399.215 & 0.712 & \textbf{18.467} & 1.477 & 412.430 & \textbf{0.687} \cr
+        Custom Dataset & 19.302 & \textbf{1.340} & 434.779 & 0.646 & 18.028 & 1.362 & \textbf{376.450} & \textbf{0.715} & 19.608 & \textbf{1.402} & \textbf{380.034} & 0.683 \cr
         \hline
     \end{tabular}
-\end{table*}
+\end{table}
 
 \subsection{Discussion}
 \label{sec:baseline_discussion_style_transfer}
-While the images are clearly stylized to look vaguely like the style of an artwork, it cannot be said that they belong in the same domain as the art movements.
+While the images are clearly stylized to look vaguely like the style of an art movement, it cannot be said that they belong in the same domain as actual artworks.
 The stylized images can still be useful to augment the COCO dataset as the question whether stylized images can increase the evaluation results is still a useful one to ask.
 It is obvious that the used evaluation metrics for style transfer are not very helpful.
-Theoretically, they make complete sense, they do not at all give a good reading on the quality of the images.
+Theoretically, they make complete sense, but they do not at all give a good reading on the quality of the images.
 The numbers vary greatly, but this variance cannot be seen in the qualitative evaluation.
 StarGAN, which experienced modal collapse, was still able to score high for \gls{IS}.
 Ironically, StarGAN, while not retaining the content, does have the better oil painting characteristics.
-The identity image as show in fig. \ref{fig:style_transfer_stargan_identity_image} looks like modern art.
+The identity image, as show in Figure. \ref{fig:style_transfer_stargan_identity_image}, looks like modern art.
 So, somewhere, the model does approach some kind of human like abstraction, or at least, as seen in abstract art.
 Perhaps, how artists make abstractions can be used as an inductive bias in future models.
 
+\begin{figure}[h]
+    \centering
+	\subcaptionbox{Input Image}{%
+		\includegraphics[height=2in]{style_transfer_stargan_source_image}%
+	}
+	\subcaptionbox{Identity Image}{%
+		\includegraphics[height=2in]{style_transfer_stargan_identity_image}%
+	}
+	\subcaptionbox{Richter, Gerard, \it{Weiß}}{%
+		\includegraphics[height=2in]{gerhard-richter-polish-painting-wooarts-27}%
+	}
+	\caption{
+        An example of an image created by StarGAN that has oil painting qualities. A painting from Gerard Richter as comparison is shown.
+    }
+    \label{fig:style_transfer_stargan_identity_image}
+\end{figure}
+
 The question remains why the style transfer algorithms aren't able to make correct mappings between different styles.
-A first observation was discussed in sec. \ref{sec:baseline_dataset_style_transfer}.
+A first observation was discussed in section \ref{sec:baseline_dataset_style_transfer}.
 It's a mistake to consider an art movement as a style, as even within the different art movements and realistic photographs there's a big variation in styles.
 There can be different lighting, different brush stroke, different camera filter, different lines and different form.
 There are plenty of things that can vary to make a distinct style.
@@ -476,247 +482,24 @@ In this context, they should be considered a style.
 While, when mapping within the same time period, they can be considered content.
 The same argument can be made for architecture.
 
-When looking at the datasets that CycleGAN and StarGAN are trained on, it becomes obvious that the only success is made when the domain is extremely specific.
-As seen in Fig. \ref{fig:AFHQ}, all the images contain the subject in the center of the image without any other content.
+When looking at the datasets that CycleGAN and StarGAN are trained on, it becomes clear that most success is made when the domain is extremely specific.
+As seen in Figure \ref{fig:AFHQ}, all the images contain the subject in the center of the image without any other content.
 The custom datasets for the training contain a much higher disparity.
 Perhaps it would be useful to transform different patches where the content is very similar with high certainty at a time, and then combine those to create the transformed image.
 This can potentially be done by training on a dataset of 3d models where a shader is applied to simulate a different art style.
 Instead of having to manually label thousands of images, it is possible to have several 3d models act out different poses and render them with different shaders.
-A network can be trained then to recognize when patches have similar content and apply the style when they do.
+A network can then be trained to recognize when patches have similar content and apply the style when they do.
 This will mean that when using an arbitrary style, it might not always find a high similarity and the style transfer will not benefit from this.
+\\
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
-    \includegraphics[width=0.12\textwidth]{flickr_cat_000018}%
-    \includegraphics[width=0.12\textwidth]{pixabay_cat_003899}%
-    \includegraphics[width=0.12\textwidth]{flickr_dog_000014}%
-    \includegraphics[width=0.12\textwidth]{pixabay_dog_002595}%
-    \includegraphics[width=0.12\textwidth]{flickr_wild_000082}%
-    \includegraphics[width=0.12\textwidth]{pixabay_wild_000681}%
+    \includegraphics[width=0.15\textwidth]{flickr_cat_000018}
+    \includegraphics[width=0.15\textwidth]{pixabay_cat_003899}
+    \includegraphics[width=0.15\textwidth]{flickr_dog_000014}
+    \includegraphics[width=0.15\textwidth]{pixabay_dog_002595}
+    \includegraphics[width=0.15\textwidth]{flickr_wild_000082}
+    \includegraphics[width=0.15\textwidth]{pixabay_wild_000681}
 	\caption{The \gls{AFHQ} dataset consists of images that are close-ups of animals.}
 	\label{fig:AFHQ}
-\end{figure}
-
-\begin{figure}
-    \centering
-	\subcaptionbox{Input Image}[0.32\textwidth]{%
-		\includegraphics[width=0.32\textwidth]{style_transfer_stargan_source_image}%
-	}
-	\subcaptionbox{Identity Image}[0.32\textwidth]{%
-		\includegraphics[width=0.32\textwidth]{style_transfer_stargan_identity_image}%
-	}
-	\subcaptionbox{Richter, Gerard, \it{Weiß}}[0.32\textwidth]{%
-		\includegraphics[width=0.32\textwidth]{gerhard-richter-polish-painting-wooarts-27}%
-	}
-	\label{fig:style_transfer_stargan_identity_image}
-	\caption{
-		An example of an image created by StarGAN that has oil painting qualities. A painting from Gerard Richter as comparison is shown.
-	}
-\end{figure}
-
-\section{Baseline Pose Estimation}
-
-\subsection{Choice of Model}
-\label{sec:baseline_choice_pose_estimation}
-Here again, quality is the most important criteria for performance.
-The current state-or-the-art is ViTPose \cite{xu2023}.
-The model is based on vision transformers.
-This makes it an obvious first choice.
-An overwhelming amount of models both in top-down as well as bottom-up architectures use HRNet \cite{Sun2019} with the only difference being in pre-processing \cite{Zhang2019, Huang2019} or post-processing \cite{Cheng2019, Geng2021}.
-Since VitPose is a top-down architecture and to keep a variety of architectures, a bottom-up version of HRNet is selected.
-The best model in this family is SWAHR according to Chen et al. \cite{chen2022}.
-Other architectures were looked at, like KAPAO \cite{William2021}, which uses a single-stage architecture, but these were not performant enough to be considered.
-
-\subsection{Training}
-\label{sec:baseline_training_pose_estimation}
-For the sake of learning the different algorithms, the training scrips were reverse engineered
-So, it was deemed appropriate to train the chosen models from scratch, so there's a plain network trained with the new setup for comparison.
-All training was done using the default parameters.
-
-\section{Pose Estimation after Applying Style Transfer to the COCO Dataset}
-\label{sec:baseline_coco_style_transfer}
-Due to time constraints, the evaluation is only done on a subset of the COCO dataset.
-This set was created by randomly sampling 1000 images from the COCO dataset.
-The first baseline will establish how well the pre-trained models perform on a stylized COCO dataset.
-The tested pose estimators will be SWAHR and ViTPose, and each will use the trained weights mentioned in section \ref{sec:baseline_training_pose_estimation}.
-Since ViTPose is a top-down architecture, it will use the ground truth bounding box to extract the persons.
-They will both be tested on a styled version of the COCO dataset by CycleGAN and AdaIN.
-CycleGAN wil be applied for the 3 styles it was trained on; baroque, impressionism and renaissance.
-AdaIN uses the pre-trained model and uses 3 images of each of the previous styles to use as style image.
-The images were selected to best represent the style while also varying the content as shown in Fig. \ref{fig:baseline_style_images_adain_evaluation}.
-Each model uses the default parameters and at no time was the input image resized or otherwise distorted.
-This comes to a total of 24 combinations that will be tested.
-
-\begin{figure}
-    \centering
-	\subcaptionbox{Baroque style images}[\textwidth]{%
-		\includegraphics[width=0.32\textwidth]{22_22_diego-velazquez_the-rokeby-venus-1648}%
-		\includegraphics[width=0.32\textwidth]{100_1_peter-paul-rubens_venus-cupid-bacchus-and-ceres-1613}%
-		\includegraphics[width=0.32\textwidth]{caravaggio_the-calling-of-saint-matthew}%
-	}
-	\subcaptionbox{Impressionism style images}[\textwidth]{%
-        \includegraphics[width=0.32\textwidth]{22_91_edgar-degas_three-dancers}%
-        \includegraphics[width=0.32\textwidth]{26_21_pierre-auguste-renoir_study-torso-sunlight-effect}%
-        \includegraphics[width=0.32\textwidth]{99_1_pierre-auguste-renoir_the-large-bathers-1887}%
-	}
-	\subcaptionbox{Renaissance style images}[\textwidth]{%
-        \includegraphics[width=0.32\textwidth]{26_4_raphael_the-three-graces-1505}%
-        \includegraphics[width=0.32\textwidth]{15_11_leonardo-da-vinci_mona-lisa}%
-        \includegraphics[width=0.32\textwidth]{26_5_raphael_madonna-and-child-1505}%
-	}
-	\label{fig:baseline_style_images_adain_evaluation}
-	\caption{
-		The style images used for AdaIN during evaluation.
-	}
-\end{figure}
-
-\subsection{Results}
-\label{sec:baseline_results_coco_style_transfer}
-From the available metrics the only ones that were useful for these measurements were the Average Precision/Recall.
-They're implemented as part of the COCO dataset and work with any dataset that's compatible with the COCO format.
-Of the other metrics, \gls{PCP} is unusable because it only applies to networks that detect the limbs as boxes instead of keypoints.
-The chosen pose estimation networks only work with keypoints.
-\gls{PCK} looked like it could be useable. However, PCKh needs a head bounding box, which is only available for the MPII dataset.
-While all the implementations only work with top-down architectures.
-They each asserts that the length of predicted persons should be the same as that of the ground truth.
-In a bottom-up architecture, it is possible to find more or less persons.
-The results shown in Table \ref{tab:baseline_pose_estimation_after_style_transfer} are the average of different evaluations, and it becomes immediately evident that this method is not going to work.
-As seen in Fig. \ref{fig:baseline_pose_estimation_evalutaion}, SWAHR is completely lost and can't find any good keypoints while ViTPose, having a high recall, still found some of the poses. 
-
-\begin{figure}
-    \centering
-	\subcaptionbox{SWAHR}[\textwidth]{%
-		\includegraphics[width=0.32\textwidth]{swahr_7088}%
-		\includegraphics[width=0.32\textwidth]{swahr_91500}%
-		\includegraphics[width=0.32\textwidth]{swahr_259640}%
-    }
-    \subcaptionbox{ViTPose}[\textwidth]{%
-		\includegraphics[width=0.32\textwidth]{vitpose_7088}%
-		\includegraphics[width=0.32\textwidth]{vitpose_91500}%
-		\includegraphics[width=0.32\textwidth]{vitpose_259640}%
-	}
-	\label{fig:baseline_pose_estimation_evalutaion}
-	\caption{
-		Examples of the keypoints found by the Pose Estimation networks.
-	}
-\end{figure}
-
-\begin{table*}
-    \setlength\tabcolsep{4pt}
-    \caption{
-        Establishing a baseline for Pose Estimation on Artworks; measuring Average Precision/Recall (AP/AR).
-        The COCO dataset is transformed with various Style Transfer models on which performance is measured from pre-trained pose-estimation models. }
-    \centering
-    \footnotesize
-    \label{tab:baseline_pose_estimation_after_style_transfer}
-    \begin{tabular}{ l|ccccc|ccccc }
-        \hline
-        \bf{Method}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
-        \hline
-        \multicolumn{11}{c}{\bf{AdaIN}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0.026 & 0.057 & 0.020 & 0.017 & 0.041 & 0.340 & 0.568 & 0.337 & 0.187 & 0.539 \cr
-        \hline
-        \multicolumn{11}{c}{\bf{CycleGAN}}\cr
-        \hline
-        SWAHR & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \cr
-        ViTPose & 0.081 & 0.128 & 0.086 & 0.120 & 0.068 & 0.627 & 0.850 & 0.682 & 0.557 & 0.718 \cr
-        \hline
-    \end{tabular}
-\end{table*}
-
-\section{Pose Estimation on the Human-Art Dataset}
-\label{sec:baseline_human_art}
-As a second baseline, the Human-Art dataset contains a subset of annotated oil paintings compatible with the COCO format.
-The evaluation dataset contains 250 images with 900 annotated persons.
-This will give a insight in the performance of the pose estimation models on artworks.
-SWAHR and ViTPose will be validated, and the trained weights mentioned in section \ref{sec:baseline_training_pose_estimation} as well as the pre-trained weights from the original papers will be used.
-The input image will not be resized or otherwise distorted, and the default parameters used.
-To confirm the premise that the pose estimation models perform less well on artworks, they are also validated on the COCO dataset.
-Because the other tests are only done on a subset of the COCO dataset, the models are also validated on this subset.
-This is a total of 8 combinations that will be validated.
-
-\subsection{Results}
-\label{sec:baseline_human_art_results}
-As mentioned in section \ref{sec:baseline_results_coco_style_transfer}, only the Average Precision/Recall will be measured.
-The table \ref{tab:baseline_pose_estimation_after_style_transfer} shows the results of the measurements.
-It clearly shows that the models have inferior results on artworks than photographs by up to 20\%.
-It also shows a significant difference between the pre-trained and self-trained models.
-However, for SWAHR the pre-trained model performed better by 6\%, but for ViTPose, the self-trained model performs better by 2\%.
-This difference well justifies the training of the models on the plain COCO dataset instead of using the pre-trained models to compare to.
-Thus going forward, the metrics will be compared to the self-trained models.
-This will give a more accurate picture of the improvements made.
-Notable as well is that despite ViTPose being the state-of-the-art, it performs worse than SWAHR on both datasets.
-
-\begin{table*}
-    \setlength\tabcolsep{4pt}
-    \vspace{0.2em}
-    \caption{
-        Establishing a baseline for Pose Estimation on Artworks; Average Precision/Recall (AP/AR).
-        The table shows the performance of the pre-trained models on The COCO dataset measured and the Human-Art dataset.
-    }
-    \centering
-    \footnotesize
-    \label{tab:baseline_pose_estimation_after_style_transfer}
-    \begin{tabular}{ l|ccccc|ccccc }
-        \hline
-        \bf{Method}&\bf{AP}&\bf{AP$^{50}$}&\bf{AP$^{75}$}&\bf{AP$^{M}$}&\bf{AP$^{L}$}&\bf{AR}&\bf{AR$^{50}$}&\bf{AR$^{75}$}&\bf{AR$^{M}$}&\bf{AR$^{L}$}\cr
-        \hline
-        \multicolumn{11}{c}{\bf{COCO dataset}}\cr
-        \hline
-        Pre-trained SWAHR & 0.687 & 0.881 & 0.748 & 0.639 & 0.757 & 0.737 & 0.904 & 0.788 & 0.670 & 0.828 \cr
-        SWAHR & 0.620 & 0.830 & 0.684 & 0.604 & 0.653 & 0.710 & 0.891 & 0.765 & 0.640 & 0.803 \cr
-        Pre-trained ViTPose & 0.588 & 0.832 & 0.641 & 0.573 & 0.629 & 0.723 & 0.906 & 0.782 & 0.682 & 0.7863 \cr
-        ViTPose & 0.609 & 0.847 & 0.680 & 0.597 & 0.644 & 0.740 & 0.918 & 0.810 & 0.703 & 0.795 \cr
-        \hline
-        \multicolumn{11}{c}{\bf{Human-Art Dataset}}\cr
-        \hline
-        Pre-trained SWAHR & 0.528 & 0.759 & 0.565 & 0.099 & 0.573 & 0.593 & 0.635 & 0.629 & 0.177 & 0.635 \cr
-        SWAHR & 0.492 & 0.742 & 0.536 & 0.058 & 0.539 & 0.563 & 0.784 & 0.606 & 0.109 & 0.605 \cr
-        Pre-trained ViTPose & 0.380 & 0.656 & 0.385 & 0.108 & 0.420 & 0.571 & 0.803 & 0.620 & 0.279 & 0.599 \cr
-        ViTPose & 0.406 & 0.682 & 0.415 & 0.130 & 0.445 & 0.591 & 0.818 & 0.632 & 0.306 & 0.619 \cr
-        \hline
-        \multicolumn{11}{c}{\bf{Difference}}\cr
-        \hline
-        Pre-trained SWAHR & -0.159 & -0.122 & -0.183 & -0.540 & -0.184 & -0.144 & -0.269 & -0.159 & -0.493 & -0.193 \cr
-        SWAHR & -0.128 & -0.088 & -0.148 & -0.546 & -0.114 & -0.147 & -0.107 & -0.159 & -0.531 & -0.198 \cr
-        Pre-trained ViTPose & -0.208 & -0.176 & -0.256 & -0.465 & -0.209 & -0.152 & -0.103 & -0.162 & -0.403 & -0.187 \cr
-        ViTPose & -0.203 & -0.165 & -0.265 & -0.467 & -0.199 & -0.149 & -0.100 & -0.178 & -0.397 & -0.176 \cr
-        \hline
-    \end{tabular}
-\end{table*}
-
-\section{Discussion}
-\label{sec:baseline_human_art_discussion}
-The results show that the use of style transfer on the input image will not yield any good results.
-The models don't perform well on the stylized images, likely because they don't produce high-fidelity transformations.
-Putting a second algorithm in the pipeline creates an extra chance for error.
-However, ViTPose was still able to discern most of the poses; having a high recall, but seems to have hallucinated others; giving a low precision.
-This begs the question: what about this network makes it perform better than SWAHR here?
-Perhaps, it is merely able to deal with the artifacts left by the style transfer better, while SWAHR is completely confused by it?
-Fig. \ref{fig:baseline_style_transfer_artifacts} shows these artifacts.
-Or, perhaps, it is merely because as a top-down algorithm, it has an unfair advantage in that it used the ground-truth bounding boxes to crop the image.
-(Todo: do small experiments with ViTPose and use entire image as bounding box)
-
-The baseline on the plain COCO dataset confirms once more that the pose estimation models are inferior on artworks than photographs.
-It goes up as high as 50\% for the medium areas, which makes sense as the smaller part of an image will also be more abstract as brush strokes become more prominent.
-
-
-\begin{figure}
-    \centering
-	\subcaptionbox{AdaIN with impressionist middle image seen in fig. \ref{baseline_style_images_adain_evaluation} as style image}[\textwidth]{%
-		\includegraphics[width=0.49\textwidth]{adain_style_transfer_151820}%
-		\includegraphics[width=0.24\textwidth]{adain_style_transfer_151820_patch_a}%
-		\includegraphics[width=0.24\textwidth]{adain_style_transfer_151820_patch_b}%
-    }
-    \subcaptionbox{CycleGAN using impressionism as style}[\textwidth]{%
-		\includegraphics[width=0.49\textwidth]{cyclegan_style_transfer_151820}%
-		\includegraphics[width=0.24\textwidth]{cyclegan_style_transfer_151820_patch_a}%
-		\includegraphics[width=0.24\textwidth]{cyclegan_style_transfer_151820_patch_b}%
-	}
-	\label{fig:baseline_style_transfer_artifacts}
-	\caption{
-		Examples of the keypoints found by the Pose Estimation networks.
-	}
 \end{figure}

@@ -3,35 +3,46 @@
 
 \section{Problem definition}
 
-To make art collections more accessible, museums put a huge effort in digitalizing their catalogue.
-However, they don't contain much metadata about the content and it is time-consuming to enhance them manually.
-To make this process easier, they want to utilize computer vision.
-Art collections (paintings, statues, drawings, etc.) turn out to be less interpretable by the algorithms that were developed for photography over the last few decades. 
-These scan the images in search of recognizable objects and add their labels to the metadata.
-Even the latest state-of-the-art technology, struggles to recognize objects when pointed at a painting in a museum.  
-A solution may be to start over and have paintings annotated by humans.  
-  
+Part of the modern age is the digitalization of information.
+Digitization makes information more accessible to a broader audience and allows it to be processed more efficiently.
+Museums have put huge efforts in digitalizing their catalogue.
+While viewing the original artworks firsthand still provides a unique experience, the rarest and most beloved works are sealed behind glass.
+Through digitalization, a museum can offer people the experience of viewing them from up close.
+It also allows them to make more of their collection available as now they can only show a small percentage of their work at once.
+Some people might never have the chance to see these works, but through digitalization this becomes possible \cite{Digitization1}.
+
+Digitization can also help in Iconography; this is the branch of art history that concerns itself with the themes and motifs of artworks.
+Through the analysis of artworks, different connections between different artworks can be established, which can be useful for classification or retrieval.
+However, art collections don't contain much metadata and it is time-consuming to enhance them manually.
+Museums want to utilize computer vision to automate this process, but the algorithms that were developed over the last few decades, are mainly for photography and it turns out that art collections (paintings, statues, drawing, etc) are less interpretable by these algorithms.
+These algorithms scan the images in search of recognizable objects and add their labels to the metadata.
+Even the latest state-of-the-art technology, struggles to recognize objects when pointed at a painting in a museum.
+
+A solution may be to start over and have paintings be annotated by humans.
 This has been done in 2 recent projects: Saint-George-On-A-Bike \cite{GeorgeOnABike} and INSIGHT \cite{Insight}.
 However, paintings are very complex while manual annotation doesn't scale and is very expensive.
 For example, 10,000 paintings were annotated by the \gls{RMFAB} with no clear return on investment \cite{RMFAB2024}.
 They spent a year on this and this is not something they want to repeat.
 How can we automate this process and ensure that state-of-the-art computer vision models give good results on paintings and artworks?  
 
-Among the different tasks that can be improved on is pose estimation.
-Pose estimation allows the art collection to be searchable based on different poses.
-This will be the focal point of improvement for thesis.
+Computer vision can perform a wide range of tasks, including image classification, semantic segmentation, object detection, and 2D/3D \gls{HPE}.
+For this thesis, the focus will be on 2D HPE.
+A database can be created with the different poses found in the artworks which can be used to discover similar themes and categorize them.
+There is an extensive amount of research based around HPE that can be useful for this.
+\\
+\\
 
 \section{Proposed solution}
 
-There are two proposed solutions that will be explored.
+To make the vast quantity of research around HPE available to art collections, there are two proposed solutions that will be explored.
+The efficacy of these methods wil be analyzed in this thesis.
 
-A first method: the input artwork is first converted to photographic realism on which pose estimation is then executed.
+\begin{enumerate}
+    \item The input artwork is first converted to photographic realism on which pose estimation is then executed.
 With this method the pre-trained models from the state-of-the-art architectures can be reused without need to do any new adjustments.
 This method does require the style transfer network to have a high fidelity to realism.
-
-A second method: if the pre-trained models can't be used, it still an option to retrain one with an augmented dataset.
+    \item If the pre-trained models can't be used, it's still an option to retrain one with an augmented dataset.
 With style transfer the images of existing datasets can be stylized and added to the datasets.
 This will increase the size and variance of the dataset, making it better to train on.
-This can increase performance on art collections as stylized images are also being trained on, but can also potentially increase the performance on photographs.
-
-The efficacy of these methods wil be analyzed in this thesis.
+This can increase performance on art collections as stylized images are also being trained on but can also potentially increase the performance on photographs.
+\end{enumerate}
