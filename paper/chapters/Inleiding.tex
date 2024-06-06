@@ -19,7 +19,7 @@ These algorithms scan the images in search of recognizable objects and add their
 Even the latest state-of-the-art technology, struggles to recognize objects when pointed at a painting in a museum.
 
 A solution may be to start over and have paintings be annotated by humans.
-This has been done in 2 recent projects: Saint-George-On-A-Bike \cite{GeorgeOnABike} and INSIGHT \cite{Insight}.
+This has been done in two recent projects: Saint-George-On-A-Bike \cite{GeorgeOnABike} and INSIGHT \cite{Insight}.
 However, paintings are very complex while manual annotation doesn't scale and is very expensive.
 For example, 10,000 paintings were annotated by the \gls{RMFAB} with no clear return on investment \cite{RMFAB2024}.
 They spent a year on this and this is not something they want to repeat.
@@ -46,3 +46,26 @@ With style transfer the images of existing datasets can be stylized and added to
 This will increase the size and variance of the dataset, making it better to train on.
 This can increase performance on art collections as stylized images are also being trained on but can also potentially increase the performance on photographs.
 \end{enumerate}
+
+\section{Thesis Outline}
+Chapter \ref{chap:rel_work} discusses the related literature.
+The research in style transfer is looked at in depth, as well as the extensive body of work in pose estimation.
+Content-Based Image Retrieval is shortly described and the chapter closes with a look at deep learning on art collections.
+\\
+\\
+Chapter \ref{chap:style_transfer} discusses the use of different style transfer models.
+Novel datasets are created to train several new models.
+The models are evaluated with different evaluation metrics and a selection of the best is made.
+\\
+\\
+Chapter \ref{chap:baseline} discusses the creation of a baseline for the experiments.
+Two different methods are used to achieve this.
+\\
+\\
+Chapter \ref{chap:improvements} discusses two improvement proposals.
+The first transforms the input for existing pose estimation models to photorealistic images.
+The second augments the COCO-dataset with style transfer to train new pose estimation models.
+Afterwards, the results are discussed.
+\\
+\\
+Chapter \ref{chap:conclusion} wraps up the thesis with a summary and suggestions for future research.

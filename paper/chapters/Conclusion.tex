@@ -1,3 +1,58 @@
-\chapter*{Conclusions}
-\chaptermark{Conclusions}
+\chapter{Conclusions}
+\label{chap:conclusion}
 
+Because of the digitalization of art collections, museums are looking to improve their analytic tools to help them with their functions.
+Among them are the relationships between artworks depending on their themes of which poses are a big part.
+Unfortunately, the state-of-the-art pose estimation models have only been trained on photograph datasets and have a miserable performance on art collections.
+To achieve better results two methods of improvement were explored:
+\begin{enumerate}
+    \item The input images for the pose estimation networks are first transformed from an artwork to a photograph.
+    With this method, the already vast library of pose estimation methods is made available to the curators.
+    \item The COCO dataset is transformed with multiple style transfer methods to styled COCO datasets.
+    With these styled datasets, new pose estimation models can be trained which work better than the already existing ones.
+\end{enumerate}
+These methods require a style transfer method that is able to transform between artworks and photographs.
+Therefor, several datasets were created by using CBIR on the WikiArt dataset.
+The focus of these datasets is mainly around the human figure as this is the domain of pose estimation.
+Several style transfer models were trained, but it was found that they did not achieve high fidelity.
+Because of this, the first method was found to give unreliable results during both the baseline measurement as well as during the experiments.
+When transforming the images, artifacts of the method were left behind which confused the pose estimation models.
+However, ViTPose still had a high recall in these cases, but SWAHR did not have any good results.
+For the second method, several new styled COCO datasets were created with the newly trained style transfer models.
+After training the pose estimation networks successfully, it was found that they were able to increase the performance on art collections.
+To establish this, evaluation on the Human-Art dataset was very helpful, as the another method, which depended on transforming input images for evaluation, was broken.
+It was found that training the models on an augmented dataset can increase the performance by at least 2\% AP.
+This is in line with related works who reported a similar increase.
+
+\section{Lessons Learned}
+During the experiments, it became clear that the chosen style transfer methods didn't have the right capabilities as was first thought.
+A potential culprit could be the different evaluation metrics which still do not adequately measure the similarity between images.
+Evidence of this is seen in the collapse of the StarGAN network, which still gives a good performance during quantitative evaluations while qualitatively it's subpar.
+While ViTPose is considered state-of-the-art, in the experiments run, it does not outperform SWAHR for any of the evaluations.
+This shows again, that even though a model can be state-of-the-art in one task, this does not translate to other tasks.
+During training, the pose estimation networks converged very quickly and training them for 200 epochs wasn't needed, but instead only 100 epochs would have been enough.
+\section{Future Work}
+To get better results, a first recommended improvement can be to use style transfer networks that have a higher fidelity.
+During the discussion in section \ref{sec:improvements_discussion}, a brief look was made at several papers that evaluated the believability of different models.
+They concluded that, although the older networks performed poorly, more recent models were able to perform better.
+This gives hope for future development within this area.
+One promising technique is stable diffusion \cite{rombach2021} which is able to synthesize high fidelity images.
+It would be useful if this could be used for style transfer.
+Another improvement could be the evaluation metrics for style transfer.
+While there are a plethora of other metrics out there that haven't been mentioned, most of them are derivatives of the ones discussed in section \ref{sec:style_transfer_metrics}.
+Their primary focus is also around generative methods and not specifically style transfer.
+A specialized metric might be something worth looking at, but maybe it's enough to update the current metrics with better feature extraction methods, like a \gls{CBIR} method, which is more specialized in finding similarity.
+The created datasets for style transfer can also be more refined.
+Instead of having crowded images, the dataset could only focus on the human figure front and central, and crop them out as well.
+While this reduces generalization, the problem is only about pose estimation.
+It could even go so far that for each body part a dataset is made and style transfer is done in patches.
+However, this would increase the effort that needs to be undertaken to train a network to such an extend that it might just be easier to annotate paintings for pose estimation training.
+This work only focuses on realistic artworks to run pose estimation on, but this leaves out more abstract works.
+Another area that deals with this is style transfer with geometric transformations.
+Further research into this can extend the now limited approach.
+During the experiments, the evaluations were compared with two baselines; the pre-trained model and a control model.
+The control was trained the same way the styled models were and had a worse performance than the pre-trained baseline.
+This means that the networks could possibly be fine-tuned to perform better.
+The difference between the pre-trained and the control is as high as 6\% for SWAHR.
+This is a noteworthy difference and enough to warrant further research.
+All in all, there are still a lot of areas that can be improved upon.

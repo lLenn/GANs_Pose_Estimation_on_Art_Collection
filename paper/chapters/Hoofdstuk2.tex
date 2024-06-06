@@ -353,7 +353,7 @@ All in all, the results are very disappointing as none of the images look like t
 
 \subsubsection{Quantitative Evaluation}
 To evaluate the trained models, there exist several metrics, which are discussed in section \ref{sec:style_transfer_metrics}.
-Before applying the evaluation metrics there needs to be an adequate dataset to do meaningful measurements on first.
+Before applying the evaluation metrics, there needs to be an adequate dataset to do meaningful measurements on first.
 Two datasets are considered for this purpose:
 \begin{enumerate}
     \item \gls{AST-IQAD} is a set specifically made to measure style transfer \cite{Chen2023}.
@@ -361,7 +361,7 @@ Two datasets are considered for this purpose:
     This means that these criteria of subjective evaluation are mostly agreed upon across a group of people.
     Among those are: color tone, brush stroke, distribution of objects, and contents.
     While it also declares a set of style images, those will not be used.
-    \item Since the content of the problem of this thesis only focuses around persons and the \gls{AST-IQAD} dataset works with different kinds of content, a custom dataset is created that focuses around persons.
+    \item Since the content of the problem of this thesis only focuses around persons and the \gls{AST-IQAD} dataset works with different kinds of content, a custom dataset is created that focuses around people.
     This is created the same way the style transfer datasets were created.
 \end{enumerate}
 For the evaluation, AdaIN cycles through the style images which it was trained on to use as input style images.
@@ -452,6 +452,8 @@ Ironically, StarGAN, while not retaining the content, does have the better oil p
 The identity image, as show in Figure. \ref{fig:style_transfer_stargan_identity_image}, looks like modern art.
 So, somewhere, the model does approach some kind of human like abstraction, or at least, as seen in abstract art.
 Perhaps, how artists make abstractions can be used as an inductive bias in future models.
+Another possible research area could be the use of \gls{CBIR} models instead of the inception model for the evaluation metrics.
+\gls{CBIR} models are more specialized in finding features for similarity measurements.
 
 \begin{figure}[h]
     \centering

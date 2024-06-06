@@ -613,7 +613,7 @@ An overview can be found in Fig. \ref{fig:image_retrieval_query_formation}.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\textwidth]{image_retrieval_query_formation}%
+	\includegraphics[width=0.6\textwidth]{image_retrieval_query_formation}%
 	\caption{
 		An overview of the different kinds of queries with corresponding retrieval results. \cite{Zhou2017}
 	}
@@ -665,8 +665,6 @@ They then employ a two step process: with a query image and fast matching, they 
 Afterwards, geometric validation filters out impossible alignments with the query image.
 Their experiments show significant improvements over previous methods.
 They also note some failure cases where pose estimation falls short, like failing to find keypoints or making associations with wrong poses.
-\\
-\\
 
 \begin{figure}[h]
 	\centering
@@ -692,9 +690,8 @@ They also created their own small dataset to evaluate their improvements (Figure
 Kadish et al. \cite{Kadish2021} have the same idea and also use AdaIN to stylize the COCO dataset.
 They randomly sample artworks from the Painter by Numbers dataset from Kaggle \cite{PainterByNumbers} for the style images and using it to fine-tune the Faster R-CNN network for object detection.
 Both papers found an improvement in the performance of the networks on art collections, which is further discussed in Section \ref{sec:improvements_related_papers}.
-\\
-
 Part of this thesis will combine the previously discussed work.
+
 While Madhu et al. only fine-tuned a network to work better for Greek vases, it would be more useful if the fine-tuned model could be used more generally.
 This is what Kadish et al. achieve, but they focused on the object detection task.
 Here, both methods will be combined to achieve improvements in pose estimation on non-specific art collections.

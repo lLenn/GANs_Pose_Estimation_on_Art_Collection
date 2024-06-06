@@ -1,0 +1,21 @@
+\chapter*{Abstract}
+\chaptermark{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}  
+
+Through digitalization, museums are given the ability to more efficiently analyze their art collections.
+Important connections between artworks can be uncovered this way, which can be useful for classification or retrieval.
+Museums put a great amount of effort in this process, but it can be very labor intensive doing this manually.
+To eliminate this issue, they've sought to automate these tasks using computer vision methods.
+In computer vision, there's a rich volume of research in image classification, semantic segmentation, object detection and 2D/3D human pose estimation (HPE).
+It turns out however, that these algorithms aren't suitable for tasks on art collections as they were trained on photographs.
+This thesis will deal with the HPE problem and what methods can be used to improve performance on art collections.
+Two shortcomings can be identified: incomplete keypoint prediction and wrong pose association.
+To solve this problem, this thesis proposes a method which fine-tunes state-of-the-art (SOTA) HPE models with a combination of stylized COCO datasets.
+Three datasets were created from the WikiArt dataset representing baroque, renaissance and impressionism.
+From those genres a selection of figurative paintings is made using content-based image retrieval.
+Then for each style transfer model, first, a mixture of genres is used and, second, one with only impressionism to create a stylized COCO dataset.
+This is done for CycleGAN and AdaIN.
+Then, the SWAHR and ViTPose pose estimation models are fine-tuned on the COCO dataset in combination with the stylized COCO dataset, and with only the stylized COCO dataset.
+This makes a total of 16 models that are evaluated and in which a consistent improvement in pose estimation prediction was found.
+
+Index terms $-$ Cultural Heritage, Computer Vision, Deep Learning, 2D Human Pose Estimation, Style Transfer, CycleGAN, AdaIN, SWAHR, ViTPose
