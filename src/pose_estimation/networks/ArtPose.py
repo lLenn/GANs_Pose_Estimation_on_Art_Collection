@@ -55,12 +55,13 @@ class ArtPose:
             
             # add bbox for ViTPose
             
-            if self.verbose:
+            if self.verbose and i%100 == 0:
                 ArtPose.visualizeStyleTransfer(image, directory, f"style_transfer_{int(annotations[0]['image_id'])}")
             image_resized, final_heatmaps, final_results, scores = self.poseEstimator.infer(rank, world_size, image, bbox)
                 
             if self.verbose:
-                ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, directory, annotations[0]["image_id"].item(), False)
+                if i%100 == 0:
+                    ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, directory, annotations[0]["image_id"].item(), False)
                 pbar.update()
 
             for idx in range(len(final_results)):
