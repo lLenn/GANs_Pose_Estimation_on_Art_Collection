@@ -61,7 +61,7 @@ class ArtPose:
                 
             if self.verbose:
                 if i%100 == 0:
-                    ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, directory, annotations[0]["image_id"].item(), False)
+                    ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, directory, annotations[0]["image_id"].item(), True)
                 pbar.update()
 
             for idx in range(len(final_results)):
@@ -100,7 +100,7 @@ class ArtPose:
                 cv2.line(image, convertToIntTuple(prediction[indexP1:indexP1+2]), convertToIntTuple(prediction[indexP2:indexP2+2]), edge_color, 5)
             
             for predictionIndex in range(0, len(prediction), 3):
-                keypoint_color:Color = tuple(ArtPose.getColor(prediction[predictionIndex+2]).get_rgb())*255 if show_score else tuple(COCOSubset.META_INFO["keypoints"][int(predictionIndex/3)][1])
+                keypoint_color:Color = tuple(ArtPose.getColor(prediction[predictionIndex+2]).get_rgb()*255) if show_score else tuple(COCOSubset.META_INFO["keypoints"][int(predictionIndex/3)][1])
                 cv2.circle(image, convertToIntTuple(prediction[predictionIndex:predictionIndex+2]), 7, keypoint_color, thickness=-1)
                 cv2.circle(image, convertToIntTuple(prediction[predictionIndex:predictionIndex+2]), 7, (255, 255, 255))
                 
