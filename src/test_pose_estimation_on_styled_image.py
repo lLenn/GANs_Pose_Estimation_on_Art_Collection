@@ -113,7 +113,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
         average_precision.process_predictions(rank, world_size, predictions)
         
     artPose = ArtPose(pose_estimation, style_transfer, True)
-    artPose.validate(rank, world_size, dataloader, action, os.path.join(results_dir, results_prefix), hook, 1024 if action == ArtPose.ARTISTIC_TO_PHOTOGRAPHIC else False)
+    artPose.validate(rank, world_size, dataloader, action, os.path.join(results_dir, results_prefix), hook, 1024 if action == ArtPose.ARTISTIC_TO_PHOTOGRAPHIC else False, model_style_transfer == "CycleGAN")
     
     metrics["average_precision"] = average_precision.get_average_precision(rank)
     

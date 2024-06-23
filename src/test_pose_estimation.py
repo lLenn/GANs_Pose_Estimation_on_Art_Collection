@@ -1,5 +1,6 @@
 import json
 import os
+import cv2
 import argparse
 import torch
 import torch.multiprocessing as mp
@@ -9,7 +10,7 @@ from torch.utils.data import DataLoader
 from torch.distributed import init_process_group, destroy_process_group
 from torch.utils.data.distributed import DistributedSampler
 from pose_estimation.datasets import COCOSubset
-from pose_estimation.metrics import AveragePrecision
+from pose_estimation.metrics import AveragePrecision, ObjectKeypointSimilarity
 from pose_estimation.networks import SWAHR, SWAHRConfig, ViTPose, ViTPoseConfig, ArtPose
 from style_transfer.datasets import HumanArtDataset
 from torchvision.transforms import transforms
@@ -17,10 +18,21 @@ from torchvision.transforms import transforms
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 def convertListToDict(list):
-   dict = {}
-   for i in range(0, len(list), 2):
-       dict[list[i]] = list[i + 1]
-   return dict
+    dict = {}
+    for i in range(0, len(list), 2):
+        dict[list[i]] = list[i + 1]
+    return dict
+
+def convertAnnotationsToNumpy(torch_dict):
+    np_dict = {}
+    for key in torch_dict:
+        def convertList(value):
+            if isinstance(value, list):
+                return [convertList(item) for item in value]
+            else:
+                return value.item()
+        np_dict[key] = convertList(torch_dict[key])
+    return np_dict
 
 def init_distributed(rank, world_size):
     if world_size > 1:
@@ -83,7 +95,11 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
     with torch.no_grad():
         pbar = tqdm(total=len(dataloader.dataset))
         for i, (images, annotations) in enumerate(dataloader):
-            image_id = int(dataset.coco.loadImgs(dataset.ids[i])[0]["id"])
+            image_id = 0            
+            if "HumanArt" in data_root:
+                image_id = int(dataset.humanArt.loadImages(dataset.ids[i])[0]["id"])
+            else:
+                image_id = int(dataset.coco.loadImgs(dataset.ids[i])[0]["id"])
             image = images[0].numpy()
             _, _, final_results, scores = network.infer(rank, world_size, image, [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations])
             predictions = []
@@ -95,8 +111,19 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
                     "category_id": 1
                 })
             average_precision.process_predictions(rank, world_size, predictions)
-            if len(final_results) > 0 and i%100 == 0:
-                ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, os.path.join(results_dir, results_prefix), image_id)
+            if len(final_results) > 0:
+                oks = ObjectKeypointSimilarity([convertAnnotationsToNumpy(annotation) for annotation in annotations], predictions)
+                oks.calculateOKS()
+                height = 1000
+                width = int(image.shape[1]*height/image.shape[0])
+                visImage = cv2.resize(image, [width, height])
+                bestPredictions = oks.bestPredictions()
+                visPredictions = [prediction["keypoints"] for prediction in bestPredictions]
+                for i, prediction in enumerate(visPredictions):
+                    for predictionIndex in range(0, len(prediction), 3):
+                        visPredictions[i][predictionIndex] = visPredictions[i][predictionIndex]*width/image.shape[1]
+                        visPredictions[i][predictionIndex+1] = visPredictions[i][predictionIndex+1]*height/image.shape[0]
+                ArtPose.visualizePoseEstimation(visImage, visPredictions, scores, os.path.join(results_dir, results_prefix), image_id, False)
             pbar.update()
 
         pbar.close()
