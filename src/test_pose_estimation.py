@@ -29,6 +29,8 @@ def convertAnnotationsToNumpy(torch_dict):
         def convertList(value):
             if isinstance(value, list):
                 return [convertList(item) for item in value]
+            elif isinstance(value, dict):
+                return convertAnnotationsToNumpy(value)                    
             else:
                 return value.item()
         np_dict[key] = convertList(torch_dict[key])
@@ -118,7 +120,9 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
                 width = int(image.shape[1]*height/image.shape[0])
                 visImage = cv2.resize(image, [width, height])
                 bestPredictions = oks.bestPredictions()
-                visPredictions = [prediction["keypoints"] for prediction in bestPredictions]
+                visPredictions = []
+                if bestPredictions is not None:
+                    visPredictions = [prediction["keypoints"] for prediction in bestPredictions]
                 for i, prediction in enumerate(visPredictions):
                     for predictionIndex in range(0, len(prediction), 3):
                         visPredictions[i][predictionIndex] = visPredictions[i][predictionIndex]*width/image.shape[1]
