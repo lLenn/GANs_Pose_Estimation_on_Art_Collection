@@ -127,7 +127,7 @@
                 "--dataset",
                 "person_keypoints_val2017",
                 "--model",
-                "SWAHR",
+                "ViTPose",
                 "--batch_size",
                 "1",
                 "--num_workers",
@@ -137,10 +137,10 @@
                 "--results_prefix",
                 "coco__vitpose_coco_subset",
                 "--config",
-                "src/pose_estimation/config/w48_640_test.yaml",
+                "src/pose_estimation/config/vitpose_base_validation.py",
                 "--options",
-                "TEST.MODEL_FILE",
-                "../../Models/swahr/pose_higher_hrnet_w48_640.pth",
+                "model_file",
+                "../../Models/vitpose/coco/best_coco_AP_epoch_210.pth",
             ],
             "console": "integratedTerminal",
             "justMyCode": false
@@ -412,6 +412,36 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
+        {
+            "name": "Python: Test Pose Estimation SWAHR",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./lib/SWAHR/tools/dist_valid.py",
+            "args": [
+                "--world_size",
+                "1",
+                "--cfg",
+                "src/pose_estimation/config/w48_640_test.yaml",
+                "DATASET.ROOT",
+                "../../Datasets/coco",
+                "TEST.MODEL_FILE",
+                "../../Models/swahr/pose_higher_hrnet_w48_640.pth",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: Test Pose Estimation ViTPose",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./lib/mmpose/tools/test.py",
+            "args": [
+                "lib/mmpose/configs/body_2d_keypoint/topdown_heatmap/coco/td-hm_ViTPose-base_8xb64-210e_coco-256x192.py",
+                "../../Models/vitpose/td-hm_ViTPose-base_8xb64-210e_coco-256x192-216eae50_20230314.pth"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
     ],
     "inputs": [{
         "id": "xlaunch_ip",

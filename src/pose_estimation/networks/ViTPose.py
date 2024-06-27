@@ -38,9 +38,16 @@ class ViTPose:
         keypoints = []
         scores = []
         for bbox in bboxes:
-            prediction = self._infer(rank, world_size, image, bbox)
-            keypoints.append(np.concatenate((prediction.keypoints[0], prediction.keypoint_scores.T, [[0]]*prediction.keypoints[0].shape[0]), axis=1))
-            scores.append(1)
+            keypoint = []
+            score = 0
+            for _ in range(10):
+                prediction = self._infer(rank, world_size, image, bbox)
+                prediction_score = np.mean(prediction.keypoint_scores)
+                if score < prediction_score:
+                    keypoint = np.concatenate((prediction.keypoints[0], prediction.keypoint_scores.T, [[0]]*prediction.keypoints[0].shape[0]), axis=1)
+                    score = prediction_score
+            keypoints.append(keypoint)
+            scores.append(score)
         return None, None, keypoints, scores
     
     def validate(self, rank, world_size, data_loader, evaluator):
