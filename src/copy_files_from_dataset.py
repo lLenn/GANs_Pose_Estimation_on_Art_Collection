@@ -1,6 +1,9 @@
 import os
 import shutil
 
+# script for presentation
+# copies images from different styles to dir for easier comparison
+
 unstyled_images = [776, 15497, 26690, 35682, 40757, 45550, 108026, 148662, 158956, 162092, 177015, 133343]
 artifact_images = [32570, 37988, 38210, 140556, 177489]
 over_stylized_images = [23899, 31093, 32081, 32735, 65736, 100428, 149770, 172877]

@@ -5,6 +5,8 @@ from mmengine.config import Config
 from mmengine.registry import VISBACKENDS
 from mmengine.visualization.vis_backend import BaseVisBackend, force_init_env
 
+# mmpose classes so results of training can be shared with a visdom server
+
 @VISBACKENDS.register_module()
 class VisdomBackend(BaseVisBackend):
     def __init__(self,

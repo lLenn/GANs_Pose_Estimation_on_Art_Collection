@@ -10,7 +10,7 @@ from pose_estimation.networks.ArtPose import ArtPose
 from available_algorithms import createDatasetIterator, createPoseEstimatorIterator, createStyleTransformerIterator
 
 
-# This code will establish the base line for pose estimation done on pose estimation datasets that have been transformed with a style transfer algorithm.
+# deprecated
 
 NO_WORKERS = 1
 DIRECTION = ArtPose.PHOTOGRAPHIC_TO_ARTISTIC

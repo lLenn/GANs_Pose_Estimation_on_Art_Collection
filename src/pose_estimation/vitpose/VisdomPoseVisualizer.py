@@ -1,6 +1,8 @@
 from mmpose.visualization import PoseLocalVisualizer
 from mmpose.registry import VISUALIZERS
 
+# mmpose classes so results of training can be shared with a visdom server
+
 @VISUALIZERS.register_module()
 class VisdomPoseVisualizer(PoseLocalVisualizer):
     def push_images_to_backend(self):

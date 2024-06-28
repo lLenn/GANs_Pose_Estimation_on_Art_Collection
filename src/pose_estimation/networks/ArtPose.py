@@ -27,8 +27,11 @@ class ArtPose:
     
     def validate(self, rank, world_size, data_loader, direction, directory, metric_hook = None, resize = False, normalize = True):
         predictions = []
+        # loop over all the data in the given dataset
         pbar = tqdm(total=len(data_loader.dataset)) if self.verbose else None
         for i, (images, annotations) in enumerate(data_loader):
+            # pre process image for style transfer
+            # if the image is greater than resize size the image is scaled to be that size
             image = images[0].float() / 255
             image = torch.permute(image, (2, 0, 1))
             bbox = [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations]
@@ -43,27 +46,33 @@ class ArtPose:
             image = torch.stack((image,))
             image = image.to("cuda")
 
+            # apply style transfer
             if direction == self.PHOTOGRAPHIC_TO_ARTISTIC:
                 image = self.styleTransformer.photographicToArtistic(image)
             else:    
                 image = self.styleTransformer.artisticToPhotographic(image)
+                
+            # pre process image for pose estimation
             image = image[0]
             if normalize:
                 image = image * 0.5 + 0.5
             image = image.detach().cpu().numpy()
             image = image.transpose(1, 2, 0) * 255
             
-            # add bbox for ViTPose
-            
+            # visualize style transfer image
             if self.verbose and i%100 == 0:
                 ArtPose.visualizeStyleTransfer(image, directory, f"style_transfer_{int(annotations[0]['image_id'])}")
+            
+            # prediction pose keypoints
             image_resized, final_heatmaps, final_results, scores = self.poseEstimator.infer(rank, world_size, image, bbox)
                 
+            # visualize poses
             if self.verbose:
                 if i%100 == 0:
                     ArtPose.visualizePoseEstimation(image, np.delete(final_results, -1, 2).reshape(len(final_results), -1).astype(float).tolist(), scores, directory, annotations[0]["image_id"].item(), True)
                 pbar.update()
 
+            # add poses to array, if image was resized it's enlarged again
             for idx in range(len(final_results)):
                 keypoints = final_results[idx][:,:3].reshape(-1,).astype(float).tolist()
                 for i, keypoint in enumerate(keypoints):
@@ -76,6 +85,7 @@ class ArtPose:
                     "category_id": 1
                 })
             
+            # call metric hook
             if metric_hook is not None:
                 metric_hook(predictions[:-len(final_results)])
 

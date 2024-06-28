@@ -40,6 +40,8 @@ class ViTPose:
         for bbox in bboxes:
             keypoint = []
             score = 0
+            # vitpose gives different results if run multiple times.
+            # the poses are inferred 10 times and the best is chosen.
             for _ in range(10):
                 prediction = self._infer(rank, world_size, image, bbox)
                 prediction_score = np.mean(prediction.keypoint_scores)

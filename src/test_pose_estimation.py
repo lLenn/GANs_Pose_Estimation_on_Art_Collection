@@ -55,6 +55,7 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
     average_precision = None
     device = torch.device(f"cuda:{rank}")
     print(device)
+    # create pose estimation model
     if model == "SWAHR":
         config = SWAHRConfig.create(config_file, options)
         network = SWAHR(results_prefix, config)
@@ -66,6 +67,7 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
     else:
         raise Exception("Model pose estimation not recognized")
     
+    # create dataset on which the model is evaluated
     if "HumanArt" in data_root:
         dataset = HumanArtDataset(data_root, dataset, "test", False)
         average_precision = AveragePrecision(dataset.humanArt, results_dir, results_prefix)
@@ -93,6 +95,7 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
             sampler=None if world_size == 1 else DistributedSampler(dataset)
         )
     
+    # loop over dataset and calculate average precision
     metrics = {}
     with torch.no_grad():
         pbar = tqdm(total=len(dataloader.dataset))
@@ -103,6 +106,7 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
             else:
                 image_id = int(dataset.coco.loadImgs(dataset.ids[i])[0]["id"])
             image = images[0].numpy()
+            # predict keypoints from network
             _, _, final_results, scores = network.infer(rank, world_size, image, [torch.tensor(annotation["bbox"]).numpy() for annotation in annotations])
             predictions = []
             for idx in range(len(final_results)):
@@ -112,8 +116,11 @@ def measure(rank, world_size, num_workers, batch_size, data_root, dataset, model
                     "score": float(scores[idx]),
                     "category_id": 1
                 })
+            # calculate metrics
             average_precision.process_predictions(rank, world_size, predictions)
-            if len(final_results) > 0:
+            # visualize results
+            if len(final_results) > 0 and i%100 == 0:
+                # multiple predictions for the same person are possible, so the ground truth is used to filter out one prediction for each
                 oks = ObjectKeypointSimilarity([convertAnnotationsToNumpy(annotation) for annotation in annotations], predictions)
                 oks.calculateOKS()
                 height = 1000

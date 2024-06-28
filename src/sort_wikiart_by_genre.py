@@ -2,8 +2,9 @@ import os
 import csv
 import shutil
 
-genres = [2, 5, 6]
+# Sorts wikiart by genre
 
+genres = [2, 5, 6]
 with open("../../Datasets/wikiart_csv/genre_train.csv") as csvfile:
     reader = csv.reader(csvfile)
     for row in reader:

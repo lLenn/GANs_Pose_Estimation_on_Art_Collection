@@ -43,6 +43,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
     average_precision = None
     device = torch.device(f"cuda:{rank}")
     print(device)
+    # create the pose estimation model
     if model_pose_estimation == "SWAHR":
         pose_estimation_config = SWAHRConfig.create(config_file_pose_estimation, options_pose_estimation)
         pose_estimation = SWAHR(results_prefix, pose_estimation_config)
@@ -54,6 +55,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
     else:
         raise Exception("Model pose estimation not recognized")
     
+    # create the style transfer model
     if model_style_transfer == "CycleGAN":
         # "style_transfer/config/cyclegan_test.yaml"
         style_transfer_config = CycleGANConfig.create(config_file_style_transfer, options=options_style_transfer, phase="test")
@@ -79,6 +81,7 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
     else:
         raise Exception("Model not recognized") 
  
+    # create the dataset to evaluate the models on
     if action == ArtPose.PHOTOGRAPHIC_TO_ARTISTIC:
         dataset = COCOSubset(data_root, dataset, "jpg")
         average_precision = AveragePrecision(dataset.coco, results_dir, results_prefix)
@@ -108,13 +111,16 @@ def measure(rank, world_size, num_workers, batch_size, action, data_root, datase
     else:
         raise Exception("Action not recognized")
     
+    # add hooks for metrics
     metrics = {}
     def hook(predictions):
         average_precision.process_predictions(rank, world_size, predictions)
         
+    # artpose takes a pose estimation model and style transfer model and runs evaluation with those models
     artPose = ArtPose(pose_estimation, style_transfer, True)
     artPose.validate(rank, world_size, dataloader, action, os.path.join(results_dir, results_prefix), hook, 1024 if action == ArtPose.ARTISTIC_TO_PHOTOGRAPHIC else False, model_style_transfer == "CycleGAN")
     
+    # calculate metrics
     metrics["average_precision"] = average_precision.get_average_precision(rank)
     
     if rank == 0:

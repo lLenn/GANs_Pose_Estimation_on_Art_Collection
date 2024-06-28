@@ -1,6 +1,8 @@
 from mmengine.runner.log_processor import LogProcessor
 from mmengine.registry import LOG_PROCESSORS
 
+# mmpose classes so results of training can be shared with a visdom server
+
 @LOG_PROCESSORS.register_module()
 class VisdomLogProcessor(LogProcessor):
     def get_log_after_iter(self, runner, batch_idx, mode):

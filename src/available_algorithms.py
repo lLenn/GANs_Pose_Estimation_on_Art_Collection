@@ -3,6 +3,8 @@ from pose_estimation.networks import SWAHR, SWAHRConfig
 from style_transfer.datasets import HumanArtDataset
 from style_transfer.networks import UGATIT, UGATITConfig, CycleGAN, CycleGANConfig
 
+# Deprecated
+
 AVAILABLE_DATASETS = [
     # [CocoDataset, "../../Datasets/coco", "val2017", "jpg"]
     [HumanArtDataset, "../../datasets/human-art", "oil_painting", "test", False]

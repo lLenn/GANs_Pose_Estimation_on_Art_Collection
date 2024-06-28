@@ -15,6 +15,8 @@ from mmengine.visualization import Visualizer
 from mmpose.registry import HOOKS
 from mmpose.structures import PoseDataSample, merge_data_samples
 
+# mmpose classes so results of training can be shared with a visdom server
+# this is a copy of another class with some adjustments so the sampling is done randomly
 
 @HOOKS.register_module()
 class RandomPoseVisualizationHook(Hook):

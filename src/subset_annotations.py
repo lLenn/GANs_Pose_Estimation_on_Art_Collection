@@ -4,8 +4,8 @@ import random
 import os
 from multiprocessing import Process
 
-# Adds the correct folder to the filename
-# ViTPose and ArtPose use filename relative from coco root
+# Creates a subset of the COCO dataset
+# It randomly samples images
 
 def subset(file_path, subset):
     selected = []

@@ -32,6 +32,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     config = None
     device = torch.device(f"cuda:{rank}")
     print(device)
+    # create style transfer network
     if model == "CycleGAN":
         # "style_transfer/config/cyclegan_test.yaml"
         config = CycleGANConfig.create(config_file, options=options, phase="test")
@@ -65,6 +66,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     
     size = 512
     
+    # create content image datasets on which the style transfer is evaluated
     dataset = ImageDirectoryDataset(dataset_directory, size=size)
     dataloader = DataLoader(
         dataset,
@@ -76,6 +78,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
         drop_last=False,
         sampler=None if world_size == 1 else DistributedSampler(dataset)
     )
+    # create dataset of real images for the metric calculations that need it or style transfer model that needs style image 
     real_dataset = ImageDirectoryDataset(real_directory)
     real_dataloader = DataLoader(
         real_dataset,
@@ -92,11 +95,13 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
     
     with torch.no_grad():
         real_iter = iter(real_dataset)
+        # initialize metrics
         perceptual_distance = PerceptualDistance(rank)
         inception_score = InceptionScore(rank)
         frechet_inception_distance = FrechetInceptionDistance(rank)
         lpips = LearnedPerceptualImagePatchSimilarity(size=size)
         
+        # loop content images
         pbar = tqdm(total=len(dataloader))
         for images, metadata  in dataloader:
             style_image = None
@@ -110,6 +115,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
             mean = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
             std = torch.tensor([0.5, 0.5, 0.5]).view(1, -1, 1, 1).to(device)
             
+            # transform image based on network
             if model == "CycleGAN":
                 images = images.to(device)
                 images = (images - mean) / std
@@ -134,19 +140,22 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
                 predictions = network.imageToStyle(images, style)
                 images = (images * std) + mean
                 predictions = (predictions * std) + mean
-                
+            
+            # save results
             for i, prediction in enumerate(predictions):
                 prediction = prediction.detach().cpu().numpy()
                 prediction = prediction.transpose(1,2,0) * 255
                 cv2.imwrite(os.path.join(results_dir, results_prefix, metadata["filename"][i]), cv2.cvtColor(prediction, cv2.COLOR_RGB2BGR))
-        
+
+            # process metrics
             perceptual_distance.process_images(images, style_image, predictions)
             inception_score.process_generated_images(predictions)
             frechet_inception_distance.process_generated_images(predictions)
             lpips.process_generated_images(predictions)
             pbar.update()
         pbar.close()
-              
+        
+        # process real images for metrics
         pbar = tqdm(total=len(real_dataloader))
         for real_batch, _ in real_dataloader:
             real_batch = real_batch.to(device)
@@ -155,6 +164,7 @@ def measure(rank, world_size, num_workers, batch_size, dataset_directory, real_d
             pbar.update()
         pbar.close()
     
+    # calculate metrics and save results
     metrics["perceptual_distance"] = perceptual_distance.get_perceptual_distance(rank, world_size)
     inception_score_mean, inceptions_score_stddev = inception_score.get_inception_score(rank, world_size)
     metrics["inception_score"] = {
